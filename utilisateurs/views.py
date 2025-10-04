@@ -38,9 +38,9 @@ def redirect_to_dashboard(user):
     elif user.role == 'secretaire':
         return redirect('utilisateurs:dash_secretaire')  # ✅ Chanje 'dash_secretaire'
     elif user.role == 'directeur':
-        return redirect('utilisateurs:directeur_required')  # ✅ Chanje 'dash_directeur'
+        return redirect('utilisateurs:dash_directeur')  # ✅ Chanje 'dash_directeur'
     elif user.role == 'enseignant':
-        return redirect('utilisateurs:dashboard_teacher')  # ✅ Chanje 'dash_enseignant'
+        return redirect('utilisateurs:dash_enseignant')  # ✅ Chanje 'dash_enseignant'
     return redirect('utilisateurs:login')  # ✅ Ajoute 'utilisateurs:'
 
 @login_required
@@ -73,7 +73,7 @@ def directeur_required(request):
 
 @login_required
 def dashboard_teacher(request):
-    return render(request, 'utilisateurs/dash_teacher.html')
+    return render(request, 'utilisateurs/dash_enseignant.html')
 
 @login_required
 @admin_required

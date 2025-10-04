@@ -108,35 +108,18 @@
             background-color: rgba(212, 175, 55, 0.4) !important;
         }
 
-        /* Styles pour éléments cachés selon rôle */
-        .role-admin { display: block; }
-        .role-directeur { display: block; }
-        .role-teacher { display: none; }
-        .role-secretaire { display: none; }
-
-        /* Afficher/masquer selon rôle utilisateur */
-        .user-role-admin .role-admin,
-        .user-role-admin .role-directeur,
-        .user-role-admin .role-teacher,
-        .user-role-admin .role-secretaire { display: block; }
-
-        .user-role-directeur .role-directeur,
-        .user-role-directeur .role-teacher,
-        .user-role-directeur .role-secretaire { display: block; }
-        .user-role-directeur .role-admin { display: none; }
-
-        .user-role-teacher .role-teacher { display: block; }
-        .user-role-teacher .role-admin,
-        .user-role-teacher .role-directeur,
-        .user-role-teacher .role-secretaire { display: none; }
-
-        .user-role-secretaire .role-secretaire { display: block; }
-        .user-role-secretaire .role-admin,
-        .user-role-secretaire .role-directeur,
-        .user-role-secretaire .role-teacher { display: none; }
+        /* Animation pour les transitions */
+        .fade-in {
+            animation: fadeIn 0.3s ease-in-out;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(-10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
     </style>
 </head>
-<body class="bg-gray-100 dark:bg-gray-900 transition-colors duration-300 user-role-{{ user.role }}">
+<body class="bg-gray-100 dark:bg-gray-900 transition-colors duration-300">
     <div class="flex h-screen">
         <!-- Sidebar -->
         <div class="w-64 bg-white dark:bg-gray-800 shadow-md fixed h-full z-40 transition-colors duration-300">
@@ -149,112 +132,136 @@
             <nav class="mt-6">
                 <ul id="sidebar-menu">
                     <!-- Dashboard selon rôle -->
-                    <li class="mb-2 role-admin">
+                    {% if user.role == 'admin' %}
+                    <li class="mb-2">
                         <a href="{% url 'utilisateurs:dash_admin' %}" class="sidebar-link flex items-center p-3 text-gray-700 dark:text-gray-300 hover-gold rounded-lg transition-colors duration-300">
                             <i class="fas fa-tachometer-alt mr-3"></i>
                             <span>Dashboard Admin</span>
                         </a>
                     </li>
-                    <li class="mb-2 role-directeur">
-                        <a href="h" class="sidebar-link flex items-center p-3 text-gray-700 dark:text-gray-300 hover-gold rounded-lg transition-colors duration-300">
+                    {% elif user.role == 'directeur' %}
+                    <li class="mb-2">
+                        <a href="{% url 'utilisateurs:dash_directeur' %}" class="sidebar-link flex items-center p-3 text-gray-700 dark:text-gray-300 hover-gold rounded-lg transition-colors duration-300">
                             <i class="fas fa-tachometer-alt mr-3"></i>
                             <span>Dashboard Directeur</span>
                         </a>
                     </li>
-
-                    <li class="mb-2 role-secretaire">
+                    {% elif user.role == 'secretaire' %}
+                    <li class="mb-2">
                         <a href="{% url 'utilisateurs:dash_secretaire' %}" class="sidebar-link flex items-center p-3 text-gray-700 dark:text-gray-300 hover-gold rounded-lg transition-colors duration-300">
                             <i class="fas fa-tachometer-alt mr-3"></i>
                             <span>Dashboard Secrétaire</span>
                         </a>
                     </li>
-
-                    <li class="mb-2 role-teacher">
-                        <a href="h " class="sidebar-link flex items-center p-3 text-gray-700 dark:text-gray-300 hover-gold rounded-lg transition-colors duration-300">
+                    {% elif user.role == 'enseignant' %}
+                    <li class="mb-2">
+                        <a href="{% url 'utilisateurs:dash_enseignant' %}" class="sidebar-link flex items-center p-3 text-gray-700 dark:text-gray-300 hover-gold rounded-lg transition-colors duration-300">
                             <i class="fas fa-tachometer-alt mr-3"></i>
                             <span>Dashboard Enseignant</span>
                         </a>
                     </li>
+                    {% endif %}
 
-                    <!-- Gestion des Élèves (Secrétaire, Admin, Directeur, Enseignant) -->
-                    <li class="mb-2 role-secretaire role-admin role-resp_admin role-teacher">
-                        <a href="eleves.html" class="sidebar-link flex items-center p-3 text-gray-700 dark:text-gray-300 hover-gold rounded-lg transition-colors duration-300">
+                    <!-- Menu dynamique selon le rôle -->
+                    {% if user.role == 'admin' or user.role == 'directeur' or user.role == 'secretaire' or user.role == 'enseignant' %}
+                    <!-- Gestion des Élèves -->
+                    <li class="mb-2">
+                        <a href="#" class="sidebar-link flex items-center p-3 text-gray-700 dark:text-gray-300 hover-gold rounded-lg transition-colors duration-300">
                             <i class="fas fa-user-graduate mr-3"></i>
                             <span>Gestion des Élèves</span>
                         </a>
                     </li>
+                    {% endif %}
 
-                    <!-- Gestion des Enseignants (Secrétaire, Admin, Directeur) -->
-                    <li class="mb-2 role-secretaire role-admin role-resp_admin">
-                        <a href="enseignants.html" class="sidebar-link flex items-center p-3 text-gray-700 dark:text-gray-300 hover-gold rounded-lg transition-colors duration-300">
+                    {% if user.role == 'admin' or user.role == 'directeur' or user.role == 'secretaire' %}
+                    <!-- Gestion des Enseignants -->
+                    <li class="mb-2">
+                        <a href="#" class="sidebar-link flex items-center p-3 text-gray-700 dark:text-gray-300 hover-gold rounded-lg transition-colors duration-300">
                             <i class="fas fa-chalkboard-teacher mr-3"></i>
                             <span>Gestion des Enseignants</span>
                         </a>
                     </li>
+                    {% endif %}
 
-                    <!-- Classes (Secrétaire, Admin, Directeur, Enseignant) -->
-                    <li class="mb-2 role-secretaire role-admin role-resp_admin role-teacher">
-                        <a href="classes.html" class="sidebar-link flex items-center p-3 text-gray-700 dark:text-gray-300 hover-gold rounded-lg transition-colors duration-300">
+                    {% if user.role == 'admin' or user.role == 'directeur' or user.role == 'secretaire' or user.role == 'enseignant' %}
+                    <!-- Classes -->
+                    <li class="mb-2">
+                        <a href="#" class="sidebar-link flex items-center p-3 text-gray-700 dark:text-gray-300 hover-gold rounded-lg transition-colors duration-300">
                             <i class="fas fa-door-open mr-3"></i>
                             <span>Classes</span>
                         </a>
                     </li>
+                    {% endif %}
 
-                    <!-- Matières (Enseignant, Admin, Directeur) -->
-                    <li class="mb-2 role-teacher role-admin role-resp_admin">
-                        <a href="matieres.html" class="sidebar-link flex items-center p-3 text-gray-700 dark:text-gray-300 hover-gold rounded-lg transition-colors duration-300">
+                    {% if user.role == 'admin' or user.role == 'directeur' or user.role == 'enseignant' %}
+                    <!-- Matières -->
+                    <li class="mb-2">
+                        <a href="#" class="sidebar-link flex items-center p-3 text-gray-700 dark:text-gray-300 hover-gold rounded-lg transition-colors duration-300">
                             <i class="fas fa-book mr-3"></i>
                             <span>Matières</span>
                         </a>
                     </li>
+                    {% endif %}
 
-                    <!-- Évaluation (Nouveau - Enseignant, Admin, Directeur) -->
-                    <li class="mb-2 role-teacher role-admin role-resp_admin">
-                        <a href="evaluation.html" class="sidebar-link flex items-center p-3 text-gray-700 dark:text-gray-300 hover-gold rounded-lg transition-colors duration-300">
+                    {% if user.role == 'admin' or user.role == 'directeur' or user.role == 'enseignant' %}
+                    <!-- Évaluation -->
+                    <li class="mb-2">
+                        <a href="#" class="sidebar-link flex items-center p-3 text-gray-700 dark:text-gray-300 hover-gold rounded-lg transition-colors duration-300">
                             <i class="fas fa-clipboard-check mr-3"></i>
                             <span>Évaluation</span>
                         </a>
                     </li>
+                    {% endif %}
 
-                    <!-- Notes (Secrétaire, Enseignant, Admin, Directeur) -->
-                    <li class="mb-2 role-secretaire role-teacher role-admin role-resp_admin">
-                        <a href="notes.html" class="sidebar-link flex items-center p-3 text-gray-700 dark:text-gray-300 hover-gold rounded-lg transition-colors duration-300">
+                    {% if user.role == 'admin' or user.role == 'directeur' or user.role == 'secretaire' or user.role == 'enseignant' %}
+                    <!-- Notes -->
+                    <li class="mb-2">
+                        <a href="#" class="sidebar-link flex items-center p-3 text-gray-700 dark:text-gray-300 hover-gold rounded-lg transition-colors duration-300">
                             <i class="fas fa-sticky-note mr-3"></i>
                             <span>Notes</span>
                         </a>
                     </li>
+                    {% endif %}
 
-                    <!-- Présences (Enseignant, Admin, Directeur) -->
-                    <li class="mb-2 role-teacher role-admin role-resp_admin">
-                        <a href="presences.html" class="sidebar-link flex items-center p-3 text-gray-700 dark:text-gray-300 hover-gold rounded-lg transition-colors duration-300">
+                    {% if user.role == 'admin' or user.role == 'directeur' or user.role == 'enseignant' %}
+                    <!-- Présences -->
+                    <li class="mb-2">
+                        <a href="#" class="sidebar-link flex items-center p-3 text-gray-700 dark:text-gray-300 hover-gold rounded-lg transition-colors duration-300">
                             <i class="fas fa-user-check mr-3"></i>
                             <span>Présences</span>
                         </a>
                     </li>
+                    {% endif %}
 
-                    <!-- Bulletins (Admin, Directeur) -->
-                    <li class="mb-2 role-admin role-resp_admin">
-                        <a href="bulletins.html" class="sidebar-link flex items-center p-3 text-gray-700 dark:text-gray-300 hover-gold rounded-lg transition-colors duration-300">
+                    {% if user.role == 'admin' or user.role == 'directeur' %}
+                    <!-- Bulletins -->
+                    <li class="mb-2">
+                        <a href="#" class="sidebar-link flex items-center p-3 text-gray-700 dark:text-gray-300 hover-gold rounded-lg transition-colors duration-300">
                             <i class="fas fa-file-alt mr-3"></i>
                             <span>Bulletins</span>
                         </a>
                     </li>
+                    {% endif %}
 
+                    {% if user.role == 'admin' %}
                     <!-- Utilisateurs (Admin seulement) -->
-                    <li class="mb-2 role-admin">
+                    <li class="mb-2">
                         <a href="{% url 'utilisateurs:list_users' %}" class="sidebar-link flex items-center p-3 text-gray-700 dark:text-gray-300 hover-gold rounded-lg transition-colors duration-300">
                             <i class="fas fa-users mr-3"></i>
                             <span>Utilisateurs</span>
                         </a>
                     </li>
+                    {% endif %}
 
-                    <!-- Paramètres (Admin, Directeur) -->
-                    <li class="mb-2 role-admin role-resp_admin">
-                        <a href="parametres.html" class="sidebar-link flex items-center p-3 text-gray-700 dark:text-gray-300 hover-gold rounded-lg transition-colors duration-300">
+                    {% if user.role == 'admin' or user.role == 'directeur' %}
+                    <!-- Paramètres -->
+                    <li class="mb-2">
+                        <a href="#" class="sidebar-link flex items-center p-3 text-gray-700 dark:text-gray-300 hover-gold rounded-lg transition-colors duration-300">
                             <i class="fas fa-cogs mr-3"></i>
                             <span>Paramètres</span>
                         </a>
                     </li>
+                    {% endif %}
                 </ul>
             </nav>
         </div>
@@ -265,21 +272,34 @@
             <header class="bg-white dark:bg-gray-800 shadow-sm fixed top-0 right-0 left-64 z-30 transition-colors duration-300">
                 <div class="flex justify-between items-center p-3">
                     <div class="flex items-center">
-                        <!-- Search Bar (centered) -->
+                        <!-- Search Bar avec recherche intelligente -->
                         <div class="flex-1 max-w-lg mx-auto">
                             <div class="relative">
-                                <input type="text" placeholder="Rechercher..." class=" w-full pl-10 pr-4 py-2 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-custom-gold focus:border-transparent transition-colors duration-300">
+                                <input type="text" 
+                                       id="global-search"
+                                       placeholder="Rechercher dans le système..." 
+                                       class="w-full pl-10 pr-4 py-2 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-custom-gold focus:border-transparent transition-colors duration-300"
+                                       autocomplete="off">
                                 <i class="fas fa-search absolute left-3 top-3 text-gray-400 dark:text-gray-300"></i>
+                                
+                                <!-- Résultats de recherche -->
+                                <div id="search-results" class="absolute top-full left-0 right-0 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-lg shadow-xl mt-1 max-h-96 overflow-y-auto z-50 hidden fade-in">
+                                    <div class="p-4 text-center text-gray-500 dark:text-gray-400">
+                                        <i class="fas fa-search text-2xl mb-2"></i>
+                                        <p>Entrez votre recherche...</p>
+                                    </div>
+                                </div>
                             </div>
                         </div>
                     </div>
 
                     <div class="flex items-center space-x-4">
-                        <!-- Notification Icon as Link -->
+                        <!-- Notification Icon -->
                         <div class="tooltip">
                             <a href="#" class="p-2 mr-4 rounded-full hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors duration-300">
                                 <i class="fas fa-bell text-gray-600 dark:text-gray-300"></i>
                             </a>
+                            <span class="tooltiptext">Notifications</span>
                         </div>
                         
                         <!-- Dark/Light Mode Toggle -->
@@ -287,26 +307,30 @@
                             <button id="theme-toggle" class="p-2 rounded-full hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors duration-300">
                                 <i class="fas fa-moon text-gray-600 dark:text-yellow-400" id="theme-icon"></i>
                             </button>
-                            <span class="tooltiptext" id="theme-tooltip"></span>
+                            <span class="tooltiptext" id="theme-tooltip">Mode sombre</span>
                         </div>
 
-                        <!-- Admin Icon as Link (Admin et Directeur seulement) -->
-                        <div class="tooltip role-admin role-resp_admin">
-                            <a href="parametres.html" id="admin-btn" class="p-2 rounded-full hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors duration-300">
+                        <!-- Admin Icon (Admin et Directeur seulement) -->
+                        {% if user.role == 'admin' or user.role == 'directeur' %}
+                        <div class="tooltip">
+                            <a href="#" id="admin-btn" class="p-2 rounded-full hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors duration-300">
                                 <i class="fas fa-user-cog text-gray-600 dark:text-gray-300"></i>
                             </a>
+                            <span class="tooltiptext">Paramètres admin</span>
                         </div>
+                        {% endif %}
                         
-                        <!-- Logout Icon as Link -->
+                        <!-- Logout Icon -->
                         <div class="tooltip">
                             <a href="{% url 'utilisateurs:logout' %}" id="logout-btn" class="p-2 rounded-full hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors duration-300">
                                 <i class="fas fa-sign-out-alt text-gray-600 dark:text-gray-300"></i>
                             </a>
+                            <span class="tooltiptext">Déconnexion</span>
                         </div>
 
                         <!-- Info utilisateur -->
                         <div class="flex items-center space-x-2 ml-4">
-                            <span class="text-sm text-gray-700 dark:text-gray-300 font-medium">
+                            <span class="text-sm text-gray-700 dark:text-gray-300 font-medium hidden md:block">
                                 {{ user.get_full_name|default:user.username }}
                             </span>
                             <div class="w-8 h-8 bg-custom-gold rounded-full flex items-center justify-center text-white text-sm font-bold">
@@ -323,7 +347,7 @@
                 {% if messages %}
                 <div class="mb-6 space-y-2">
                     {% for message in messages %}
-                    <div class="p-4 rounded-lg {% if message.tags == 'success' %}bg-green-100 text-green-700 border border-green-300{% elif message.tags == 'error' %}bg-red-100 text-red-700 border border-red-300{% elif message.tags == 'warning' %}bg-yellow-100 text-yellow-700 border border-yellow-300{% else %}bg-blue-100 text-blue-700 border border-blue-300{% endif %}">
+                    <div class="p-4 rounded-lg {% if message.tags == 'success' %}bg-green-100 text-green-700 border border-green-300{% elif message.tags == 'error' %}bg-red-100 text-red-700 border border-red-300{% elif message.tags == 'warning' %}bg-yellow-100 text-yellow-700 border border-yellow-300{% else %}bg-blue-100 text-blue-700 border border-blue-300{% endif %} fade-in">
                         <div class="flex items-center justify-between">
                             <div class="flex items-center">
                                 {% if message.tags == 'success' %}
@@ -362,7 +386,7 @@
             
             sidebarLinks.forEach(link => {
                 const linkHref = link.getAttribute('href');
-                if (currentPage.includes(linkHref)) {
+                if (currentPage.includes(linkHref) || (currentPage === '/' && linkHref.includes('dashboard'))) {
                     link.classList.add('active');
                 }
                 
@@ -375,9 +399,7 @@
             // Dark/Light mode toggle
             const themeToggle = document.getElementById('theme-toggle');
             const themeIcon = document.getElementById('theme-icon');
-            const themeTooltip = document.getElementById('theme-tooltip');
-            
-            // Check for saved theme preference or default to light
+            const themeTooltip = document.getElementById('theme-tooltip');            
             const currentTheme = localStorage.getItem('theme') || 'light';
             
             if (currentTheme === 'dark') {
@@ -407,8 +429,7 @@
                     themeTooltip.textContent = 'Mode clair';
                 }
             });
-
-            // Auto-hide messages after 5 seconds
+            // Auto-hide messages
             setTimeout(function() {
                 const messages = document.querySelectorAll('.mb-6 > div');
                 messages.forEach(function(message) {
@@ -417,6 +438,117 @@
                     setTimeout(() => message.remove(), 500);
                 });
             }, 5000);
+
+            // Système de recherche intelligente
+            const searchInput = document.getElementById('global-search');
+            const searchResults = document.getElementById('search-results');
+
+            // Définir les ressources disponibles par rôle
+            const userRole = '{{ user.role }}';
+            const availableResources = getAvailableResources(userRole);
+
+            searchInput.addEventListener('input', function() {
+                const query = this.value.toLowerCase().trim();
+                
+                if (query.length < 2) {
+                    searchResults.classList.add('hidden');
+                    return;
+                }
+
+                const results = searchResources(query, availableResources);
+                displaySearchResults(results);
+            });
+
+            // Cacher les résultats quand on clique ailleurs
+            document.addEventListener('click', function(e) {
+                if (!searchInput.contains(e.target) && !searchResults.contains(e.target)) {
+                    searchResults.classList.add('hidden');
+                }
+            });
+
+            // Fonction pour obtenir les ressources disponibles selon le rôle
+            function getAvailableResources(role) {
+                const baseResources = [
+                    { name: 'Dashboard', url: '/dashboard/', icon: 'tachometer-alt', category: 'Accueil' },
+                    { name: 'Profil', url: '/profil/', icon: 'user', category: 'Compte' }
+                ];
+
+                const roleResources = {
+                    'admin': [
+                        { name: 'Utilisateurs', url: '{% url "utilisateurs:list_users" %}', icon: 'users', category: 'Administration' },
+                        { name: 'Créer utilisateur', url: '{% url "utilisateurs:create_user" %}', icon: 'user-plus', category: 'Administration' },
+                        { name: 'Paramètres système', url: '/parametres/', icon: 'cogs', category: 'Administration' }
+                    ],
+                    'directeur': [
+                        { name: 'Rapports', url: '/rapports/', icon: 'chart-bar', category: 'Rapports' },
+                        { name: 'Statistiques', url: '/statistiques/', icon: 'chart-line', category: 'Rapports' }
+                    ],
+                    'secretaire': [
+                        { name: 'Élèves', url: '/eleves/', icon: 'user-graduate', category: 'Gestion' },
+                        { name: 'Enseignants', url: '/enseignants/', icon: 'chalkboard-teacher', category: 'Gestion' },
+                        { name: 'Notes', url: '/notes/', icon: 'sticky-note', category: 'Scolarité' }
+                    ],
+                    'enseignant': [
+                        { name: 'Mes classes', url: '/mes-classes/', icon: 'door-open', category: 'Enseignement' },
+                        { name: 'Présences', url: '/presences/', icon: 'user-check', category: 'Enseignement' },
+                        { name: 'Évaluations', url: '/evaluations/', icon: 'clipboard-check', category: 'Enseignement' }
+                    ]
+                };
+
+                return [...baseResources, ...(roleResources[role] || [])];
+            }
+
+            // Fonction de recherche
+            function searchResources(query, resources) {
+                return resources.filter(resource => 
+                    resource.name.toLowerCase().includes(query) ||
+                    resource.category.toLowerCase().includes(query)
+                );
+            }
+
+            // Affichage des résultats
+            function displaySearchResults(results) {
+                if (results.length === 0) {
+                    searchResults.innerHTML = `
+                        <div class="p-4 text-center text-gray-500 dark:text-gray-400">
+                            <i class="fas fa-search text-2xl mb-2"></i>
+                            <p>Aucun résultat trouvé</p>
+                        </div>
+                    `;
+                } else {
+                    let html = '';
+                    const categories = {};
+                    
+                    results.forEach(result => {
+                        if (!categories[result.category]) {
+                            categories[result.category] = [];
+                        }
+                        categories[result.category].push(result);
+                    });
+
+                    for (const [category, items] of Object.entries(categories)) {
+                        html += `<div class="border-b border-gray-200 dark:border-gray-600 last:border-b-0">`;
+                        html += `<div class="px-4 py-2 bg-gray-50 dark:bg-gray-700 text-sm font-semibold text-gray-600 dark:text-gray-300">${category}</div>`;
+                        
+                        items.forEach(item => {
+                            html += `
+                                <a href="${item.url}" class="flex items-center px-4 py-3 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors duration-200">
+                                    <i class="fas fa-${item.icon} mr-3 text-custom-gold w-5 text-center"></i>
+                                    <div>
+                                        <div class="font-medium text-gray-800 dark:text-white">${item.name}</div>
+                                    </div>
+                                </a>
+                            `;
+                        });
+                        
+                        html += `</div>`;
+                    }
+                    
+                    searchResults.innerHTML = html;
+                }
+                
+                searchResults.classList.remove('hidden');
+            }
         });
     </script>
 </body>

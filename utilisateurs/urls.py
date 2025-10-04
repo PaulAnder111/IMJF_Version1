@@ -27,8 +27,8 @@ urlpatterns = [
     # Dashboards
     path('dash_admin/', views.dashboard, name='dash_admin'),
     path('dash_secretaire/', views.secretaire_required, name='dash_secretaire'),
-    # path('dash_directeur/', views.directeur_required, name='dash_directeur'),
-    # path('dashboard/teacher/', views.dashboard_teacher, name='dashboard_teacher'),
+    path('dash_directeur/', views.directeur_required, name='dash_directeur'),
+    path('dash_enseignant/', views.dashboard_teacher, name='dash_enseignant'),
     
     # User management (admin only)
     path('create_user/', views.create_user, name='create_user'),
