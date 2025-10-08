@@ -32,6 +32,15 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'utilisateurs',
+    'eleves',
+    'enseignants',
+    'cours',
+    'matieres',
+    'notes',
+    'classes',
+    'evaluations',
+    'presences',
+    
 ]
 # -------------------------------------------------------------------------------
 # Password validation
