@@ -4,26 +4,42 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
   <title>Connexion - IMJF</title>
+
+  <!-- Tailwind CSS -->
   <script src="https://cdn.tailwindcss.com"></script>
+
   <!-- Font Awesome -->
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
   <style>
     :root{
-      --bg:#F3F4F6; /* fond */
-      --card:#FFFFFF; /* carte */
-      --gold:#FFD700; /* accent */
-      --text:#1F2937; /* texte */
+      --bg:#F3F4F6;
+      --card:#FFFFFF;
+      --gold:#FFD700;
+      --text:#1F2937;
     }
-    body{background:var(--bg);color:var(--text);} 
-    .card-shadow{box-shadow:0 6px 18px rgba(31,41,55,0.06);} 
+
+    /* 🌟 Background animé */
+    body {
+      background: linear-gradient(120deg, #4a5568, #d4af37, #4a5568);
+      background-size: 300% 300%;
+      animation: gradientMove 8s ease infinite;
+      color: var(--text);
+    }
+
+    @keyframes gradientMove {
+      0% { background-position: 0% 50%; }
+      50% { background-position: 100% 50%; }
+      100% { background-position: 0% 50%; }
+    }
+
+    .card-shadow{box-shadow:0 6px 18px rgba(31,41,55,0.08);} 
     .icon-circle{width:56px;height:56px;border-radius:9999px;background:var(--gold);display:flex;align-items:center;justify-content:center}
     .input-icon{width:40px;height:40px;display:flex;align-items:center;justify-content:center}
     .btn-gold{background:var(--gold);color:var(--text);}
-    .btn-gold:hover{filter:brightness(.95)}
-    .sy-grid{grid-template-columns:repeat(2,minmax(0,1fr))}
-    @media(min-width:768px){.sy-grid{grid-template-columns:repeat(4,minmax(0,1fr))}}
-    
-    /* Animation pour les messages */
+    .btn-gold:hover{filter:brightness(.95);}
+
+    /* Animation alert */
     .alert {
       animation: slideIn 0.3s ease-out;
     }
@@ -33,94 +49,103 @@
     }
   </style>
 </head>
-<body class="min-h-screen font-sans">
-  <!-- Login Page -->
-  <main id="page-login" class="flex items-center justify-center min-h-screen" style="background:var(--bg)">
-    <div class="w-full max-w-md mx-auto p-6">
-      <!-- En-tête avec logo -->
-      <div class="text-center mb-8">
-        <div class="icon-circle mx-auto mb-4">
-          <i class="fas fa-graduation-cap text-2xl text-white"></i>
-        </div>
-        <h1 class="text-3xl font-bold" style="color:var(--text)">IMJF</h1>
-        <p class="text-gray-600 mt-2">Connexion Au SYGEE</p>
+<body class="min-h-screen font-sans flex items-center justify-center">
+
+  <main id="page-login" class="w-full max-w-md mx-auto p-6">
+    <!-- Logo / Header -->
+    <div class="text-center mb-8">
+      <div class="icon-circle mx-auto mb-4">
+        <i class="fas fa-graduation-cap text-2xl text-white"></i>
       </div>
+      <h1 class="text-3xl font-bold text-white drop-shadow">IMJF</h1>
+      <p class="text-gray-200 mt-2">Connexion au SYGEE</p>
+    </div>
 
-      <div class="bg-white rounded-xl p-8 card-shadow">
-        <h2 class="text-2xl font-semibold text-center mb-6" style="color:var(--text)">Connexion</h2>
-        
-        <!-- Messages Django -->
-        {% if messages %}
-        <div class="mb-6 space-y-2">
-          {% for message in messages %}
-          <div class="alert p-3 rounded-lg {% if message.tags == 'success' %}bg-green-100 text-green-700 border border-green-300{% elif message.tags == 'error' %}bg-red-100 text-red-700 border border-red-300{% elif message.tags == 'warning' %}bg-yellow-100 text-yellow-700 border border-yellow-300{% else %}bg-blue-100 text-blue-700 border border-blue-300{% endif %}">
-            <div class="flex items-center justify-between">
-              <div class="flex items-center">
-                {% if message.tags == 'success' %}
-                  <i class="fas fa-check-circle mr-2"></i>
-                {% elif message.tags == 'error' %}
-                  <i class="fas fa-exclamation-circle mr-2"></i>
-                {% elif message.tags == 'warning' %}
-                  <i class="fas fa-exclamation-triangle mr-2"></i>
-                {% else %}
-                  <i class="fas fa-info-circle mr-2"></i>
-                {% endif %}
-                <span>{{ message }}</span>
-              </div>
-              <button onclick="this.parentElement.parentElement.remove()" class="text-gray-500 hover:text-gray-700">
-                <i class="fas fa-times"></i>
-              </button>
+    <!-- Login Card -->
+    <div class="bg-white rounded-xl p-8 card-shadow">
+      <h2 class="text-2xl font-semibold text-center mb-6" style="color:var(--text)">Connexion</h2>
+<!-- Message si mot de passe oublié -->
+<p class="mt-4 text-center text-sm text-gray-500">
+  💬 En cas d’oubli de votre mot de passe,
+  <span class="text-blue-600 font-semibold hover:underline cursor-pointer">
+    contactez l’administrateur du système
+  </span>.
+</p>
+      <!-- Django messages -->
+      {% if messages %}
+      <div class="mb-6 space-y-2">
+        {% for message in messages %}
+        <div class="alert p-3 rounded-lg 
+          {% if message.tags == 'success' %}bg-green-100 text-green-700 border border-green-300
+          {% elif message.tags == 'error' %}bg-red-100 text-red-700 border border-red-300
+          {% elif message.tags == 'warning' %}bg-yellow-100 text-yellow-700 border border-yellow-300
+          {% else %}bg-blue-100 text-blue-700 border border-blue-300{% endif %}">
+          <div class="flex items-center justify-between">
+            <div class="flex items-center">
+              {% if message.tags == 'success' %}
+                <i class="fas fa-check-circle mr-2"></i>
+              {% elif message.tags == 'error' %}
+                <i class="fas fa-exclamation-circle mr-2"></i>
+              {% elif message.tags == 'warning' %}
+                <i class="fas fa-exclamation-triangle mr-2"></i>
+              {% else %}
+                <i class="fas fa-info-circle mr-2"></i>
+              {% endif %}
+              <span>{{ message }}</span>
             </div>
+            <button onclick="this.parentElement.parentElement.remove()" class="text-gray-500 hover:text-gray-700">
+              <i class="fas fa-times"></i>
+            </button>
           </div>
-          {% endfor %}
         </div>
-        {% endif %}
-
-        <!-- Formulaire de connexion Django -->
-        <form method="POST" action="{% url 'utilisateurs:login' %}" class="space-y-4">
-          {% csrf_token %}
-          
-          <div class="flex items-center gap-3 border border-gray-200 rounded-lg p-2 focus-within:border-custom-gold focus-within:ring-2 focus-within:ring-custom-gold/20 transition-all duration-300">
-            <div class="input-icon text-gray-500">
-              <i class="fas fa-user"></i>
-            </div>
-            <input 
-              type="text" 
-              name="username" 
-              placeholder="Nom d'utilisateur" 
-              class="flex-1 p-2 outline-none bg-transparent"
-              required
-              autofocus
-            />
-          </div>
-
-          <div class="flex items-center gap-3 border border-gray-200 rounded-lg p-2 focus-within:border-custom-gold focus-within:ring-2 focus-within:ring-custom-gold/20 transition-all duration-300">
-            <div class="input-icon text-gray-500">
-              <i class="fas fa-lock"></i>
-            </div>
-            <input 
-              type="password" 
-              name="password" 
-              placeholder="Mot de passe" 
-              class="flex-1 p-2 outline-none bg-transparent"
-              required
-            />
-          </div>
-
-          <button type="submit" class="w-full py-3 rounded-lg btn-gold flex items-center justify-center gap-3 font-medium hover:shadow-lg transition-all duration-300">
-            <span>Se connecter</span>
-            <i class="fas fa-sign-in-alt"></i>
-          </button>
-        </form>
-
-       
-        </div>
+        {% endfor %}
       </div>
+      {% endif %}
+
+      <!-- Login Form -->
+      <form method="POST" action="{% url 'utilisateurs:login' %}" class="space-y-4">
+        {% csrf_token %}
+
+        <!-- Username -->
+        <div class="flex items-center gap-3 border border-gray-200 rounded-lg p-2 focus-within:border-yellow-400 focus-within:ring-2 focus-within:ring-yellow-200 transition-all duration-300">
+          <div class="input-icon text-gray-500">
+            <i class="fas fa-user"></i>
+          </div>
+          <input 
+            type="text" 
+            name="username" 
+            placeholder="Nom d'utilisateur" 
+            class="flex-1 p-2 outline-none bg-transparent"
+            required
+            autofocus
+          />
+        </div>
+
+        <!-- Password -->
+        <div class="flex items-center gap-3 border border-gray-200 rounded-lg p-2 focus-within:border-yellow-400 focus-within:ring-2 focus-within:ring-yellow-200 transition-all duration-300">
+          <div class="input-icon text-gray-500">
+            <i class="fas fa-lock"></i>
+          </div>
+          <input 
+            type="password" 
+            name="password" 
+            placeholder="Mot de passe" 
+            class="flex-1 p-2 outline-none bg-transparent"
+            required
+          />
+        </div>
+
+        <!-- Submit Button -->
+        <button type="submit" class="w-full py-3 rounded-lg btn-gold flex items-center justify-center gap-3 font-medium hover:shadow-lg transition-all duration-300">
+          <span>Se connecter</span>
+          <i class="fas fa-sign-in-alt"></i>
+        </button>
+      </form>
     </div>
   </main>
 
   <script>
-    // Auto-hide messages after 5 seconds
+    // Auto-hide alert messages
     setTimeout(function() {
       const messages = document.querySelectorAll('.alert');
       messages.forEach(function(message) {
@@ -131,22 +156,20 @@
       });
     }, 5000);
 
-    // Gestion des erreurs de formulaire
+    // Simple front validation
     document.addEventListener('DOMContentLoaded', function() {
       const loginForm = document.querySelector('form');
-      
       loginForm.addEventListener('submit', function(e) {
         const username = this.querySelector('input[name="username"]');
         const password = this.querySelector('input[name="password"]');
-        
-        // Validation basique
+
         if (!username.value.trim()) {
           e.preventDefault();
           showError('Veuillez saisir votre nom d\'utilisateur');
           username.focus();
           return;
         }
-        
+
         if (!password.value.trim()) {
           e.preventDefault();
           showError('Veuillez saisir votre mot de passe');
@@ -156,7 +179,6 @@
       });
 
       function showError(message) {
-        // Créer un message d'erreur
         const errorDiv = document.createElement('div');
         errorDiv.className = 'alert p-3 rounded-lg bg-red-100 text-red-700 border border-red-300 mb-4';
         errorDiv.innerHTML = `
@@ -168,13 +190,11 @@
             <button onclick="this.parentElement.parentElement.remove()" class="text-red-500 hover:text-red-700">
               <i class="fas fa-times"></i>
             </button>
+
           </div>
         `;
-        
         const form = document.querySelector('form');
         form.insertBefore(errorDiv, form.firstChild);
-        
-        // Auto-remove after 5 seconds
         setTimeout(() => {
           if (errorDiv.parentElement) {
             errorDiv.style.transition = 'opacity 0.5s';
@@ -182,12 +202,6 @@
             setTimeout(() => errorDiv.remove(), 500);
           }
         }, 5000);
-      }
-
-      // Focus sur le premier champ
-      const usernameField = document.querySelector('input[name="username"]');
-      if (usernameField) {
-        usernameField.focus();
       }
     });
   </script>

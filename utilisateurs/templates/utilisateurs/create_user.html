@@ -1,7 +1,6 @@
 {% extends "utilisateurs/base.html" %}
 
 {% block title %}Ajouter un Utilisateur - Système SYGEE{% endblock %}
-
 {% block nav_users %}text-gold font-semibold{% endblock %}
 
 {% block breadcrumb %}
@@ -11,80 +10,106 @@
 </li>
 <li class="flex items-center">
     <i class="fas fa-chevron-right text-gray-400 mx-2"></i>
-    <span class="text-gold font-medium">ajouter un utilisateur</span>
+    <span class="text-gold font-medium">Ajouter un utilisateur</span>
 </li>
 {% endblock %}
 
 {% block content %}
-<div class="max-w-2xl mx-auto">
-    <!-- Titre -->
-    <div class="mb-8">
-        <h2 class="text-3xl font-bold text-dark-gray">Ajouter un Utilisateur</h2>
-        <p class="text-gray-600 mt-2">Remplissez ce formulaire pour ajouter un nouvel utilisateur au système</p>
-    </div>
+<!-- 🧭 Container prensipal la -->
+<div class="flex justify-center items-start min-h-[80vh] pt-10 pb-10 bg-gray-50 dark:bg-gray-900">
+    <div class="w-full max-w-2xl bg-white dark:bg-gray-800 rounded-2xl shadow-lg p-8">
 
-    <!-- Messages Django -->
-    {% if messages %}
-    <div class="mb-6 space-y-2">
-        {% for message in messages %}
-        <div class="p-4 rounded-lg {% if message.tags == 'success' %}bg-green-100 text-green-700 border border-green-300{% elif message.tags == 'error' %}bg-red-100 text-red-700 border border-red-300{% else %}bg-blue-100 text-blue-700 border border-blue-300{% endif %}">
-            <div class="flex items-center justify-between">
-                <div class="flex items-center">
-                    {% if message.tags == 'success' %}
-                        <i class="fas fa-check-circle mr-2"></i>
-                    {% elif message.tags == 'error' %}
-                        <i class="fas fa-exclamation-circle mr-2"></i>
-                    {% else %}
-                        <i class="fas fa-info-circle mr-2"></i>
-                    {% endif %}
-                    <span>{{ message }}</span>
-                </div>
-                <button onclick="this.parentElement.parentElement.remove()" class="text-gray-500 hover:text-gray-700">
-                    <i class="fas fa-times"></i>
-                </button>
+        <!-- 🟡 Header -->
+        <div class="flex items-center justify-between mb-6">
+            <div>
+                <h2 class="text-2xl font-bold text-gray-800 dark:text-white">Ajouter un Utilisateur</h2>
+                <p class="text-gray-600 dark:text-gray-400 mt-2 text-sm">Remplissez ce formulaire pour ajouter un nouvel utilisateur.</p>
             </div>
+            <a href="{% url 'utilisateurs:list_users' %}" 
+               class="bg-custom-gold text-white px-4 py-2 rounded-lg font-semibold hover:bg-yellow-600 transition flex items-center space-x-2">
+                <i class="fas fa-arrow-left"></i>
+                <span>Retour</span>
+            </a>
         </div>
-        {% endfor %}
-    </div>
-    {% endif %}
 
-    <!-- Formulaire d'Ajout Django -->
-    <div class="bg-white rounded-xl shadow-lg p-8">
+        <!-- 📢 Messages Django -->
+        {% if messages %}
+        <div class="mb-6 space-y-2">
+            {% for message in messages %}
+            <div class="p-4 rounded-lg 
+                {% if message.tags == 'success' %}bg-green-100 text-green-700 border border-green-300
+                {% elif message.tags == 'error' %}bg-red-100 text-red-700 border border-red-300
+                {% else %}bg-blue-100 text-blue-700 border border-blue-300{% endif %}">
+                <div class="flex items-center justify-between">
+                    <div class="flex items-center space-x-2">
+                        {% if message.tags == 'success' %}
+                            <i class="fas fa-check-circle"></i>
+                        {% elif message.tags == 'error' %}
+                            <i class="fas fa-exclamation-circle"></i>
+                        {% else %}
+                            <i class="fas fa-info-circle"></i>
+                        {% endif %}
+                        <span>{{ message }}</span>
+                    </div>
+                    <button onclick="this.parentElement.parentElement.remove()" class="text-gray-500 hover:text-gray-700">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+        {% endif %}
+
+        <!-- 📝 Formulaire -->
         <form method="POST" action="{% url 'utilisateurs:create_user' %}">
             {% csrf_token %}
             
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <!-- Django Form Fields -->
+            <div class="grid grid-cols-1 gap-5">
                 {% for field in form %}
-                <div class="{% if field.name == 'username' or field.name == 'email' %}md:col-span-2{% endif %}">
-                    <label for="{{ field.id_for_label }}" class="block text-dark-gray font-semibold mb-2">
+                <div>
+                    <label for="{{ field.id_for_label }}" class="block text-gray-800 dark:text-gray-200 font-semibold mb-1">
                         {{ field.label }}
                         {% if field.field.required %}<span class="text-red-500">*</span>{% endif %}
                     </label>
-                    
+
                     {% if field.name == 'role' %}
-                        <!-- Select field pou wòl -->
+                        <!-- 📌 Select pou wòl -->
                         <select name="{{ field.name }}" 
                                 id="{{ field.id_for_label }}"
-                                class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-gold focus:border-transparent {% if field.errors %}border-red-500{% endif %}"
+                                class="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-gold {% if field.errors %}border-red-500{% endif %}"
                                 {% if field.field.required %}required{% endif %}>
                             <option value="">Choisir un rôle</option>
                             <option value="admin" {% if field.value == 'admin' %}selected{% endif %}>Administrateur</option>
                             <option value="secretaire" {% if field.value == 'secretaire' %}selected{% endif %}>Secrétaire</option>
                             <option value="directeur" {% if field.value == 'directeur' %}selected{% endif %}>Directeur</option>
-                            <option value="enseignant" {% if field.value == 'enseignant' %}selected{% endif %}>Enseignant</option>
+                            <option value="archives" {% if field.value == 'archives' %}selected{% endif %}>Archives</option>
                         </select>
+                    {% elif field.name == 'phone' %}
+                        <!-- 📱 Champ téléphone -->
+                        <div class="flex">
+                            <span class="inline-flex items-center px-3 rounded-l-lg border border-r-0 border-gray-300 dark:border-gray-600 bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-300 text-sm">+509</span>
+                            <input type="text" 
+                                   maxlength="8"
+                                   pattern="[0-9]{8}"
+                                   title="Entrez 8 chiffres valides pour le numéro de téléphone en Haïti"
+                                   name="{{ field.name }}"
+                                   id="{{ field.id_for_label }}"
+                                   value="{{ field.value|default:'' }}"
+                                   class="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-r-lg focus:outline-none focus:ring-2 focus:ring-gold {% if field.errors %}border-red-500{% endif %}"
+                                   placeholder="XXXXXXXX"
+                                   {% if field.field.required %}required{% endif %}>
+                        </div>
                     {% else %}
-                        <!-- Input field nòmal -->
+                        <!-- 📌 Input fields -->
                         <input type="{% if field.name == 'password1' or field.name == 'password2' %}password{% else %}text{% endif %}" 
                                name="{{ field.name }}"
                                id="{{ field.id_for_label }}"
                                value="{{ field.value|default:'' }}"
-                               class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-gold focus:border-transparent {% if field.errors %}border-red-500{% endif %}"
+                               class="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-gold {% if field.errors %}border-red-500{% endif %}"
                                placeholder="{{ field.field.widget.attrs.placeholder|default:'' }}"
                                {% if field.field.required %}required{% endif %}>
                     {% endif %}
-                    
+
                     {% if field.errors %}
                     <div class="text-red-600 text-sm mt-1">
                         {% for error in field.errors %}
@@ -92,23 +117,19 @@
                         {% endfor %}
                     </div>
                     {% endif %}
-                    
-                    {% if field.help_text %}
-                    <p class="text-gray-500 text-sm mt-1">{{ field.help_text }}</p>
-                    {% endif %}
                 </div>
                 {% endfor %}
             </div>
 
-            <!-- Bouton Action -->
-            <div class="flex justify-end space-x-4 mt-8 pt-6 border-t border-gray-200">
+            <!-- 🟡 Boutons d’action -->
+            <div class="flex justify-end space-x-4 mt-8 pt-6 border-t border-gray-200 dark:border-gray-700">
                 <a href="{% url 'utilisateurs:list_users' %}" 
-                   class="flex items-center bg-gray-500 text-white px-8 py-3 rounded-lg hover:bg-gray-600 transition duration-300 font-semibold">
+                   class="flex items-center bg-gray-500 text-white px-6 py-2 rounded-lg hover:bg-gray-600 transition duration-300 font-semibold">
                     <i class="fas fa-times mr-2"></i>Annuler
                 </a>
                 <button type="submit" 
-                        class="flex items-center bg-custom-gold text-white px-8 py-3 rounded-lg hover:bg-yellow-600 transition duration-300 font-semibold">
-                    <i class="fas fa-save mr-2"></i>Enregistrer l'Utilisateur
+                        class="flex items-center bg-custom-gold text-white px-6 py-2 rounded-lg hover:bg-yellow-600 transition duration-300 font-semibold">
+                    <i class="fas fa-save mr-2"></i>Enregistrer
                 </button>
             </div>
         </form>
@@ -116,25 +137,13 @@
 </div>
 
 <style>
-    /* Style pou fòm yo */
+    /* 🎨 Amelyore estetik tablo a */
     input, select {
-        width: 100%;
-        padding: 0.75rem;
-        border: 1px solid #d1d5db;
-        border-radius: 0.5rem;
-        background-color: white;
+        transition: all 0.3s ease;
     }
-    
-    .dark input, .dark select {
-        background-color: #374151;
-        border-color: #4b5563;
-        color: white;
-    }
-    
     input:focus, select:focus {
         outline: none;
         box-shadow: 0 0 0 2px #d4af37;
-        color: #d4af37;
         border-color: #d4af37;
     }
 </style>
@@ -142,7 +151,7 @@
 
 {% block extra_js %}
 <script>
-    // Auto-hide messages
+    // ⏳ Auto-hide messages
     setTimeout(function() {
         const messages = document.querySelectorAll('.mb-6 > div');
         messages.forEach(function(message) {
@@ -152,7 +161,7 @@
         });
     }, 5000);
 
-    // Konfimasyon anvan soumisyon
+    // 🛑 Konfimasyon anvan soumèt
     document.querySelector('form').addEventListener('submit', function(e) {
         if (!confirm('Êtes-vous sûr de vouloir créer cet utilisateur ?')) {
             e.preventDefault();

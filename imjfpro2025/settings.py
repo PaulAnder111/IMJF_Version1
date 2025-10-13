@@ -36,10 +36,8 @@ INSTALLED_APPS = [
     'enseignants',
     'cours',
     'matieres',
-    'notes',
     'classes',
-    'evaluations',
-    'presences',
+   
     
 ]
 # -------------------------------------------------------------------------------

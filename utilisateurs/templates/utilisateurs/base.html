@@ -4,542 +4,262 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{% block title %}IMJF - Dashboard{% endblock %}</title>
-    
-    <!-- Tailwind CSS CDN -->
+
+    <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
-    <!-- Google Fonts -->
+
+    <!-- Google Fonts + FontAwesome -->
     <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
-    <!-- Font Awesome CDN -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <!-- Tailwind config pou Dark mode -->
     <script>
-        tailwind.config = {
-            darkMode: 'class',
-        }
+        tailwind.config = { darkMode: 'class' }
     </script>
+
     <style>
+        /* 🎨 Koulè pèsonalize */
         :root {
             --gray-color: #4a5568;
             --gold-color: #d4af37;
         }
-        
-        .bg-custom-gray {
-            background-color: var(--gray-color);
-        }
-        
-        .bg-custom-gold {
-            background-color: var(--gold-color);
-        }
-        
-        .text-custom-gold {
-            color: var(--gold-color);
-        }
-        
-        .border-custom-gold {
-            border-color: var(--gold-color);
-        }
-        
-        .hover-gold:hover {
-            background-color: var(--gold-color);
-            color: white;
-            transition: all 0.3s ease;
-        }
-        
-        .card-hover:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
-            transition: all 0.3s ease;
-        }
-        
-        .sidebar-link.active {
-            background-color: rgba(212, 175, 55, 0.2);
-            border-right: 3px solid var(--gold-color);
-        }
-        
-        .sidebar-link.active i {
-            color: var(--gold-color);
-        }
-        
-        .tooltip {
-            position: relative;
-        }
-        
+        .bg-custom-gray { background-color: var(--gray-color); }
+        .bg-custom-gold { background-color: var(--gold-color); }
+        .text-custom-gold { color: var(--gold-color); }
+        .border-custom-gold { border-color: var(--gold-color); }
+        .hover-gold:hover { background-color: var(--gold-color); color: white; transition: all 0.3s ease; }
+
+        /* ✨ Efè hover ak active */
+        .card-hover:hover { transform: translateY(-5px); box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04); transition: all 0.3s ease; }
+        .sidebar-link.active { background-color: rgba(212, 175, 55, 0.2); border-right: 3px solid var(--gold-color); }
+        .sidebar-link.active i { color: var(--gold-color); }
+
+        /* 💬 Tooltip */
+        .tooltip { position: relative; }
         .tooltip .tooltiptext {
             visibility: hidden;
-            width: 120px;
             background-color: var(--gray-color);
             color: white;
             text-align: center;
             border-radius: 6px;
             padding: 5px;
             position: absolute;
-            z-index: 1;
             bottom: 125%;
             left: 50%;
             margin-left: -60px;
             opacity: 0;
             transition: opacity 0.3s;
+            width: 120px;
         }
-        
-        .tooltip:hover .tooltiptext {
-            visibility: visible;
-            opacity: 1;
-        }
+        .tooltip:hover .tooltiptext { visibility: visible; opacity: 1; }
 
-        /* Dark mode styles */
-        .dark .bg-custom-gray {
-            background-color: #1a202c;
-        }
-
-        .dark .sidebar-link.active {
-            background-color: rgba(212, 175, 55, 0.3);
-        }
-
-        .dark .card-hover:hover {
-            box-shadow: 0 10px 25px -5px rgba(212, 175, 55, 0.2), 0 10px 10px -5px rgba(212, 175, 55, 0.1);
-        }
-
-        /* Styles pour les icônes actives */
-        .icon-active {
-            background-color: rgba(212, 175, 55, 0.3) !important;
-            border-radius: 50%;
-        }
-
-        .dark .icon-active {
-            background-color: rgba(212, 175, 55, 0.4) !important;
-        }
-
-        /* Animation pour les transitions */
-        .fade-in {
-            animation: fadeIn 0.3s ease-in-out;
-        }
-        
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(-10px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
+        /* 🌙 Dark mode estil */
+        .dark .bg-custom-gray { background-color: #1a202c; }
+        .dark .sidebar-link.active { background-color: rgba(212, 175, 55, 0.3); }
+        .dark .card-hover:hover { box-shadow: 0 10px 25px -5px rgba(212, 175, 55, 0.2), 0 10px 10px -5px rgba(212, 175, 55, 0.1); }
     </style>
 </head>
+
 <body class="bg-gray-100 dark:bg-gray-900 transition-colors duration-300">
     <div class="flex h-screen">
-        <!-- Sidebar -->
+
+        <!-- 🧭 SIDEBAR (Menu gòch) -->
         <div class="w-64 bg-white dark:bg-gray-800 shadow-md fixed h-full z-40 transition-colors duration-300">
-            <div class="p-4 border-b border-gray-200 dark:border-gray-700">
-                <h1 class="text-xl font-bold text-custom-gold text-center">IMJF</h1>
-                <p class="text-xs text-gray-500 dark:text-gray-400 text-center mt-1">
-                    {{ user.get_role_display }}
-                </p>
+            <div class="p-4 border-b border-gray-200 dark:border-gray-700 text-center">
+                <h1 class="text-xl font-bold text-custom-gold">IMJF</h1>
+                <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">{{ user.get_role_display }}</p>
             </div>
+
             <nav class="mt-6">
                 <ul id="sidebar-menu">
-                    <!-- Dashboard selon rôle -->
+                    <!-- 📊 Dashboard selon wòl itilizatè -->
                     {% if user.role == 'admin' %}
-                    <li class="mb-2">
-                        <a href="{% url 'utilisateurs:dash_admin' %}" class="sidebar-link flex items-center p-3 text-gray-700 dark:text-gray-300 hover-gold rounded-lg transition-colors duration-300">
-                            <i class="fas fa-tachometer-alt mr-3"></i>
-                            <span>Dashboard Admin</span>
-                        </a>
-                    </li>
+                        <li class="mb-2"><a href="{% url 'utilisateurs:dash_admin' %}" class="sidebar-link p-3 flex items-center hover-gold"><i class="fas fa-tachometer-alt mr-3"></i>Dashboard Admin</a></li>
                     {% elif user.role == 'directeur' %}
-                    <li class="mb-2">
-                        <a href="{% url 'utilisateurs:dash_directeur' %}" class="sidebar-link flex items-center p-3 text-gray-700 dark:text-gray-300 hover-gold rounded-lg transition-colors duration-300">
-                            <i class="fas fa-tachometer-alt mr-3"></i>
-                            <span>Dashboard Directeur</span>
-                        </a>
-                    </li>
+                        <li class="mb-2"><a href="{% url 'utilisateurs:dash_directeur' %}" class="sidebar-link p-3 flex items-center hover-gold"><i class="fas fa-tachometer-alt mr-3"></i>Dashboard Directeur</a></li>
                     {% elif user.role == 'secretaire' %}
-                    <li class="mb-2">
-                        <a href="{% url 'utilisateurs:dash_secretaire' %}" class="sidebar-link flex items-center p-3 text-gray-700 dark:text-gray-300 hover-gold rounded-lg transition-colors duration-300">
-                            <i class="fas fa-tachometer-alt mr-3"></i>
-                            <span>Dashboard Secrétaire</span>
-                        </a>
-                    </li>
+                        <li class="mb-2"><a href="{% url 'utilisateurs:dash_secretaire' %}" class="sidebar-link p-3 flex items-center hover-gold"><i class="fas fa-tachometer-alt mr-3"></i>Dashboard Secrétaire</a></li>
                     {% elif user.role == 'enseignant' %}
-                    <li class="mb-2">
-                        <a href="{% url 'utilisateurs:dash_enseignant' %}" class="sidebar-link flex items-center p-3 text-gray-700 dark:text-gray-300 hover-gold rounded-lg transition-colors duration-300">
-                            <i class="fas fa-tachometer-alt mr-3"></i>
-                            <span>Dashboard Enseignant</span>
-                        </a>
-                    </li>
+                        <li class="mb-2"><a href="{% url 'utilisateurs:dash_enseignant' %}" class="sidebar-link p-3 flex items-center hover-gold"><i class="fas fa-tachometer-alt mr-3"></i>Dashboard Enseignant</a></li>
                     {% endif %}
 
-                    <!-- Menu dynamique selon le rôle -->
-                    {% if user.role == 'admin' or user.role == 'directeur' or user.role == 'secretaire' or user.role == 'enseignant' %}
-                    <!-- Gestion des Élèves -->
-                    <li class="mb-2">
-                        <a href="{% url 'eleves:eleves' %}" class="sidebar-link flex items-center p-3 text-gray-700 dark:text-gray-300 hover-gold rounded-lg transition-colors duration-300">
-                            <i class="fas fa-user-graduate mr-3"></i>
-                            <span>Gestion des Élèves</span>
-                        </a>
-                    </li>
+                    <!-- 👩‍🎓 Elèv -->
+                    {% if user.role in 'admin directeur secretaire enseignant' %}
+                        <li class="mb-2"><a href="{% url 'eleves:eleves' %}" class="sidebar-link p-3 flex items-center hover-gold"><i class="fas fa-user-graduate mr-3"></i>Élèves</a></li>
                     {% endif %}
 
-                    {% if user.role == 'admin' or user.role == 'directeur' or user.role == 'secretaire' %}
-                    <!-- Gestion des Enseignants -->
-                    <li class="mb-2">
-                        <a href="{% url 'enseignants:enseignants' %}" class="sidebar-link flex items-center p-3 text-gray-700 dark:text-gray-300 hover-gold rounded-lg transition-colors duration-300">
-                            <i class="fas fa-chalkboard-teacher mr-3"></i>
-                            <span>Gestion des Enseignants</span>
-                        </a>
-                    </li>
+                    <!-- 👨‍🏫 Pwofesè -->
+                    {% if user.role in 'admin directeur secretaire' %}
+                        <li class="mb-2"><a href="{% url 'enseignants:enseignants' %}" class="sidebar-link p-3 flex items-center hover-gold"><i class="fas fa-chalkboard-teacher mr-3"></i>Enseignants</a></li>
                     {% endif %}
 
-                    {% if user.role == 'admin' or user.role == 'directeur' or user.role == 'secretaire' or user.role == 'enseignant' %}
-                    <!-- Classes -->
-                    <li class="mb-2">
-                        <a href="{% url 'classes:classes' %}" class="sidebar-link flex items-center p-3 text-gray-700 dark:text-gray-300 hover-gold rounded-lg transition-colors duration-300">
-                            <i class="fas fa-door-open mr-3"></i>
-                            <span>Classes</span>
-                        </a>
-                    </li>
+                    <!-- 🏫 Klas -->
+                    {% if user.role in 'admin directeur secretaire enseignant' %}
+                        <li class="mb-2"><a href="{% url 'classes:classes' %}" class="sidebar-link p-3 flex items-center hover-gold"><i class="fas fa-door-open mr-3"></i>Classes</a></li>
                     {% endif %}
 
-                    {% if user.role == 'admin' or user.role == 'directeur' or user.role == 'enseignant' %}
-                    <!-- Matières -->
-                    <li class="mb-2">
-                        <a href="{% url 'matieres:matieres' %}" class="sidebar-link flex items-center p-3 text-gray-700 dark:text-gray-300 hover-gold rounded-lg transition-colors duration-300">
-                            <i class="fas fa-book mr-3"></i>
-                            <span>Matières</span>
-                        </a>
-                    </li>
+                    <!-- 📚 Matières -->
+                    {% if user.role in 'admin directeur enseignant' %}
+                        <li class="mb-2"><a href="{% url 'matieres:matieres' %}" class="sidebar-link p-3 flex items-center hover-gold"><i class="fas fa-book mr-3"></i>Matières</a></li>
                     {% endif %}
 
-                    {% if user.role == 'admin' or user.role == 'directeur' or user.role == 'enseignant' %}
-                    <!-- Évaluation -->
-                    <li class="mb-2">
-                        <a href="{% url 'evaluations:evaluation_list' %}" class="sidebar-link flex items-center p-3 text-gray-700 dark:text-gray-300 hover-gold rounded-lg transition-colors duration-300">
-                            <i class="fas fa-clipboard-check mr-3"></i>
-                            <span>Évaluation</span>
-                        </a>
-                    </li>
+                    <!-- 📝 Cours -->
+                    {% if user.role in 'admin directeur secretaire' %}
+                        <li class="mb-2"><a href="{% url 'cours:cours' %}" class="sidebar-link p-3 flex items-center hover-gold"><i class="fas fa-chalkboard mr-3"></i>Cours</a></li>
                     {% endif %}
 
-                    {% if user.role == 'admin' or user.role == 'directeur' or user.role == 'secretaire' or user.role == 'enseignant' %}
-                    <!-- Notes -->
-                    <li class="mb-2">
-                        <a href="{% url 'notes:notes_list' %}" class="sidebar-link flex items-center p-3 text-gray-700 dark:text-gray-300 hover-gold rounded-lg transition-colors duration-300">
-                            <i class="fas fa-sticky-note mr-3"></i>
-                            <span>Notes</span>
-                        </a>
-                    </li>
-                    {% endif %}
+                    <!-- 👤 Admin / Paramètres -->
+                    {% if user.role in 'admin directeur secretaire' %}
 
-                    {% if user.role == 'admin' or user.role == 'directeur' or user.role == 'enseignant' %}
-                    <!-- Présences -->
-                    <li class="mb-2">
-                        <a href="{% url 'presences:presence_list' %}" class="sidebar-link flex items-center p-3 text-gray-700 dark:text-gray-300 hover-gold rounded-lg transition-colors duration-300">
-                            <i class="fas fa-user-check mr-3"></i>
-                            <span>Présences</span>
-                        </a>
-                    </li>
-                    {% endif %}
+                        {% if user.role == 'admin' %}
+                            <!-- 📋 Lis itilizatè -->
+                            <li class="mb-2">
+                                <a href="{% url 'utilisateurs:list_users' %}" class="sidebar-link p-3 flex items-center hover-gold">
+                                    <i class="fas fa-users mr-3"></i>Utilisateurs
+                                </a>
+                            </li>
+                        {% endif %}
 
-                    {% if user.role == 'admin' %}
-                    <!-- Utilisateurs (Admin seulement) -->
-                    <li class="mb-2">
-                        <a href="{% url 'utilisateurs:list_users' %}" class="sidebar-link flex items-center p-3 text-gray-700 dark:text-gray-300 hover-gold rounded-lg transition-colors duration-300">
-                            <i class="fas fa-users mr-3"></i>
-                            <span>Utilisateurs</span>
-                        </a>
-                    </li>
-                    {% endif %}
+                        {% if user.role in 'admin directeur' %}
+                            <!-- ⚙️ Paramètres -->
+                            <li class="mb-2">
+                                <a href="" class="sidebar-link p-3 flex items-center hover-gold">
+                                    <i class="fas fa-cogs mr-3"></i>Paramètres
+                                </a>
+                            </li>
+                        {% endif %}
 
-                    {% if user.role == 'admin' or user.role == 'directeur' %}
-                    <!-- Paramètres -->
-                    <li class="mb-2">
-                        <a href="#" class="sidebar-link flex items-center p-3 text-gray-700 dark:text-gray-300 hover-gold rounded-lg transition-colors duration-300">
-                            <i class="fas fa-cogs mr-3"></i>
-                            <span>Paramètres</span>
-                        </a>
-                    </li>
                     {% endif %}
                 </ul>
             </nav>
         </div>
 
-        <!-- Main Content -->
+        <!-- 🖥️ MAIN CONTENT (Kontni paj la) -->
         <div class="ml-64 flex-1 flex flex-col">
-            <!-- Fixed Navbar -->
-            <header class="bg-white dark:bg-gray-800 shadow-sm fixed top-0 right-0 left-64 z-30 transition-colors duration-300">
-                <div class="flex justify-between items-center p-3">
-                    <div class="flex items-center">
-                        <!-- Search Bar avec recherche intelligente -->
-                        <div class="flex-1 max-w-lg mx-auto">
-                            <div class="relative">
-                                <input type="text" 
-                                       id="global-search"
-                                       placeholder="Rechercher dans le système..." 
-                                       class="w-full pl-10 pr-4 py-2 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-custom-gold focus:border-transparent transition-colors duration-300"
-                                       autocomplete="off">
-                                <i class="fas fa-search absolute left-3 top-3 text-gray-400 dark:text-gray-300"></i>
-                                
-                                <!-- Résultats de recherche -->
-                                <div id="search-results" class="absolute top-full left-0 right-0 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-lg shadow-xl mt-1 max-h-96 overflow-y-auto z-50 hidden fade-in">
-                                    <div class="p-4 text-center text-gray-500 dark:text-gray-400">
-                                        <i class="fas fa-search text-2xl mb-2"></i>
-                                        <p>Entrez votre recherche...</p>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
+
+            <!-- 🔸 Topbar -->
+            <header class="bg-white dark:bg-gray-800 shadow-sm fixed top-0 right-0 left-64 z-30 transition-colors duration-300 p-3 flex justify-between">
+                <!-- 🔍 Search Bar -->
+                <div class="flex-1 max-w-lg mx-auto relative">
+                    <input type="text" id="global-search" placeholder="Rechercher..." class="w-full pl-10 pr-4 py-2 rounded-lg border">
+                    <i class="fas fa-search absolute left-3 top-3 text-gray-400"></i>
+                </div>
+
+                <!-- 🔔 Icons -->
+                <div class="flex items-center space-x-4">
+                    <div class="tooltip">
+                        <a href="#" class="p-2 rounded-full hover:bg-gray-200 dark:hover:bg-gray-700"><i class="fas fa-bell"></i></a>
+                        <span class="tooltiptext">Notifications</span>
                     </div>
 
-                    <div class="flex items-center space-x-4">
-                        <!-- Notification Icon -->
-                        <div class="tooltip">
-                            <a href="#" class="p-2 mr-4 rounded-full hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors duration-300">
-                                <i class="fas fa-bell text-gray-600 dark:text-gray-300"></i>
-                            </a>
-                            <span class="tooltiptext">Notifications</span>
-                        </div>
-                        
-                        <!-- Dark/Light Mode Toggle -->
-                        <div class="tooltip">
-                            <button id="theme-toggle" class="p-2 rounded-full hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors duration-300">
-                                <i class="fas fa-moon text-gray-600 dark:text-yellow-400" id="theme-icon"></i>
-                            </button>
-                            <span class="tooltiptext" id="theme-tooltip">Mode sombre</span>
-                        </div>
+                    <!-- 🌙 Dark/Light -->
+                    <div class="tooltip">
+                        <button id="theme-toggle" class="p-2 rounded-full hover:bg-gray-200 dark:hover:bg-gray-700">
+                            <i class="fas fa-moon text-gray-600 dark:text-yellow-400" id="theme-icon"></i>
+                        </button>
+                        <span class="tooltiptext">Mode sombre</span>
+                    </div>
 
-                        <!-- Admin Icon (Admin et Directeur seulement) -->
-                        {% if user.role == 'admin' or user.role == 'directeur' %}
-                        <div class="tooltip">
-                            <a href="#" id="admin-btn" class="p-2 rounded-full hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors duration-300">
-                                <i class="fas fa-user-cog text-gray-600 dark:text-gray-300"></i>
-                            </a>
-                            <span class="tooltiptext">Paramètres admin</span>
-                        </div>
-                        {% endif %}
-                        
-                        <!-- Logout Icon -->
-                        <div class="tooltip">
-                            <a href="{% url 'utilisateurs:logout' %}" id="logout-btn" class="p-2 rounded-full hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors duration-300">
-                                <i class="fas fa-sign-out-alt text-gray-600 dark:text-gray-300"></i>
-                            </a>
-                            <span class="tooltiptext">Déconnexion</span>
-                        </div>
+                    {% if user.role == 'admin' or user.role == 'directeur' %}
+                    <div class="tooltip">
+                        <a href="#" id="admin-btn" class="p-2 rounded-full hover:bg-gray-200 dark:hover:bg-gray-700">
+                            <i class="fas fa-user-cog text-gray-600 dark:text-gray-300"></i>
+                        </a>
+                        <span class="tooltiptext">Paramètres admin</span>
+                    </div>
+                    {% endif %}
 
-                        <!-- Info utilisateur -->
-                        <div class="flex items-center space-x-2 ml-4">
-                            <span class="text-sm text-gray-700 dark:text-gray-300 font-medium hidden md:block">
-                                {{ user.get_full_name|default:user.username }}
-                            </span>
-                            <div class="w-8 h-8 bg-custom-gold rounded-full flex items-center justify-center text-white text-sm font-bold">
-                                {{ user.username|first|upper }}
-                            </div>
+                    <!-- 🚪 Logout -->
+                    <div class="tooltip">
+                        <a href="{% url 'utilisateurs:logout' %}" id="logout-btn" class="p-2 rounded-full hover:bg-gray-200 dark:hover:bg-gray-700">
+                            <i class="fas fa-sign-out-alt text-gray-600 dark:text-gray-300"></i>
+                        </a>
+                        <span class="tooltiptext">Déconnexion</span>
+                    </div>
+
+                    <!-- 👤 Info User -->
+                    <div class="flex items-center space-x-2 ml-4">
+                        <span class="text-sm text-gray-700 dark:text-gray-300 font-medium hidden md:block">
+                            {{ user.get_full_name|default:user.username }}
+                        </span>
+                        <div class="w-8 h-8 bg-custom-gold rounded-full flex items-center justify-center text-white font-bold">
+                            {{ user.username|first|upper }}
                         </div>
                     </div>
                 </div>
             </header>
 
-            <!-- Main Section -->
-            <main class="flex-1 p-6 overflow-y-auto mt-16 transition-colors duration-300">
-                <!-- Messages Django -->
+            <!-- 🧾 Kontni paj la -->
+            <main class="flex-1 p-6 overflow-y-auto mt-16">
                 {% if messages %}
-                <div class="mb-6 space-y-2">
-                    {% for message in messages %}
-                    <div class="p-4 rounded-lg {% if message.tags == 'success' %}bg-green-100 text-green-700 border border-green-300{% elif message.tags == 'error' %}bg-red-100 text-red-700 border border-red-300{% elif message.tags == 'warning' %}bg-yellow-100 text-yellow-700 border border-yellow-300{% else %}bg-blue-100 text-blue-700 border border-blue-300{% endif %} fade-in">
-                        <div class="flex items-center justify-between">
-                            <div class="flex items-center">
-                                {% if message.tags == 'success' %}
-                                    <i class="fas fa-check-circle mr-2"></i>
-                                {% elif message.tags == 'error' %}
-                                    <i class="fas fa-exclamation-circle mr-2"></i>
-                                {% elif message.tags == 'warning' %}
-                                    <i class="fas fa-exclamation-triangle mr-2"></i>
-                                {% else %}
-                                    <i class="fas fa-info-circle mr-2"></i>
-                                {% endif %}
-                                <span>{{ message }}</span>
+                    <div class="mb-6 space-y-2">
+                        {% for message in messages %}
+                            <div class="p-4 rounded-lg
+                                {% if message.tags == 'success' %}bg-green-100 text-green-700{% elif message.tags == 'error' %}bg-red-100 text-red-700{% elif message.tags == 'warning' %}bg-yellow-100 text-yellow-700{% else %}bg-blue-100 text-blue-700{% endif %}">
+                                {{ message }}
                             </div>
-                            <button onclick="this.parentElement.parentElement.remove()" class="text-gray-500 hover:text-gray-700">
-                                <i class="fas fa-times"></i>
-                            </button>
-                        </div>
+                        {% endfor %}
                     </div>
-                    {% endfor %}
-                </div>
                 {% endif %}
 
-                {% block content %}
-                <!-- Le contenu spécifique à chaque page sera inséré ici -->
-                {% endblock %}
+                {% block content %}{% endblock %}
             </main>
         </div>
     </div>
-
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</body>
+</html>
     <script>
-        // Activation des liens de la sidebar
-        document.addEventListener('DOMContentLoaded', function() {
-            const currentPage = window.location.pathname;
-            const sidebarLinks = document.querySelectorAll('.sidebar-link');
-            
-            sidebarLinks.forEach(link => {
-                const linkHref = link.getAttribute('href');
-                if (currentPage.includes(linkHref) || (currentPage === '/' && linkHref.includes('dashboard'))) {
-                    link.classList.add('active');
-                }
-                
-                link.addEventListener('click', function() {
-                    sidebarLinks.forEach(l => l.classList.remove('active'));
-                    this.classList.add('active');
-                });
-            });
+        // 🌙 Dark/Light Mode Toggle
+        const themeToggle = document.getElementById('theme-toggle');
+        const themeIcon = document.getElementById('theme-icon');
+        const userPrefersDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
 
-            // Dark/Light mode toggle
-            const themeToggle = document.getElementById('theme-toggle');
-            const themeIcon = document.getElementById('theme-icon');
-            const themeTooltip = document.getElementById('theme-tooltip');            
-            const currentTheme = localStorage.getItem('theme') || 'light';
-            
-            if (currentTheme === 'dark') {
+        function setTheme(isDark) {
+            if (isDark) {
                 document.documentElement.classList.add('dark');
                 themeIcon.classList.remove('fa-moon');
                 themeIcon.classList.add('fa-sun');
-                themeTooltip.textContent = 'Mode clair';
             } else {
                 document.documentElement.classList.remove('dark');
                 themeIcon.classList.remove('fa-sun');
                 themeIcon.classList.add('fa-moon');
-                themeTooltip.textContent = 'Mode sombre';
             }
-            
-            themeToggle.addEventListener('click', function() {
-                if (document.documentElement.classList.contains('dark')) {
-                    document.documentElement.classList.remove('dark');
-                    localStorage.setItem('theme', 'light');
-                    themeIcon.classList.remove('fa-sun');
-                    themeIcon.classList.add('fa-moon');
-                    themeTooltip.textContent = 'Mode sombre';
-                } else {
-                    document.documentElement.classList.add('dark');
-                    localStorage.setItem('theme', 'dark');
-                    themeIcon.classList.remove('fa-moon');
-                    themeIcon.classList.add('fa-sun');
-                    themeTooltip.textContent = 'Mode clair';
-                }
-            });
-            // Auto-hide messages
-            setTimeout(function() {
-                const messages = document.querySelectorAll('.mb-6 > div');
-                messages.forEach(function(message) {
-                    message.style.transition = 'opacity 0.5s';
-                    message.style.opacity = '0';
-                    setTimeout(() => message.remove(), 500);
-                });
-            }, 5000);
+        }
 
-            // Système de recherche intelligente
-            const searchInput = document.getElementById('global-search');
-            const searchResults = document.getElementById('search-results');
+        // Initial theme setup
+        const savedTheme = localStorage.getItem('theme');
+        if (savedTheme) {
+            setTheme(savedTheme === 'dark');
+        } else {
+            setTheme(userPrefersDark);
+        }
 
-            // Définir les ressources disponibles par rôle
-            const userRole = '{{ user.role }}';
-            const availableResources = getAvailableResources(userRole);
+        themeToggle.addEventListener('click', () => {
+            const isDark = document.documentElement.classList.toggle('dark');
+            localStorage.setItem('theme', isDark ? 'dark' : 'light');
+            setTheme(isDark);
+        });
 
-            searchInput.addEventListener('input', function() {
-                const query = this.value.toLowerCase().trim();
-                
-                if (query.length < 2) {
-                    searchResults.classList.add('hidden');
-                    return;
-                }
+        // 🧭 Sidebar Active Link Highlighting
+        const sidebarLinks = document.querySelectorAll('.sidebar-link');
+        const currentPath = window.location.pathname;
 
-                const results = searchResources(query, availableResources);
-                displaySearchResults(results);
-            });
-
-            // Cacher les résultats quand on clique ailleurs
-            document.addEventListener('click', function(e) {
-                if (!searchInput.contains(e.target) && !searchResults.contains(e.target)) {
-                    searchResults.classList.add('hidden');
-                }
-            });
-
-            // Fonction pour obtenir les ressources disponibles selon le rôle
-            function getAvailableResources(role) {
-                const baseResources = [
-                    { name: 'Dashboard', url: '/dashboard/', icon: 'tachometer-alt', category: 'Accueil' },
-                    { name: 'Profil', url: '/profil/', icon: 'user', category: 'Compte' }
-                ];
-
-                const roleResources = {
-                    'admin': [
-                        { name: 'Utilisateurs', url: '{% url "utilisateurs:list_users" %}', icon: 'users', category: 'Administration' },
-                        { name: 'Créer utilisateur', url: '{% url "utilisateurs:create_user" %}', icon: 'user-plus', category: 'Administration' },
-                        { name: 'Paramètres système', url: '/parametres/', icon: 'cogs', category: 'Administration' }
-                    ],
-                    'directeur': [
-                        { name: 'Rapports', url: '/rapports/', icon: 'chart-bar', category: 'Rapports' },
-                        { name: 'Statistiques', url: '/statistiques/', icon: 'chart-line', category: 'Rapports' }
-                    ],
-                    'secretaire': [
-                        { name: 'Élèves', url: '/eleves/', icon: 'user-graduate', category: 'Gestion' },
-                        { name: 'Enseignants', url: '/enseignants/', icon: 'chalkboard-teacher', category: 'Gestion' },
-                        { name: 'Notes', url: '/notes/', icon: 'sticky-note', category: 'Scolarité' }
-                    ],
-                    'enseignant': [
-                        { name: 'Mes classes', url: '/mes-classes/', icon: 'door-open', category: 'Enseignement' },
-                        { name: 'Présences', url: '/presences/', icon: 'user-check', category: 'Enseignement' },
-                        { name: 'Évaluations', url: '/evaluations/', icon: 'clipboard-check', category: 'Enseignement' }
-                    ]
-                };
-
-                return [...baseResources, ...(roleResources[role] || [])];
-            }
-
-            // Fonction de recherche
-            function searchResources(query, resources) {
-                return resources.filter(resource => 
-                    resource.name.toLowerCase().includes(query) ||
-                    resource.category.toLowerCase().includes(query)
-                );
-            }
-
-            // Affichage des résultats
-            function displaySearchResults(results) {
-                if (results.length === 0) {
-                    searchResults.innerHTML = `
-                        <div class="p-4 text-center text-gray-500 dark:text-gray-400">
-                            <i class="fas fa-search text-2xl mb-2"></i>
-                            <p>Aucun résultat trouvé</p>
-                        </div>
-                    `;
-                } else {
-                    let html = '';
-                    const categories = {};
-                    
-                    results.forEach(result => {
-                        if (!categories[result.category]) {
-                            categories[result.category] = [];
-                        }
-                        categories[result.category].push(result);
-                    });
-
-                    for (const [category, items] of Object.entries(categories)) {
-                        html += `<div class="border-b border-gray-200 dark:border-gray-600 last:border-b-0">`;
-                        html += `<div class="px-4 py-2 bg-gray-50 dark:bg-gray-700 text-sm font-semibold text-gray-600 dark:text-gray-300">${category}</div>`;
-                        
-                        items.forEach(item => {
-                            html += `
-                                <a href="${item.url}" class="flex items-center px-4 py-3 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors duration-200">
-                                    <i class="fas fa-${item.icon} mr-3 text-custom-gold w-5 text-center"></i>
-                                    <div>
-                                        <div class="font-medium text-gray-800 dark:text-white">${item.name}</div>
-                                    </div>
-                                </a>
-                            `;
-                        });
-                        
-                        html += `</div>`;
-                    }
-                    
-                    searchResults.innerHTML = html;
-                }
-                
-                searchResults.classList.remove('hidden');
+        sidebarLinks.forEach(link => {
+            if (link.href.includes(currentPath)) {
+                link.classList.add('active');
             }
         });
+
+        // 🔍 Global Search (Basic Example)
+        const searchInput = document.getElementById('global-search');
+        searchInput.addEventListener('input', () => {
+            const query = searchInput.value.toLowerCase();
+            sidebarLinks.forEach(link => {
+                if (link.textContent.toLowerCase().includes(query)) {
+                    link.parentElement.style.display = '';
+                } else {
+                    link.parentElement.style.display = 'none';
+                }
+            });
+        });
     </script>
-</body>
-</html>

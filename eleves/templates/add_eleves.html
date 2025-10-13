@@ -1,0 +1,129 @@
+{% extends "utilisateurs/base.html" %}
+
+{% block title %}eleves - IMJF{% endblock %}
+
+{% block content %}
+
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>inscrit un eleves</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        .transition-all {
+            transition: all 0.3s ease;
+        }
+    </style>
+</head>
+<body class="bg-gray-50 min-h-screen p-6">
+    <div class="max-w-2xl mx-auto">
+        <h1 class="text-3xl font-bold text-gray-800 mb-8">Inscription d'un élève</h1>
+        
+        <div class="bg-white rounded-xl shadow-md p-6">
+            <form id="inscription-form">
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div>
+                        <label for="nom" class="block text-sm font-medium text-gray-700 mb-1">Nom complet</label>
+                        <input type="text" id="nom" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-transparent transition-all" required>
+                    </div>
+                    
+                    <div>
+                        <label for="date-naissance" class="block text-sm font-medium text-gray-700 mb-1">Date de naissance</label>
+                        <input type="date" id="date-naissance" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-transparent transition-all" required>
+                    </div>
+                    
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Sexe</label>
+                        <div class="flex space-x-4">
+                            <label class="inline-flex items-center">
+                                <input type="radio" name="sexe" value="H" class="text-amber-500 focus:ring-amber-500" required>
+                                <span class="ml-2">Homme</span>
+                            </label>
+                            <label class="inline-flex items-center">
+                                <input type="radio" name="sexe" value="F" class="text-amber-500 focus:ring-amber-500">
+                                <span class="ml-2">Femme</span>
+                            </label>
+                        </div>
+                    </div>
+                    
+                    <div>
+                        <label for="classe" class="block text-sm font-medium text-gray-700 mb-1">Classe</label>
+                        <select id="classe" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-transparent transition-all" required>
+                            <option value="">Sélectionnez une classe</option>
+                            <option value="Première A">7eme </option>
+                            <option value="Première B">8eme</option>
+                            <option value="Terminale A">9eme</option>
+                            <option value="Terminale B">NSI</option>
+                            <option value="Terminale B">NSII</option>
+                            <option value="Terminale B">NSIII</option>
+                            <option value="Terminale B">NSIV</option>
+                        </select>
+                    </div>
+                    
+                    <div class="md:col-span-2">
+                        <label for="adresse" class="block text-sm font-medium text-gray-700 mb-1">Adresse</label>
+                        <textarea id="adresse" rows="3" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-transparent transition-all" required></textarea>
+                    </div>
+                    
+                    <div>
+                        <label for="telephone" class="block text-sm font-medium text-gray-700 mb-1">Téléphone</label>
+                        <input type="tel" id="telephone" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-transparent transition-all" required>
+                    </div>
+                </div>
+                
+                <div class="flex justify-end space-x-4 mt-8">
+                    <a href="{% url 'eleves:eleves' %}" class="bg-gray-500 hover:bg-gray-600 text-white font-medium py-2 px-6 rounded-lg transition-all transform hover:scale-105">
+                        Annuler
+                    </a>
+                    <button type="submit" class="bg-amber-500 hover:bg-amber-600 text-white font-medium py-2 px-6 rounded-lg transition-all transform hover:scale-105">
+                        Enregistrer
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        document.getElementById('inscription-form').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            // Récupérer les données du formulaire
+            const formData = {
+                nom: document.getElementById('nom').value,
+                dateNaissance: document.getElementById('date-naissance').value,
+                sexe: document.querySelector('input[name="sexe"]:checked').value,
+                classe: document.getElementById('classe').value,
+                adresse: document.getElementById('adresse').value,
+                telephone: document.getElementById('telephone').value
+            };
+            
+            // Récupérer la liste actuelle des élèves
+            let eleves = JSON.parse(localStorage.getItem('eleves')) || [];
+            
+            // Créer un nouvel élève
+            const nouvelEleve = {
+                id: eleves.length + 1,
+                numero: (eleves.length + 1).toString().padStart(3, '0'),
+                nom: formData.nom,
+                classe: formData.classe,
+                statut: 'actif',
+                details: formData
+            };
+            
+            // Ajouter le nouvel élève
+            eleves.push(nouvelEleve);
+            
+            // Mettre à jour le localStorage
+            localStorage.setItem('eleves', JSON.stringify(eleves));
+            
+            // Rediriger vers la liste
+            alert('Élève inscrit avec succès!');
+            window.location.href = 'eleves.html';
+        });
+    </script>
+</body>
+</html>
+{% endblock %}
