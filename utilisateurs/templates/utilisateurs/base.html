@@ -80,9 +80,12 @@
                     {% elif user.role == 'secretaire' %}
                         <li class="mb-2"><a href="{% url 'utilisateurs:dash_secretaire' %}" class="sidebar-link p-3 flex items-center hover-gold"><i class="fas fa-tachometer-alt mr-3"></i>Dashboard Secrétaire</a></li>
                     {% elif user.role == 'enseignant' %}
-                        <li class="mb-2"><a href="{% url 'utilisateurs:dash_enseignant' %}" class="sidebar-link p-3 flex items-center hover-gold"><i class="fas fa-tachometer-alt mr-3"></i>Dashboard Enseignant</a></li>
+                        <li class="mb-2"><a href="{% url 'utilisateurs:dash_enseignant' %}" class="sidebar-link p-3 flex items-center hover-gold"><i class="fas fa-tachometer-alt mr-3"></i>Dashboard archives</a></li>
                     {% endif %}
-
+                        <!-- inscriptions -->
+                     {% if user.role in 'admin directeur secretaire archives' %}
+                        <li class="mb-2"><a href="{% url 'inscriptions:inscription_list'%}" class="sidebar-link p-3 flex items-center hover-gold"><i class="fas fa-user-plus mr-3"></i>Inscriptions</a></li>
+                    {% endif %}
                     <!-- 👩‍🎓 Elèv -->
                     {% if user.role in 'admin directeur secretaire enseignant' %}
                         <li class="mb-2"><a href="{% url 'eleves:eleves' %}" class="sidebar-link p-3 flex items-center hover-gold"><i class="fas fa-user-graduate mr-3"></i>Élèves</a></li>

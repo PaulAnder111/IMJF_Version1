@@ -1,6 +1,8 @@
 from django.shortcuts import render
 
+def inscription(request):
+    return render(request, 'inscriptions/inscription_list.html')       
 
-def inscriptions(request):
-    return render(request, 'inscriptions.html') 
-# Create your views here.
+
+def create_inscrip(request):
+    return render(request, 'inscriptions/create_inscriptions.html')
