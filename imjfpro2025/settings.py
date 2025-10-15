@@ -1,5 +1,7 @@
 
 from pathlib import Path
+import os
+from django.core.exceptions import ImproperlyConfigured
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -8,13 +10,27 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/5.2/howto/deployment/checklist/
 
+def get_env_setting(name: str, default=None, required: bool = False):
+    val = os.environ.get(name, default)
+    if required and (val is None or val == ''):
+        raise ImproperlyConfigured(f"Set the {name} environment variable")
+    return val
+
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'django-insecure-ch22z%!mjwic7lb3byy-tkq@c6&##j+fnk@9pa6b%8-^rkjn35'
+# Load from environment in production; fall back to a non-secret dev key only for local development
+SECRET_KEY = get_env_setting('DJANGO_SECRET_KEY', "django-insecure-dev-placeholder")
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+# Use environment variable DJANGO_DEBUG ("1"/"0" or "true"/"false")
+DEBUG = str(get_env_setting('DJANGO_DEBUG', '1')).lower() in ('1', 'true', 'yes')
 
-ALLOWED_HOSTS = ['*']
+# In production set DJANGO_ALLOWED_HOSTS to a comma-separated list of hosts
+allowed_hosts_env = get_env_setting('DJANGO_ALLOWED_HOSTS', '')
+if allowed_hosts_env:
+    ALLOWED_HOSTS = [h.strip() for h in allowed_hosts_env.split(',') if h.strip()]
+else:
+    # Default for local development
+    ALLOWED_HOSTS = ['127.0.0.1', 'localhost']
 # -----------------------------------------------------
 AUTH_USER_MODEL = 'utilisateurs.CustomUser'
 STATIC_URL = '/static/'
@@ -83,29 +99,34 @@ WSGI_APPLICATION = 'imjfpro2025.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/5.2/ref/settings/#databases
 
-DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
-    }
+# Default: sqlite for local development. Production DB should be configured via env vars.
+DEFAULT_DB = {
+    'ENGINE': 'django.db.backends.sqlite3',
+    'NAME': BASE_DIR / 'db.sqlite3',
 }
 
-DATABASES= {
-    'default': {
-      'ENGINE': 'django.db.backends.mysql',  # Oswa 'django.db.backends.postgresql' si w ap itilize PostgreSQL
-        'NAME': 'railway',  # Oswa non baz done ou nan Supabase
-        'USER': 'root',  # Non itilizatè Supabase
-        'PASSWORD': 'IZLZXjXURkyeSQEtOKfpRZHkluXFNKbO',  # Modpas baz done
-        'HOST': 'tramway.proxy.rlwy.net',  # Hostname ou
-        'PORT': '25355',
-        'OPTIONS': {
-           'charset': 'utf8mb4',  # Pou MySQL, asire w ke w ap itilize utf8mb4 pou sipòte tout karaktè
-              'init_command': "SET sql_mode='STRICT_TRANS_TABLES'"
-        },
+# Optional MySQL/Postgres configuration via environment variables
+DB_ENGINE = get_env_setting('DB_ENGINE', '')
+if DB_ENGINE:
+    DATABASES = {
+        'default': {
+            'ENGINE': DB_ENGINE,
+            'NAME': get_env_setting('DB_NAME', ''),
+            'USER': get_env_setting('DB_USER', ''),
+            'PASSWORD': get_env_setting('DB_PASSWORD', ''),
+            'HOST': get_env_setting('DB_HOST', ''),
+            'PORT': get_env_setting('DB_PORT', ''),
+            # Additional options can be provided via DB_OPTIONS as JSON if needed
+        }
     }
-}
-import socket
-socket.getaddrinfo = lambda *args: [(socket.AF_INET, socket.SOCK_STREAM, 6, '', (args[0], args[1]))]
+else:
+    DATABASES = {
+        'default': DEFAULT_DB
+    }
+
+# NOTE: The previous monkeypatch of socket.getaddrinfo was removed. If you rely on
+# special DNS/hostname behavior for a specific hosting platform, please reintroduce
+# a safer, documented approach and keep secrets out of source control.
 
 
 

@@ -3,91 +3,101 @@
 {% block content %}
 <div class="min-h-screen bg-gradient-to-br from-yellow-50 via-amber-50 to-orange-50 py-8 px-4 sm:px-6 lg:px-8">
     <div class="max-w-7xl mx-auto">
+
         <!-- Header Section -->
-        <div class="mb-8">
-            <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-                <div>
-                    <h1 class="text-3xl sm:text-4xl font-bold text-gray-800 mb-2">
-                        Gestion des Inscriptions
-                    </h1>
-                    <p class="text-gray-600">Jeré tout enskripsyon yo fasilman</p>
-                </div>
-                
-                <!-- Bouton Inscrire -->
-                <a href="{% url'create_inscriptions}" class="inline-flex items-center justify-center px-8 py-4 bg-gradient-to-r from-yellow-400 to-amber-500 text-white font-bold text-lg rounded-xl shadow-lg hover:shadow-xl hover:from-yellow-500 hover:to-amber-600 transform hover:scale-105 transition-all duration-300 ease-in-out">
-                    <svg class="w-6 h-6 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"/>
-                    </svg>
-                    Inscrire une élève
-                </a>
+        <div class="mb-8 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+            <div>
+                <h1 class="text-3xl sm:text-4xl font-bold text-gray-800 mb-2">
+                    Gestion des Inscriptions
+                </h1>
+                <p class="text-gray-600">Gérez toutes les inscriptions facilement</p>
             </div>
+            <a href="{% url 'inscriptions:create_inscription' %}" 
+               class="inline-flex items-center justify-center px-8 py-4 bg-gradient-to-r from-yellow-400 to-amber-500 text-white font-bold text-lg rounded-xl shadow-lg hover:shadow-xl hover:from-yellow-500 hover:to-amber-600 transform hover:scale-105 transition-all duration-300 ease-in-out">
+                <svg class="w-6 h-6 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"/>
+                </svg>
+                Inscrire une élève
+            </a>
         </div>
 
-        <!-- Table Container -->
+        <!-- Table -->
         <div class="bg-white rounded-2xl shadow-xl overflow-hidden border-2 border-yellow-200">
-            <!-- Table Header Stats (Optional) -->
-            <div class="bg-gradient-to-r from-yellow-400 to-amber-500 px-6 py-4">
-                <div class="flex items-center justify-between text-white">
-                    <div>
-                        <p class="text-sm font-medium opacity-90">Total Enskripsyon</p>
-                        <p class="text-2xl font-bold">125</p>
-                    </div>
-                    <div class="hidden sm:block">
-                        <p class="text-sm font-medium opacity-90">Aktif</p>
-                        <p class="text-2xl font-bold">98</p>
-                    </div>
-                    <div class="hidden sm:block">
-                        <p class="text-sm font-medium opacity-90">Inaktif</p>
-                        <p class="text-2xl font-bold">27</p>
-                    </div>
+            <!-- Header Stat -->
+            <div class="bg-gradient-to-r from-yellow-400 to-amber-500 px-6 py-4 text-white flex justify-between">
+                <div>
+                    <p class="text-sm opacity-90">Total Inscriptions</p>
+                    <p class="text-2xl font-bold">125</p>
+                </div>
+                <div>
+                    <p class="text-sm opacity-90">Actif</p>
+                    <p class="text-2xl font-bold">98</p>
+                </div>
+                <div>
+                    <p class="text-sm opacity-90">Inactif</p>
+                    <p class="text-2xl font-bold">27</p>
                 </div>
             </div>
 
-            <!-- Table -->
+            <!-- Table Content -->
             <div class="overflow-x-auto">
                 <table class="w-full">
                     <thead class="bg-amber-100 border-b-2 border-yellow-300">
                         <tr>
-                            <th class="px-6 py-4 text-left text-xs font-bold text-gray-700 uppercase tracking-wider">ID</th>
-                            <th class="px-6 py-4 text-left text-xs font-bold text-gray-700 uppercase tracking-wider">Non</th>
-                            <th class="px-6 py-4 text-left text-xs font-bold text-gray-700 uppercase tracking-wider">Prenom</th>
-                            <th class="px-6 py-4 text-left text-xs font-bold text-gray-700 uppercase tracking-wider">Email</th>
-                            <th class="px-6 py-4 text-left text-xs font-bold text-gray-700 uppercase tracking-wider">Telefòn</th>
-                            <th class="px-6 py-4 text-left text-xs font-bold text-gray-700 uppercase tracking-wider">Estati</th>
-                            <th class="px-6 py-4 text-center text-xs font-bold text-gray-700 uppercase tracking-wider">Aksyon</th>
+                            <th class="px-6 py-4 text-left text-xs font-bold text-gray-700 uppercase">ID</th>
+                            <th class="px-6 py-4 text-left text-xs font-bold text-gray-700 uppercase">Nom</th>
+                            <th class="px-6 py-4 text-left text-xs font-bold text-gray-700 uppercase">Prénom</th>
+                            <th class="px-6 py-4 text-left text-xs font-bold text-gray-700 uppercase">Email</th>
+                            <th class="px-6 py-4 text-left text-xs font-bold text-gray-700 uppercase">Téléphone</th>
+                            <th class="px-6 py-4 text-left text-xs font-bold text-gray-700 uppercase">Statut</th>
+                            <th class="px-6 py-4 text-center text-xs font-bold text-gray-700 uppercase">Actions</th>
                         </tr>
                     </thead>
                     <tbody class="divide-y divide-gray-200">
-                        <!-- Example Row 1 -->
+                        {% for inscription in inscriptions %}
                         <tr class="hover:bg-yellow-50 transition-colors duration-200">
-                            <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">001</td>
-                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-700">Dupont</td>
-                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-700">Jean</td>
-                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-700">jean.dupont@email.com</td>
-                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-700">+509 1234-5678</td>
-                            <td class="px-6 py-4 whitespace-nowrap">
+                            <td class="px-6 py-4 text-sm text-gray-900">{{ inscription.id }}</td>
+                            <td class="px-6 py-4 text-sm text-gray-700">{{ inscription.nom }}</td>
+                            <td class="px-6 py-4 text-sm text-gray-700">{{ inscription.prenom }}</td>
+                            <td class="px-6 py-4 text-sm text-gray-700">{{ inscription.email }}</td>
+                            <td class="px-6 py-4 text-sm text-gray-700">{{ inscription.telephone }}</td>
+                            <td class="px-6 py-4 text-sm">
+                                {% if inscription.actif %}
                                 <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold bg-green-100 text-green-800">
-                                    Aktif
+                                    Actif
                                 </span>
+                                {% else %}
+                                <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold bg-gray-100 text-gray-800">
+                                    Inactif
+                                </span>
+                                {% endif %}
                             </td>
-                            <td class="px-6 py-4 whitespace-nowrap text-center">
+                            <td class="px-6 py-4 text-center">
                                 <div class="flex items-center justify-center gap-2">
                                     <!-- Modifier -->
-                                    <button class="p-2 bg-blue-100 text-blue-600 rounded-lg hover:bg-blue-200 hover:scale-110 transform transition-all duration-200 shadow-sm hover:shadow-md" title="Modifier">
+                                    <a href="{% url 'inscriptions:updates_inscription' inscription.id %}" 
+                                       class="p-2 bg-blue-100 text-blue-600 rounded-lg hover:bg-blue-200 hover:scale-110 transform transition-all duration-200 shadow-sm hover:shadow-md"
+                                       title="Modifier">
                                         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/>
                                         </svg>
-                                    </button>
-                                    
+                                    </a>
+
                                     <!-- Supprimer -->
-                                    <button class="p-2 bg-red-100 text-red-600 rounded-lg hover:bg-red-200 hover:scale-110 transform transition-all duration-200 shadow-sm hover:shadow-md" title="Supprimer">
-                                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
-                                        </svg>
-                                    </button>
-                                    
-                                    <!-- Toggle Actif -->
-                                    <button class="p-2 bg-green-100 text-green-600 rounded-lg hover:bg-green-200 hover:scale-110 transform transition-all duration-200 shadow-sm hover:shadow-md" title="Aktif/Inaktif">
+                                    <form method="POST" action="{% url 'inscriptions:delete_inscription' inscription.id %}" onsubmit="return confirm('Voulez-vous vraiment supprimer cette inscription ?')" class="inline">
+                                        {% csrf_token %}
+                                        <button type="submit"
+                                            class="p-2 bg-red-100 text-red-600 rounded-lg hover:bg-red-200 hover:scale-110 transform transition-all duration-200 shadow-sm hover:shadow-md"
+                                            title="Supprimer">
+                                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
+                                            </svg>
+                                        </button>
+                                    </form>
+
+                                    <!-- Activer / Désactiver -->
+                                    <button class="p-2 bg-green-100 text-green-600 rounded-lg hover:bg-green-200 hover:scale-110 transform transition-all duration-200 shadow-sm hover:shadow-md"
+                                            title="Activer / Désactiver">
                                         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
                                         </svg>
@@ -95,90 +105,29 @@
                                 </div>
                             </td>
                         </tr>
-
-                        <!-- Example Row 2 -->
-                        <tr class="hover:bg-yellow-50 transition-colors duration-200">
-                            <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">002</td>
-                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-700">Laurent</td>
-                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-700">Marie</td>
-                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-700">marie.laurent@email.com</td>
-                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-700">+509 8765-4321</td>
-                            <td class="px-6 py-4 whitespace-nowrap">
-                                <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold bg-green-100 text-green-800">
-                                    Aktif
-                                </span>
-                            </td>
-                            <td class="px-6 py-4 whitespace-nowrap text-center">
-                                <div class="flex items-center justify-center gap-2">
-                                    <button class="p-2 bg-blue-100 text-blue-600 rounded-lg hover:bg-blue-200 hover:scale-110 transform transition-all duration-200 shadow-sm hover:shadow-md" title="Modifier">
-                                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/>
-                                        </svg>
-                                    </button>
-                                    <button class="p-2 bg-red-100 text-red-600 rounded-lg hover:bg-red-200 hover:scale-110 transform transition-all duration-200 shadow-sm hover:shadow-md" title="Supprimer">
-                                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
-                                        </svg>
-                                    </button>
-                                    <button class="p-2 bg-green-100 text-green-600 rounded-lg hover:bg-green-200 hover:scale-110 transform transition-all duration-200 shadow-sm hover:shadow-md" title="Aktif/Inaktif">
-                                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
-                                        </svg>
-                                    </button>
-                                </div>
+                        {% empty %}
+                        <tr>
+                            <td colspan="7" class="px-6 py-4 text-center text-gray-500">
+                                Aucun enregistrement trouvé
                             </td>
                         </tr>
-
-                        <!-- Example Row 3 (Inactive) -->
-                        <tr class="hover:bg-yellow-50 transition-colors duration-200">
-                            <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">003</td>
-                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-700">Pierre</td>
-                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-700">Jacques</td>
-                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-700">jacques.pierre@email.com</td>
-                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-700">+509 5555-6666</td>
-                            <td class="px-6 py-4 whitespace-nowrap">
-                                <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold bg-gray-100 text-gray-800">
-                                    Inaktif
-                                </span>
-                            </td>
-                            <td class="px-6 py-4 whitespace-nowrap text-center">
-                                <div class="flex items-center justify-center gap-2">
-                                    <button class="p-2 bg-blue-100 text-blue-600 rounded-lg hover:bg-blue-200 hover:scale-110 transform transition-all duration-200 shadow-sm hover:shadow-md" title="Modifier">
-                                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/>
-                                        </svg>
-                                    </button>
-                                    <button class="p-2 bg-red-100 text-red-600 rounded-lg hover:bg-red-200 hover:scale-110 transform transition-all duration-200 shadow-sm hover:shadow-md" title="Supprimer">
-                                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
-                                        </svg>
-                                    </button>
-                                    <button class="p-2 bg-amber-100 text-amber-600 rounded-lg hover:bg-amber-200 hover:scale-110 transform transition-all duration-200 shadow-sm hover:shadow-md" title="Aktif/Inaktif">
-                                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z"/>
-                                        </svg>
-                                    </button>
-                                </div>
-                            </td>
-                        </tr>
+                        {% endfor %}
                     </tbody>
                 </table>
             </div>
 
-            <!-- Pagination (Optional) -->
-            <div class="bg-gray-50 px-6 py-4 border-t border-gray-200">
-                <div class="flex items-center justify-between">
-                    <div class="text-sm text-gray-700">
-                        Afiche <span class="font-semibold">1</span> a <span class="font-semibold">3</span> sou <span class="font-semibold">125</span> rezilta
-                    </div>
-                    <div class="flex gap-2">
-                        <button class="px-4 py-2 bg-white border border-gray-300 rounded-lg text-sm font-medium text-gray-700 hover:bg-gray-50 transition-colors">
-                            Anvan
-                        </button>
-                        <button class="px-4 py-2 bg-gradient-to-r from-yellow-400 to-amber-500 text-white rounded-lg text-sm font-medium hover:from-yellow-500 hover:to-amber-600 transition-colors">
-                            Apre
-                        </button>
-                    </div>
+            <!-- Pagination -->
+            <div class="bg-gray-50 px-6 py-4 border-t border-gray-200 flex justify-between items-center">
+                <div class="text-sm text-gray-700">
+                    Afiche <span class="font-semibold">1</span> - <span class="font-semibold">3</span> sou <span class="font-semibold">125</span> rezilta
+                </div>
+                <div class="flex gap-2">
+                    <button class="px-4 py-2 bg-white border border-gray-300 rounded-lg text-sm font-medium text-gray-700 hover:bg-gray-50">
+                        Anvan
+                    </button>
+                    <button class="px-4 py-2 bg-gradient-to-r from-yellow-400 to-amber-500 text-white rounded-lg text-sm font-medium hover:from-yellow-500 hover:to-amber-600">
+                        Apre
+                    </button>
                 </div>
             </div>
         </div>

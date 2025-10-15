@@ -87,7 +87,18 @@ def dashboard(request):
         'secretaire_count': secretaire_count,
         'directeur_count': directeur_count,
     }
-    return render(request, 'utilisateurs/dash_admin.html', context)
+    modules = [
+        {"nom": "Inscriptions", "icon": "fa-clipboard-user"},
+        {"nom": "Élèves", "icon": "fa-user-graduate"},
+        {"nom": "Enseignants", "icon": "fa-chalkboard-teacher"},
+        {"nom": "Classes", "icon": "fa-school"},
+        {"nom": "Matières", "icon": "fa-book-open"},
+        {"nom": "Cours", "icon": "fa-chalkboard"},
+        {"nom": "Utilisateurs", "icon": "fa-users-cog"},
+    ]
+    context["modules"] = modules
+    return render(request, "utilisateurs/dash_admin.html", context)
+    # return render(request, 'utilisateurs/dash_admin.html', context)
 
 @login_required
 def base(request):

@@ -1,166 +1,152 @@
 {% extends "utilisateurs/base.html" %}
 
-{% block title %}eleves - IMJF{% endblock %}
+{% block title %}Liste des élèves - IMJF{% endblock %}
+
+{% block head_extra %}
+<style>
+  .transition-all { transition: all 0.3s ease; }
+</style>
+{% endblock %}
+
+{% block body_class %}bg-gray-50 min-h-screen p-6{% endblock %}
 
 {% block content %}
-
-<!DOCTYPE html>
-<html lang="fr">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Liste des Élèves</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <style>
-        .transition-all {
-            transition: all 0.3s ease;
-        }
-    </style>
-</head>
-<body class="bg-gray-50 min-h-screen p-6">
-    <div class="max-w-7xl mx-auto">
-        <div class="flex justify-between items-center mb-8">
-            <h1 class="text-3xl font-bold text-gray-800">Liste des élèves</h1>
-            <a href="{% url 'eleves:add_eleves' %}" class="bg-amber-500 hover:bg-amber-600 text-white font-medium py-2 px-4 rounded-lg transition-all transform hover:scale-105">
-                <i class="fas fa-user-plus mr-2"></i>Inscrire un élève
-            </a>
-        </div>
-        
-        <div class="bg-white rounded-xl shadow-md overflow-hidden">
-            <div class="overflow-x-auto">
-                <table class="min-w-full divide-y divide-gray-200">
-                    <thead class="bg-gray-100">
-                        <tr>
-                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Numéro</th>
-                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Nom complet</th>
-                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Classe</th>
-                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Statut</th>
-                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
-                        </tr>
-                    </thead>
-                    <tbody class="bg-white divide-y divide-gray-200" id="table-body">
-                        <tr class="hover:bg-gray-50 transition-all">
-                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">001</td>
-                            <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">Jean Dupont</td>
-                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">Terminale A</td>
-                            <td class="px-6 py-4 whitespace-nowrap">
-                                <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800">Actif</span>
-                            </td>
-                            <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                                <button class="activer-btn text-green-600 hover:text-green-900 mr-3 transition-all transform hover:scale-110">
-                                    <i class="fas fa-check-circle"></i>
-                                </button>
-                                <a href="{% url 'eleves:modifier_eleves' %}" class="text-gray-600 hover:text-gray-900 mr-3 transition-all transform hover:scale-110">
-                                    <i class="fas fa-edit"></i>
-                                </a>
-                                <button class="supprimer-btn text-amber-600 hover:text-amber-900 transition-all transform hover:scale-110">
-                                    <i class="fas fa-trash-alt"></i>
-                                </button>
-                            </td>
-                        </tr>
-                        <tr class="hover:bg-gray-50 transition-all">
-                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">002</td>
-                            <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">Marie Martin</td>
-                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">Première B</td>
-                            <td class="px-6 py-4 whitespace-nowrap">
-                                <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-gray-100 text-gray-800">Inactif</span>
-                            </td>
-                            <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                                <button class="activer-btn text-gray-400 hover:text-gray-600 mr-3 transition-all transform hover:scale-110">
-                                    <i class="fas fa-check-circle"></i>
-                                </button>
-                                <a href="{% url 'eleves:modifier_eleves' %}" class="text-gray-600 hover:text-gray-900 mr-3 transition-all transform hover:scale-110">
-                                    <i class="fas fa-edit"></i>
-                                </a>
-                                <button class="supprimer-btn text-amber-600 hover:text-amber-900 transition-all transform hover:scale-110">
-                                    <i class="fas fa-trash-alt"></i>
-                                </button>
-                            </td>
-                        </tr>
-                        <tr class="hover:bg-gray-50 transition-all">
-                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">003</td>
-                            <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">Paul Durand</td>
-                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">Seconde</td>
-                            <td class="px-6 py-4 whitespace-nowrap">
-                                <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800">Actif</span>
-                            </td>
-                            <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                                <button class="activer-btn text-green-600 hover:text-green-900 mr-3 transition-all transform hover:scale-110">
-                                    <i class="fas fa-check-circle"></i>
-                                </button>
-                                <a href="{% url 'eleves:modifier_eleves' %}" class="text-gray-600 hover:text-gray-900 mr-3 transition-all transform hover:scale-110">
-                                    <i class="fas fa-edit"></i>
-                                </a>
-                                <button class="supprimer-btn text-amber-600 hover:text-amber-900 transition-all transform hover:scale-110">
-                                    <i class="fas fa-trash-alt"></i>
-                                </button>
-                            </td>
-                        </tr>
-                    </tbody>
-                </table>
-            </div>
-        </div>
+<div class="max-w-7xl mx-auto">
+    <!-- Titre + bouton ajouter -->
+    <div class="flex justify-between items-center mb-8">
+        <h1 class="text-3xl font-bold text-gray-800">Liste des élèves</h1>
+        <a href="{% url 'eleves:add_eleves' %}" 
+           class="bg-amber-500 hover:bg-amber-600 text-white font-medium py-2 px-4 rounded-lg transition-all transform hover:scale-105">
+            <i class="fas fa-user-plus mr-2"></i>Ajouter un élève
+        </a>
     </div>
 
-    <script>
-        // Stockage local pour les données des élèves
-        let eleves = JSON.parse(localStorage.getItem('eleves')) || [
-            { id: 1, numero: '001', nom: 'Jean Dupont', classe: 'Terminale A', statut: 'actif' },
-            { id: 2, numero: '002', nom: 'Marie Martin', classe: 'Première B', statut: 'inactif' },
-            { id: 3, numero: '003', nom: 'Paul Durand', classe: 'Seconde', statut: 'actif' }
-        ];
+    <!-- Tableau -->
+    <div class="bg-white rounded-xl shadow-md overflow-hidden">
+        <div class="overflow-x-auto">
+            <table class="min-w-full divide-y divide-gray-200">
+                <thead class="bg-gray-100">
+                    <tr>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Numéro</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Nom complet</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Classe</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Statut</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
+                    </tr>
+                </thead>
+                <tbody class="bg-white divide-y divide-gray-200" id="table-body">
+                    <tr class="hover:bg-gray-50 transition-all">
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">001</td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">Jean Dupont</td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">Terminale A</td>
+                        <td class="px-6 py-4 whitespace-nowrap">
+                            <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800">Actif</span>
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                            <button class="activer-btn text-green-600 hover:text-green-900 mr-3 transition-all transform hover:scale-110">
+                                <i class="fas fa-check-circle"></i>
+                            </button>
+                            <a href="{% url 'eleves:modifier_eleves' %}" class="text-gray-600 hover:text-gray-900 mr-3 transition-all transform hover:scale-110">
+                                <i class="fas fa-edit"></i>
+                            </a>
+                            <button class="supprimer-btn text-amber-600 hover:text-amber-900 transition-all transform hover:scale-110">
+                                <i class="fas fa-trash-alt"></i>
+                            </button>
+                        </td>
+                    </tr>
 
-        // Sauvegarder les données initiales
-        localStorage.setItem('eleves', JSON.stringify(eleves));
+                    <tr class="hover:bg-gray-50 transition-all">
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">002</td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">Marie Martin</td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">Première B</td>
+                        <td class="px-6 py-4 whitespace-nowrap">
+                            <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-gray-100 text-gray-800">Inactif</span>
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                            <button class="activer-btn text-gray-400 hover:text-gray-600 mr-3 transition-all transform hover:scale-110">
+                                <i class="fas fa-check-circle"></i>
+                            </button>
+                            <a href="{% url 'eleves:modifier_eleves' %}" class="text-gray-600 hover:text-gray-900 mr-3 transition-all transform hover:scale-110">
+                                <i class="fas fa-edit"></i>
+                            </a>
+                            <button class="supprimer-btn text-amber-600 hover:text-amber-900 transition-all transform hover:scale-110">
+                                <i class="fas fa-trash-alt"></i>
+                            </button>
+                        </td>
+                    </tr>
 
-        // Gestion du statut actif/inactif
-        document.querySelectorAll('.activer-btn').forEach((button, index) => {
-            button.addEventListener('click', function() {
+                    <tr class="hover:bg-gray-50 transition-all">
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">003</td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">Paul Durand</td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">Seconde</td>
+                        <td class="px-6 py-4 whitespace-nowrap">
+                            <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800">Actif</span>
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                            <button class="activer-btn text-green-600 hover:text-green-900 mr-3 transition-all transform hover:scale-110">
+                                <i class="fas fa-check-circle"></i>
+                            </button>
+                            <a href="{% url 'eleves:modifier_eleves' %}" class="text-gray-600 hover:text-gray-900 mr-3 transition-all transform hover:scale-110">
+                                <i class="fas fa-edit"></i>
+                            </a>
+                            <button class="supprimer-btn text-amber-600 hover:text-amber-900 transition-all transform hover:scale-110">
+                                <i class="fas fa-trash-alt"></i>
+                            </button>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    let eleves = JSON.parse(localStorage.getItem('eleves')) || [
+        { id: 1, numero: '001', nom: 'Jean Dupont', classe: 'Terminale A', statut: 'actif' },
+        { id: 2, numero: '002', nom: 'Marie Martin', classe: 'Première B', statut: 'inactif' },
+        { id: 3, numero: '003', nom: 'Paul Durand', classe: 'Seconde', statut: 'actif' }
+    ];
+
+    localStorage.setItem('eleves', JSON.stringify(eleves));
+
+    document.querySelectorAll('.activer-btn').forEach((button, index) => {
+        button.addEventListener('click', function() {
+            const row = this.closest('tr');
+            const statusCell = row.querySelector('td:nth-child(4) span');
+            const eleve = eleves[index];
+            if (eleve.statut === 'actif') {
+                eleve.statut = 'inactif';
+                statusCell.classList.remove('bg-green-100', 'text-green-800');
+                statusCell.classList.add('bg-gray-100', 'text-gray-800');
+                statusCell.textContent = 'Inactif';
+                this.classList.remove('text-green-600', 'hover:text-green-900');
+                this.classList.add('text-gray-400', 'hover:text-gray-600');
+            } else {
+                eleve.statut = 'actif';
+                statusCell.classList.remove('bg-gray-100', 'text-gray-800');
+                statusCell.classList.add('bg-green-100', 'text-green-800');
+                statusCell.textContent = 'Actif';
+                this.classList.remove('text-gray-400', 'hover:text-gray-600');
+                this.classList.add('text-green-600', 'hover:text-green-900');
+            }
+            localStorage.setItem('eleves', JSON.stringify(eleves));
+        });
+    });
+
+    document.querySelectorAll('.supprimer-btn').forEach((button, index) => {
+        button.addEventListener('click', function() {
+            if (confirm('Êtes-vous sûr de vouloir supprimer cet élève ?')) {
                 const row = this.closest('tr');
-                const statusCell = row.querySelector('td:nth-child(4) span');
-                const eleve = eleves[index];
-                
-                if (eleve.statut === 'actif') {
-                    // Passer à inactif
-                    eleve.statut = 'inactif';
-                    statusCell.classList.remove('bg-green-100', 'text-green-800');
-                    statusCell.classList.add('bg-gray-100', 'text-gray-800');
-                    statusCell.textContent = 'Inactif';
-                    this.classList.remove('text-green-600', 'hover:text-green-900');
-                    this.classList.add('text-gray-400', 'hover:text-gray-600');
-                } else {
-                    // Passer à actif
-                    eleve.statut = 'actif';
-                    statusCell.classList.remove('bg-gray-100', 'text-gray-800');
-                    statusCell.classList.add('bg-green-100', 'text-green-800');
-                    statusCell.textContent = 'Actif';
-                    this.classList.remove('text-gray-400', 'hover:text-gray-600');
-                    this.classList.add('text-green-600', 'hover:text-green-900');
-                }
-                
-                // Mettre à jour le localStorage
-                localStorage.setItem('eleves', JSON.stringify(eleves));
-            });
+                row.style.opacity = '0';
+                setTimeout(() => {
+                    row.remove();
+                    eleves.splice(index, 1);
+                    localStorage.setItem('eleves', JSON.stringify(eleves));
+                }, 300);
+            }
         });
-
-        // Gestion de la suppression
-        document.querySelectorAll('.supprimer-btn').forEach((button, index) => {
-            button.addEventListener('click', function() {
-                if (confirm('Êtes-vous sûr de vouloir supprimer cet élève?')) {
-                    const row = this.closest('tr');
-                    row.style.opacity = '0';
-                    setTimeout(() => {
-                        row.remove();
-                        // Retirer de la liste et mettre à jour le localStorage
-                        eleves.splice(index, 1);
-                        localStorage.setItem('eleves', JSON.stringify(eleves));
-                    }, 300);
-                }
-            });
-        });
-    </script>
-</body>
-</html>
-
-{% endblock %}  
+    });
+</script>
+{% endblock %}
