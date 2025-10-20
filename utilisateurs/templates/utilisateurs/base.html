@@ -9,7 +9,7 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
         .sidebar-transition {
-            transition: width 0.3s ease-in-out;
+            transition: width 0.3s ease-in-out, background-color 0.3s ease-in-out;
         }
         .sidebar-collapsed {
             width: 80px;
@@ -29,7 +29,7 @@
             display: none;
         }
         .content-shift {
-            transition: margin-left 0.3s ease-in-out;
+            transition: margin-left 0.3s ease-in-out, background-color 0.3s ease-in-out;
         }
         .content-collapsed {
             margin-left: 80px;
@@ -37,6 +37,43 @@
         .content-expanded {
             margin-left: 256px;
         }
+        
+        /* Dark Mode */
+        body.dark-mode {
+            background-color: #1a202c;
+            color: #e2e8f0;
+        }
+        body.dark-mode .sidebar-dark {
+            background-color: #2d3748;
+        }
+        body.dark-mode .header-dark {
+            background-color: #1a202c;
+            border-bottom-color: #4a5568;
+        }
+        body.dark-mode .menu-item-dark:hover {
+            background-color: #4a5568;
+        }
+        
+        /* Light Mode - Sidebar blanc */
+        body.light-mode .sidebar-light {
+            background-color: #ffffff;
+            color: #1a202c;
+            border-right: 1px solid #e2e8f0;
+        }
+        body.light-mode .menu-item-light {
+            color: #4a5568;
+        }
+        body.light-mode .menu-item-light:hover {
+            background-color: #fef3c7;
+        }
+        body.light-mode .menu-icon-light {
+            color: #4a5568;
+        }
+        body.light-mode .header-light {
+            background-color: #ffffff;
+            border-bottom: 1px solid #e2e8f0;
+        }
+        
         @media (max-width: 768px) {
             .sidebar-mobile-hidden {
                 transform: translateX(-100%);
@@ -48,33 +85,33 @@
         }
     </style>
 </head>
-<body class="bg-gray-50">
+<body class="bg-gray-50 light-mode">
     <!-- Header -->
-    <header class="bg-gray-900 shadow-lg fixed top-0 left-0 right-0 z-40 border-b border-gray-700">
+    <header class="header-light shadow-lg fixed top-0 left-0 right-0 z-40">
         <div class="flex items-center justify-between px-4 py-3">
             <!-- Toggle et Logo -->
             <div class="flex items-center gap-4">
-                <button id="sidebarToggle" class="text-white hover:text-blue-400 focus:outline-none transition">
+                <button id="sidebarToggle" class="text-gray-800 hover:text-yellow-600 focus:outline-none transition">
                     <i class="fas fa-bars text-xl"></i>
                 </button>
                 <a href="{% url 'utilisateurs:dash_admin' %}" class="flex items-center gap-2 hover:opacity-80 transition">
-                    <i class="fas fa-graduation-cap text-blue-500 text-2xl"></i>
-                    <span class="text-xl font-bold text-white">SYGEE</span>
+                    <i class="fas fa-graduation-cap text-yellow-500 text-2xl"></i>
+                    <span class="text-xl font-bold text-gray-800">SYGEE</span>
                 </a>
             </div>
 
             <!-- Actions droite -->
             <div class="flex items-center gap-3">
-                <button class="p-2 text-gray-300 hover:bg-gray-800 rounded-lg transition">
+                <button class="p-2 text-gray-600 hover:bg-gray-100 rounded-lg transition">
                     <i class="far fa-bell text-xl"></i>
                 </button>
-                <button id="darkModeToggle" class="p-2 text-gray-300 hover:bg-gray-800 rounded-lg transition">
+                <button id="darkModeToggle" class="p-2 text-gray-600 hover:bg-gray-100 rounded-lg transition">
                     <i class="fas fa-moon text-xl"></i>
                 </button>
-                <a href="{% url 'utilisateurs:logout' %}" class="p-2 text-red-400 hover:bg-gray-800 rounded-lg transition" title="Déconnexion">
+                <a href="{% url 'utilisateurs:logout' %}" class="p-2 text-red-500 hover:bg-gray-100 rounded-lg transition" title="Déconnexion">
                     <i class="fas fa-sign-out-alt text-xl"></i>
                 </a>
-                <div class="w-10 h-10 bg-blue-600 rounded-full flex items-center justify-center text-white font-semibold cursor-pointer hover:bg-blue-700 transition">
+                <div class="w-10 h-10 bg-yellow-500 rounded-full flex items-center justify-center text-gray-900 font-semibold cursor-pointer hover:bg-yellow-600 transition">
                     {{ request.user.first_name.0|default:"U" }}
                 </div>
             </div>
@@ -82,78 +119,92 @@
     </header>
 
     <!-- Sidebar -->
-    <aside id="sidebar" class="fixed left-0 top-0 h-full bg-gray-900 text-white pt-16 z-30 sidebar-transition sidebar-expanded">
-        <nav class="px-3 py-4 overflow-y-auto h-full">
-            <ul class="space-y-1">
+    <aside id="sidebar" class="sidebar-light fixed left-0 top-0 h-full pt-16 z-30 sidebar-transition sidebar-expanded">
+        <nav class="px-3 py-4 h-full flex flex-col">
+            <!-- Menu Principal -->
+            <ul class="space-y-1 flex-1">
                 <!-- Home -->
                 <li>
-                    <a href="{% url 'utilisateurs:dash_admin' %}" class="flex items-center gap-3 px-4 py-3 rounded-lg hover:bg-gray-800 transition">
-                        <i class="fas fa-home text-lg min-w-[20px]"></i>
+                    <a href="{% url 'utilisateurs:dash_admin' %}" class="menu-item-light flex items-center gap-3 px-4 py-3 rounded-lg transition">
+                        <i class="fas fa-home text-lg min-w-[20px] menu-icon-light"></i>
                         <span class="menu-text whitespace-nowrap">Home</span>
                     </a>
                 </li>
 
                 <!-- Inscription -->
                 <li>
-                    <a href="{% url 'inscriptions:inscription_list' %}" class="flex items-center gap-3 px-4 py-3 rounded-lg hover:bg-gray-800 transition">
-                        <i class="fas fa-user-plus text-lg min-w-[20px]"></i>
+                    <a href="{% url 'inscriptions:inscription_list' %}" class="menu-item-light flex items-center gap-3 px-4 py-3 rounded-lg transition">
+                        <i class="fas fa-user-plus text-lg min-w-[20px] menu-icon-light"></i>
                         <span class="menu-text whitespace-nowrap">Inscription</span>
                     </a>
                 </li>
 
                 <!-- Élèves -->
                 <li>
-                    <a href="{% url 'eleves:eleves' %}" class="flex items-center gap-3 px-4 py-3 rounded-lg hover:bg-gray-800 transition">
-                        <i class="fas fa-user-graduate text-lg min-w-[20px]"></i>
+                    <a href="{% url 'eleves:eleves' %}" class="menu-item-light flex items-center gap-3 px-4 py-3 rounded-lg transition">
+                        <i class="fas fa-user-graduate text-lg min-w-[20px] menu-icon-light"></i>
                         <span class="menu-text whitespace-nowrap">Élèves</span>
                     </a>
                 </li>
 
                 <!-- Enseignants -->
                 <li>
-                    <a href="{% url 'enseignants:enseignants' %}" class="flex items-center gap-3 px-4 py-3 rounded-lg hover:bg-gray-800 transition">
-                        <i class="fas fa-chalkboard-teacher text-lg min-w-[20px]"></i>
+                    <a href="{% url 'enseignants:enseignants' %}" class="menu-item-light flex items-center gap-3 px-4 py-3 rounded-lg transition">
+                        <i class="fas fa-chalkboard-teacher text-lg min-w-[20px] menu-icon-light"></i>
                         <span class="menu-text whitespace-nowrap">Enseignants</span>
                     </a>
                 </li>
 
                 <!-- Classes -->
                 <li>
-                    <a href="{% url 'classes:classes' %}" class="flex items-center gap-3 px-4 py-3 rounded-lg hover:bg-gray-800 transition">
-                        <i class="fas fa-school text-lg min-w-[20px]"></i>
+                    <a href="{% url 'classes:classes' %}" class="menu-item-light flex items-center gap-3 px-4 py-3 rounded-lg transition">
+                        <i class="fas fa-school text-lg min-w-[20px] menu-icon-light"></i>
                         <span class="menu-text whitespace-nowrap">Classes</span>
                     </a>
                 </li>
 
                 <!-- Matières -->
                 <li>
-                    <a href="{% url 'matieres:matieres' %}" class="flex items-center gap-3 px-4 py-3 rounded-lg hover:bg-gray-800 transition">
-                        <i class="fas fa-book text-lg min-w-[20px]"></i>
+                    <a href="{% url 'matieres:matieres' %}" class="menu-item-light flex items-center gap-3 px-4 py-3 rounded-lg transition">
+                        <i class="fas fa-book text-lg min-w-[20px] menu-icon-light"></i>
                         <span class="menu-text whitespace-nowrap">Matières</span>
                     </a>
                 </li>
 
                 <!-- Cours -->
                 <li>
-                    <a href="{% url 'cours:cours' %}" class="flex items-center gap-3 px-4 py-3 rounded-lg hover:bg-gray-800 transition">
-                        <i class="fas fa-calendar-alt text-lg min-w-[20px]"></i>
+                    <a href="{% url 'cours:cours' %}" class="menu-item-light flex items-center gap-3 px-4 py-3 rounded-lg transition">
+                        <i class="fas fa-calendar-alt text-lg min-w-[20px] menu-icon-light"></i>
                         <span class="menu-text whitespace-nowrap">Cours</span>
                     </a>
                 </li>
 
                 <!-- Archives -->
                 <li>
-                    <a href="#" class="flex items-center gap-3 px-4 py-3 rounded-lg hover:bg-gray-800 transition">
-                        <i class="fas fa-archive text-lg min-w-[20px]"></i>
+                    <a href="#" class="menu-item-light flex items-center gap-3 px-4 py-3 rounded-lg transition">
+                        <i class="fas fa-archive text-lg min-w-[20px] menu-icon-light"></i>
                         <span class="menu-text whitespace-nowrap">Archives</span>
                     </a>
                 </li>
 
                 <!-- Utilisateurs -->
                 <li>
-                    <a href="{% url 'utilisateurs:list_users' %}" class="flex items-center gap-3 px-4 py-3 rounded-lg hover:bg-gray-800 transition">
-                        <i class="fas fa-users text-lg min-w-[20px]"></i>
+                    <a href="{% url 'utilisateurs:list_users' %}" class="menu-item-light flex items-center gap-3 px-4 py-3 rounded-lg transition">
+                        <i class="fas fa-users text-lg min-w-[20px] menu-icon-light"></i>
                         <span class="menu-text whitespace-nowrap">Utilisateurs</span>
+                    </a>
+                </li>
+            </ul>
+
+            <!-- Séparateur -->
+            <div class="border-t border-gray-200 my-2"></div>
+
+            <!-- Menu Paramètres en bas -->
+            <ul class="space-y-1 mb-4">
+                <li>
+                    <a href="#" class="menu-item-light flex items-center gap-3 px-4 py-3 rounded-lg transition">
+                        <i class="fas fa-cog text-lg min-w-[20px] menu-icon-light"></i>
+                        <span class="menu-text whitespace-nowrap">Paramètres</span>
                     </a>
                 </li>
             </ul>
@@ -176,7 +227,12 @@
         const sidebarToggle = document.getElementById('sidebarToggle');
         const sidebarOverlay = document.getElementById('sidebarOverlay');
         const mainContent = document.getElementById('mainContent');
+        const darkModeToggle = document.getElementById('darkModeToggle');
         let isMobile = window.innerWidth < 768;
+
+        // Charger le mode sauvegardé
+        const savedMode = localStorage.getItem('theme') || 'light';
+        applyTheme(savedMode);
 
         // Détection responsive
         window.addEventListener('resize', () => {
@@ -190,27 +246,13 @@
         // Toggle Sidebar
         sidebarToggle.addEventListener('click', () => {
             if (isMobile) {
-                // Mode mobile: montrer/cacher complètement
                 sidebar.classList.toggle('sidebar-mobile-hidden');
                 sidebarOverlay.classList.toggle('hidden');
             } else {
-                // Mode desktop: réduire/agrandir
                 sidebar.classList.toggle('sidebar-collapsed');
                 sidebar.classList.toggle('sidebar-expanded');
                 mainContent.classList.toggle('content-collapsed');
                 mainContent.classList.toggle('content-expanded');
-                
-                // Fermer les sous-menus quand on réduit
-                if (sidebar.classList.contains('sidebar-collapsed')) {
-                    const submenus = document.querySelectorAll('[id$="-submenu"]');
-                    submenus.forEach(submenu => {
-                        submenu.classList.add('hidden');
-                    });
-                    const icons = document.querySelectorAll('[id$="-icon"]');
-                    icons.forEach(icon => {
-                        icon.style.transform = 'rotate(0deg)';
-                    });
-                }
             }
         });
 
@@ -222,27 +264,92 @@
             }
         });
 
-        // Toggle Submenu
-        function toggleSubmenu(id) {
-            // Ne pas ouvrir les sous-menus si le sidebar est réduit
-            if (sidebar.classList.contains('sidebar-collapsed')) {
-                return;
-            }
-            
-            const submenu = document.getElementById(id + '-submenu');
-            const icon = document.getElementById(id + '-icon');
-            submenu.classList.toggle('hidden');
-            icon.style.transform = submenu.classList.contains('hidden') ? 'rotate(0deg)' : 'rotate(180deg)';
-        }
-
         // Dark Mode Toggle
-        const darkModeToggle = document.getElementById('darkModeToggle');
         darkModeToggle.addEventListener('click', () => {
-            document.body.classList.toggle('dark');
-            const icon = darkModeToggle.querySelector('i');
-            icon.classList.toggle('fa-moon');
-            icon.classList.toggle('fa-sun');
+            const currentTheme = document.body.classList.contains('dark-mode') ? 'dark' : 'light';
+            const newTheme = currentTheme === 'light' ? 'dark' : 'light';
+            applyTheme(newTheme);
+            localStorage.setItem('theme', newTheme);
         });
+
+        function applyTheme(theme) {
+            const body = document.body;
+            const header = document.querySelector('header');
+            const icon = darkModeToggle.querySelector('i');
+            
+            if (theme === 'dark') {
+                // Mode Sombre
+                body.classList.remove('light-mode');
+                body.classList.add('dark-mode');
+                body.style.backgroundColor = '#1a202c';
+                
+                sidebar.classList.remove('sidebar-light');
+                sidebar.classList.add('sidebar-dark', 'bg-gray-800', 'text-white');
+                sidebar.style.borderRight = 'none';
+                
+                header.classList.remove('header-light');
+                header.classList.add('header-dark', 'bg-gray-900', 'border-gray-700');
+                
+                // Changer couleurs des éléments du header
+                document.querySelectorAll('header button, header a').forEach(el => {
+                    el.classList.remove('text-gray-600', 'text-gray-800', 'hover:bg-gray-100');
+                    el.classList.add('text-gray-300', 'hover:bg-gray-800');
+                });
+                
+                document.querySelector('header .text-gray-800').classList.remove('text-gray-800');
+                document.querySelector('header .text-xl').classList.add('text-white');
+                
+                // Menu items dark
+                document.querySelectorAll('.menu-item-light').forEach(item => {
+                    item.classList.remove('menu-item-light', 'text-gray-600');
+                    item.classList.add('menu-item-dark', 'text-gray-300', 'hover:bg-gray-700');
+                });
+                
+                document.querySelectorAll('.menu-icon-light').forEach(item => {
+                    item.classList.remove('menu-icon-light', 'text-gray-600');
+                    item.classList.add('text-gray-400');
+                });
+                
+                icon.classList.remove('fa-moon');
+                icon.classList.add('fa-sun');
+                
+            } else {
+                // Mode Clair
+                body.classList.remove('dark-mode');
+                body.classList.add('light-mode');
+                body.style.backgroundColor = '#f9fafb';
+                
+                sidebar.classList.remove('sidebar-dark', 'bg-gray-800', 'text-white');
+                sidebar.classList.add('sidebar-light', 'bg-white');
+                sidebar.style.borderRight = '1px solid #e2e8f0';
+                
+                header.classList.remove('header-dark', 'bg-gray-900', 'border-gray-700');
+                header.classList.add('header-light', 'bg-white');
+                
+                // Changer couleurs des éléments du header
+                document.querySelectorAll('header button, header a').forEach(el => {
+                    el.classList.remove('text-gray-300', 'hover:bg-gray-800');
+                    el.classList.add('text-gray-600', 'hover:bg-gray-100');
+                });
+                
+                document.querySelector('header .text-xl').classList.remove('text-white');
+                document.querySelector('header .text-xl').classList.add('text-gray-800');
+                
+                // Menu items light
+                document.querySelectorAll('.menu-item-dark').forEach(item => {
+                    item.classList.remove('menu-item-dark', 'text-gray-300', 'hover:bg-gray-700');
+                    item.classList.add('menu-item-light', 'text-gray-600', 'hover:bg-yellow-50');
+                });
+                
+                document.querySelectorAll('.menu-icon-light, i.text-gray-400').forEach(item => {
+                    item.classList.remove('text-gray-400');
+                    item.classList.add('menu-icon-light', 'text-gray-600');
+                });
+                
+                icon.classList.remove('fa-sun');
+                icon.classList.add('fa-moon');
+            }
+        }
     </script>
 </body>
 </html>

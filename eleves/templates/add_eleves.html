@@ -13,59 +13,68 @@
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
                               d="M12 14l9-5-9-5-9 5 9 5zm0 0v7m0-7L3 9m9 5l9-5" />
                     </svg>
-                    Gestion des Utilisateurs
+                    Ajouter un Élève
                 </h1>
-                <p class="text-gray-200 mt-1 text-sm">Gérez efficacement tous les comptes utilisateurs</p>
+                <p class="text-gray-200 mt-1 text-sm">Enregistrez un nouvel élève dans le système</p>
             </div>
-            <a href="{% url 'utilisateurs:liste' %}"
+            <a href="{% url 'eleves:eleves' %}"
                class="inline-flex items-center justify-center bg-yellow-500 hover:bg-yellow-400 text-gray-900 font-medium px-4 py-2 rounded-lg shadow-md transform hover:scale-105 transition duration-300 text-sm">
                 ⬅ Retour à la liste
             </a>
         </div>
     </div>
-</div>
 
-
-    <!-- Formulaire -->
-    <div class="max-w-5xl mx-auto px-3 sm:px-4 lg:px-6 py-6">
-        <div class="bg-white rounded-xl shadow-md p-6">
-            <form method="POST" class="grid grid-cols-1 md:grid-cols-2 gap-6">
+    <!-- Formulaire Horizontal -->
+    <div class="max-w-6xl mx-auto px-3 sm:px-4 lg:px-6 py-8">
+        <div class="bg-white rounded-2xl shadow-xl p-8">
+            <form method="POST" class="space-y-6">
                 {% csrf_token %}
 
                 <!-- Nom complet -->
-                <div>
-                    <label for="nom" class="block text-sm font-semibold text-gray-700 mb-1">Nom complet</label>
+                <div class="flex flex-col md:flex-row md:items-center gap-4">
+                    <label for="nom" class="md:w-1/4 text-sm font-semibold text-gray-700">
+                        Nom complet <span class="text-red-500">*</span>
+                    </label>
                     <input type="text" name="nom" id="nom" required
-                           class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-yellow-500 focus:border-yellow-500 transition">
+                           placeholder="Entrez le nom complet de l'élève"
+                           class="flex-1 px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-yellow-500 focus:border-yellow-500 transition">
                 </div>
 
                 <!-- Date de naissance -->
-                <div>
-                    <label for="date_naissance" class="block text-sm font-semibold text-gray-700 mb-1">Date de naissance</label>
+                <div class="flex flex-col md:flex-row md:items-center gap-4">
+                    <label for="date_naissance" class="md:w-1/4 text-sm font-semibold text-gray-700">
+                        Date de naissance <span class="text-red-500">*</span>
+                    </label>
                     <input type="date" name="date_naissance" id="date_naissance" required
-                           class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-yellow-500 focus:border-yellow-500 transition">
+                           class="flex-1 px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-yellow-500 focus:border-yellow-500 transition">
                 </div>
 
                 <!-- Sexe -->
-                <div>
-                    <label class="block text-sm font-semibold text-gray-700 mb-1">Sexe</label>
-                    <div class="flex gap-4 mt-1">
-                        <label class="inline-flex items-center">
-                            <input type="radio" name="sexe" value="H" required class="text-yellow-500 focus:ring-yellow-500">
-                            <span class="ml-2 text-sm">Homme</span>
+                <div class="flex flex-col md:flex-row md:items-center gap-4">
+                    <label class="md:w-1/4 text-sm font-semibold text-gray-700">
+                        Sexe <span class="text-red-500">*</span>
+                    </label>
+                    <div class="flex-1 flex gap-6">
+                        <label class="inline-flex items-center cursor-pointer">
+                            <input type="radio" name="sexe" value="H" required 
+                                   class="w-4 h-4 text-yellow-500 focus:ring-yellow-500 border-gray-300">
+                            <span class="ml-2 text-sm text-gray-700">Homme</span>
                         </label>
-                        <label class="inline-flex items-center">
-                            <input type="radio" name="sexe" value="F" class="text-yellow-500 focus:ring-yellow-500">
-                            <span class="ml-2 text-sm">Femme</span>
+                        <label class="inline-flex items-center cursor-pointer">
+                            <input type="radio" name="sexe" value="F" 
+                                   class="w-4 h-4 text-yellow-500 focus:ring-yellow-500 border-gray-300">
+                            <span class="ml-2 text-sm text-gray-700">Femme</span>
                         </label>
                     </div>
                 </div>
 
                 <!-- Classe -->
-                <div>
-                    <label for="classe" class="block text-sm font-semibold text-gray-700 mb-1">Classe</label>
+                <div class="flex flex-col md:flex-row md:items-center gap-4">
+                    <label for="classe" class="md:w-1/4 text-sm font-semibold text-gray-700">
+                        Classe <span class="text-red-500">*</span>
+                    </label>
                     <select name="classe" id="classe" required
-                            class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-yellow-500 focus:border-yellow-500 transition">
+                            class="flex-1 px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-yellow-500 focus:border-yellow-500 transition bg-white">
                         <option value="">Sélectionnez une classe</option>
                         {% for classe in classes %}
                         <option value="{{ classe.id }}">{{ classe.nom }}</option>
@@ -74,35 +83,57 @@
                 </div>
 
                 <!-- Adresse -->
-                <div class="md:col-span-2">
-                    <label for="adresse" class="block text-sm font-semibold text-gray-700 mb-1">Adresse</label>
-                    <textarea name="adresse" id="adresse" rows="2" required
-                              class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-yellow-500 focus:border-yellow-500 transition"></textarea>
+                <div class="flex flex-col md:flex-row md:items-start gap-4">
+                    <label for="adresse" class="md:w-1/4 text-sm font-semibold text-gray-700 md:pt-2">
+                        Adresse <span class="text-red-500">*</span>
+                    </label>
+                    <textarea name="adresse" id="adresse" rows="3" required
+                              placeholder="Entrez l'adresse complète"
+                              class="flex-1 px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-yellow-500 focus:border-yellow-500 transition resize-none"></textarea>
                 </div>
 
                 <!-- Téléphone -->
-                <div>
-                    <label for="telephone" class="block text-sm font-semibold text-gray-700 mb-1">Téléphone</label>
+                <div class="flex flex-col md:flex-row md:items-center gap-4">
+                    <label for="telephone" class="md:w-1/4 text-sm font-semibold text-gray-700">
+                        Téléphone <span class="text-red-500">*</span>
+                    </label>
                     <input type="tel" name="telephone" id="telephone" required
-                           class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-yellow-500 focus:border-yellow-500 transition">
+                           placeholder="Ex: +509 1234-5678"
+                           class="flex-1 px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-yellow-500 focus:border-yellow-500 transition">
                 </div>
 
-                <!-- Statut -->
-                <div class="flex items-center space-x-2 mt-4">
-                    <input type="checkbox" name="actif" id="actif" checked
-                           class="h-4 w-4 text-yellow-500 focus:ring-yellow-500 rounded">
-                    <label for="actif" class="text-sm font-semibold text-gray-700">Actif</label>
+                <!-- Statut Actif -->
+                <div class="flex flex-col md:flex-row md:items-center gap-4">
+                    <label class="md:w-1/4 text-sm font-semibold text-gray-700">
+                        Statut
+                    </label>
+                    <div class="flex-1">
+                        <label class="inline-flex items-center cursor-pointer">
+                            <input type="checkbox" name="actif" id="actif" checked
+                                   class="w-5 h-5 text-yellow-500 focus:ring-yellow-500 rounded border-gray-300">
+                            <span class="ml-2 text-sm text-gray-700 font-medium">Élève actif</span>
+                        </label>
+                    </div>
                 </div>
 
-                <!-- Boutons -->
-                <div class="md:col-span-2 flex justify-end gap-3 mt-6">
+                <!-- Ligne de séparation -->
+                <div class="border-t border-gray-200 pt-6 mt-8"></div>
+
+                <!-- Boutons d'action -->
+                <div class="flex flex-col md:flex-row justify-end gap-3">
                     <a href="{% url 'eleves:eleves' %}" 
-                       class="bg-gray-500 hover:bg-gray-600 text-white font-medium px-5 py-2 rounded-lg shadow-md transform hover:scale-105 transition duration-300 text-sm">
+                       class="inline-flex items-center justify-center bg-gray-500 hover:bg-gray-600 text-white font-medium px-6 py-2.5 rounded-lg shadow-md transform hover:scale-105 transition duration-300">
+                        <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+                        </svg>
                         Annuler
                     </a>
                     <button type="submit" 
-                            class="bg-yellow-500 hover:bg-yellow-600 text-gray-900 font-medium px-5 py-2 rounded-lg shadow-md transform hover:scale-105 transition duration-300 text-sm">
-                        Enregistrer
+                            class="inline-flex items-center justify-center bg-gradient-to-r from-yellow-500 to-yellow-600 hover:from-yellow-600 hover:to-yellow-700 text-gray-900 font-bold px-6 py-2.5 rounded-lg shadow-md transform hover:scale-105 transition duration-300">
+                        <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
+                        </svg>
+                        Enregistrer l'élève
                     </button>
                 </div>
             </form>

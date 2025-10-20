@@ -1,7 +1,7 @@
 {% extends 'utilisateurs/base.html' %}
 {% load static %}
 
-{% block title %}Liste des Élèves - SYGEE{% endblock %}
+{% block title %}Gestion des Élèves - SYGEE{% endblock %}
 
 {% block content %}
 <div class="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100">
@@ -26,29 +26,105 @@
     </div>
 
     <!-- Barre de recherche -->
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-8">
-        <div class="bg-white rounded-2xl shadow-xl p-6 mb-8">
-            <form method="GET" action="{% url 'eleves:eleves' %}" class="flex gap-4">
-                <div class="flex-1 relative">
-                    <input type="text" name="search" value="{{ request.GET.search }}" 
-                           placeholder="Rechercher un élève..." 
-                           class="w-full pl-12 pr-4 py-3 border-2 border-gray-300 rounded-xl focus:outline-none focus:ring-4 focus:ring-yellow-500 focus:border-yellow-500 transition">
-                    <svg class="absolute left-4 top-4 w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
-                    </svg>
-                </div>
-                <button type="submit" 
-                        class="bg-gradient-to-r from-yellow-500 to-yellow-600 hover:from-yellow-600 hover:to-yellow-700 text-gray-900 font-bold px-8 py-3 rounded-xl shadow-lg transform hover:scale-105 transition duration-300">
-                    <svg class="w-5 h-5 inline mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
-                    </svg>
-                    Rechercher
-                </button>
-            </form>
-        </div>
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-6">
+        <form method="GET" action="{% url 'eleves:eleves' %}" class="flex flex-col md:flex-row items-center gap-4">
+            <div class="flex-1 relative w-full md:w-auto">
+                <input type="text" name="search" value="{{ request.GET.search }}" 
+                       placeholder="Rechercher un élève..." 
+                       class="w-full pl-12 pr-4 py-3 border-2 border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-yellow-500 focus:border-yellow-500 transition bg-transparent">
+                <svg class="absolute left-4 top-3.5 w-5 h-5 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
+                          d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
+                </svg>
+            </div>
+            <button type="submit" 
+                    class="bg-gradient-to-r from-yellow-500 to-yellow-600 hover:from-yellow-600 hover:to-yellow-700 text-gray-900 font-bold px-6 py-3 rounded-xl shadow-md transform hover:scale-105 transition duration-300 text-sm">
+                Rechercher
+            </button>
+        </form>
     </div>
 
-    <!-- 👉 Rès pati orijinal ou yo rete menm jan (tableau, pagination, modal elatriye) -->
-    <!-- Ou ka kole tout kòd ou te gen apre sa san ou pa bezwen modifye anyen. -->
+    <!-- Tableau des élèves -->
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-8">
+        <div class="overflow-x-auto bg-white rounded-2xl shadow-lg">
+            <table class="w-full text-left">
+                <thead class="bg-gray-800 text-white">
+                    <tr>
+                        <th class="px-6 py-3">Matricule</th>
+                        <th class="px-6 py-3">Nom</th>
+                        <th class="px-6 py-3">Prénom</th>
+                        <th class="px-6 py-3">Classe</th>
+                        <th class="px-6 py-3">Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for eleve in eleves %}
+                    <tr class="border-b hover:bg-gray-50 transition">
+                        <td class="px-6 py-3">{{ eleve.matricule }}</td>
+                        <td class="px-6 py-3">{{ eleve.nom }}</td>
+                        <td class="px-6 py-3">{{ eleve.prenom }}</td>
+                        <td class="px-6 py-3">{{ eleve.classe }}</td>
+                        <td class="px-6 py-3 space-x-2">
+                            <a href="{% url 'eleves:modifier' eleve.id %}" class="text-blue-600 hover:underline font-medium">Modifier</a>
+                            <a href="{% url 'eleves:supprimer' eleve.id %}" class="text-red-600 hover:underline font-medium">Supprimer</a>
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="5" class="text-center py-6 text-gray-500">Aucun élève trouvé</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Pagination Simplifiée -->
+        {% if eleves.has_other_pages %}
+        <div class="mt-6 flex justify-center items-center gap-4">
+            <!-- Bouton Précédent -->
+            {% if eleves.has_previous %}
+                <a href="?page={{ eleves.previous_page_number }}{% if request.GET.search %}&search={{ request.GET.search }}{% endif %}" 
+                   class="inline-flex items-center px-6 py-3 bg-gray-700 hover:bg-gray-800 text-white font-medium rounded-lg shadow-md transform hover:scale-105 transition duration-300">
+                    <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/>
+                    </svg>
+                    Précédent
+                </a>
+            {% else %}
+                <button disabled 
+                        class="inline-flex items-center px-6 py-3 bg-gray-300 text-gray-500 font-medium rounded-lg shadow-md cursor-not-allowed opacity-50">
+                    <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/>
+                    </svg>
+                    Précédent
+                </button>
+            {% endif %}
+
+            <!-- Indicateur de page -->
+            <span class="text-gray-700 font-medium px-4 py-2 bg-gray-100 rounded-lg">
+                Page {{ eleves.number }} sur {{ eleves.paginator.num_pages }}
+            </span>
+
+            <!-- Bouton Suivant -->
+            {% if eleves.has_next %}
+                <a href="?page={{ eleves.next_page_number }}{% if request.GET.search %}&search={{ request.GET.search }}{% endif %}" 
+                   class="inline-flex items-center px-6 py-3 bg-yellow-500 hover:bg-yellow-600 text-gray-900 font-medium rounded-lg shadow-md transform hover:scale-105 transition duration-300">
+                    Suivant
+                    <svg class="w-5 h-5 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
+                    </svg>
+                </a>
+            {% else %}
+                <button disabled 
+                        class="inline-flex items-center px-6 py-3 bg-gray-300 text-gray-500 font-medium rounded-lg shadow-md cursor-not-allowed opacity-50">
+                    Suivant
+                    <svg class="w-5 h-5 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
+                    </svg>
+                </button>
+            {% endif %}
+        </div>
+        {% endif %}
+    </div>
 </div>
 {% endblock %}
