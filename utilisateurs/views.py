@@ -141,7 +141,7 @@ def update_user(request, user_id):
         if form.is_valid():
             form.save()
             log_action(request.user, "update_user", target=user.username)
-            messages.success(request, f"Utilisateur {user.username} modifié avec succès!")
+            messages.success(request, f"Utilisateur {user.username} mis à jour avec succès!")
             return redirect('utilisateurs:list_users')
     else:
         form = UserUpdateForm(instance=user)

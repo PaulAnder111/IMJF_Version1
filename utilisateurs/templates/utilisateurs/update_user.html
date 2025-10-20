@@ -160,11 +160,11 @@
                             id="{{ form.role.id_for_label }}"
                             class="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-gold focus:border-transparent dark:bg-gray-700 dark:text-white {% if form.role.errors %}border-red-500{% endif %}"
                             required>
-                        <option value="">Chwazi yon wòl</option>
-                        <option value="admin" {% if form.role.value == 'admin' or user.role == 'admin' %}selected{% endif %}>Administratè</option>
-                        <option value="directeur" {% if form.role.value == 'directeur' or user.role == 'directeur' %}selected{% endif %}>Direktè</option>
-                        <option value="secretaire" {% if form.role.value == 'secretaire' or user.role == 'secretaire' %}selected{% endif %}>Sekretè</option>
-                        <option value="enseignant" {% if form.role.value == 'enseignant' or user.role == 'enseignant' %}selected{% endif %}>Pwofesè</option>
+                        <option value="">Role</option>
+                        <option value="admin" {% if form.role.value == 'admin' or user.role == 'admin' %}selected{% endif %}>Administrateur</option>
+                        <option value="directeur" {% if form.role.value == 'directeur' or user.role == 'directeur' %}selected{% endif %}>Directeur</option>
+                        <option value="secretaire" {% if form.role.value == 'secretaire' or user.role == 'secretaire' %}selected{% endif %}>Secrétaire</option>
+                        <option value="archiviste" {% if form.role.value == 'archiviste' or user.role == 'archiviste' %}selected{% endif %}>Archiviste</option>
                     </select>
                     {% if form.role.errors %}
                     <div class="text-red-600 text-sm mt-1">
