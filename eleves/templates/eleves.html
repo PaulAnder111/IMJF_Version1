@@ -25,24 +25,65 @@
         </div>
     </div>
 
-    <!-- Barre de recherche -->
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-6">
-        <form method="GET" action="{% url 'eleves:eleves' %}" class="flex flex-col md:flex-row items-center gap-4">
-            <div class="flex-1 relative w-full md:w-auto">
-                <input type="text" name="search" value="{{ request.GET.search }}" 
-                       placeholder="Rechercher un élève..." 
-                       class="w-full pl-12 pr-4 py-3 border-2 border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-yellow-500 focus:border-yellow-500 transition bg-transparent">
-                <svg class="absolute left-4 top-3.5 w-5 h-5 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
-                          d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
-                </svg>
-            </div>
-            <button type="submit" 
-                    class="bg-gradient-to-r from-yellow-500 to-yellow-600 hover:from-yellow-600 hover:to-yellow-700 text-gray-900 font-bold px-6 py-3 rounded-xl shadow-md transform hover:scale-105 transition duration-300 text-sm">
-                Rechercher
-            </button>
-        </form>
-    </div>
+    <!-- Barre de recherche avec filtres -->
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-6">
+    <form method="GET" action="{% url 'eleves:eleves' %}" class="flex flex-col lg:flex-row items-stretch lg:items-center gap-3">
+        
+        <!-- Bar Rechèch -->
+        <div class="flex-1 relative">
+            <input type="text" name="search" value="{{ request.GET.search }}" 
+                   placeholder="Rechercher un élève..." 
+                   class="w-full pl-11 pr-4 py-2.5 border-2 border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-yellow-500 focus:border-yellow-500 transition bg-white shadow-sm text-sm">
+            <svg class="absolute left-3.5 top-3 w-4 h-4 text-yellow-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" 
+                      d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
+            </svg>
+        </div>
+
+        <!-- Filtre Par Classes -->
+        <div class="relative">
+            <select name="classe" 
+                    class="appearance-none w-full lg:w-48 pl-4 pr-10 py-2.5 border-2 border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-yellow-500 focus:border-yellow-500 transition bg-white shadow-sm text-sm font-medium text-gray-700 cursor-pointer">
+                <option value="">Par Classes</option>
+                <option value="7eme" {% if request.GET.classe == '7eme' %}selected{% endif %}>7ème Année</option>
+                <option value="8eme" {% if request.GET.classe == '8eme' %}selected{% endif %}>8ème Année</option>
+                <option value="9eme" {% if request.GET.classe == '9eme' %}selected{% endif %}>9ème Année</option>
+                <option value="seconde" {% if request.GET.classe == 'seconde' %}selected{% endif %}>Seconde</option>
+                <option value="premiere" {% if request.GET.classe == 'premiere' %}selected{% endif %}>Première</option>
+                <option value="terminale" {% if request.GET.classe == 'terminale' %}selected{% endif %}>Terminale</option>
+                <option value="nsi" {% if request.GET.classe == 'nsi' %}selected{% endif %}>NSI</option>
+                <option value="nsii" {% if request.GET.classe == 'nsii' %}selected{% endif %}>NSII</option>
+                <option value="nsiii" {% if request.GET.classe == 'nsiii' %}selected{% endif %}>NSIII</option>
+                <option value="nsiv" {% if request.GET.classe == 'nsiv' %}selected{% endif %}>NSIV</option>
+            </select>
+            <svg class="absolute right-3 top-3.5 w-4 h-4 text-gray-500 pointer-events-none" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
+            </svg>
+        </div>
+
+        <!-- Filtre Statuts -->
+        <div class="relative">
+            <select name="statut" 
+                    class="appearance-none w-full lg:w-40 pl-4 pr-10 py-2.5 border-2 border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-yellow-500 focus:border-yellow-500 transition bg-white shadow-sm text-sm font-medium text-gray-700 cursor-pointer">
+                <option value="">Statuts</option>
+                <option value="actif" {% if request.GET.statut == 'actif' %}selected{% endif %}>Actif</option>
+                <option value="inactif" {% if request.GET.statut == 'inactif' %}selected{% endif %}>Inactif</option>
+            </select>
+            <svg class="absolute right-3 top-3.5 w-4 h-4 text-gray-500 pointer-events-none" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
+            </svg>
+        </div>
+
+        <!-- Bouton Réinitialiser (optionnel) -->
+        <a href="{% url 'eleves:eleves' %}" 
+           class="inline-flex items-center justify-center bg-gray-500 hover:bg-gray-600 text-white font-medium px-4 py-2.5 rounded-lg shadow-md transform hover:scale-105 transition duration-300 text-sm whitespace-nowrap">
+            <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/>
+            </svg>
+            Réinitialiser
+        </a>
+    </form>
+</div>
 
     <!-- Tableau des élèves -->
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-8">
