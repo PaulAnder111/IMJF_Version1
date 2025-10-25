@@ -1,11 +1,11 @@
 from django.shortcuts import render, redirect, get_object_or_404
-from django.contrib.auth import login, authenticate, logout
+from django.contrib.auth import login, authenticate, logout, update_session_auth_hash
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 from django.views.decorators.csrf import csrf_protect
-from django.utils import timezone
+from django.contrib.auth.forms import PasswordChangeForm
 from .models import CustomUser, AuditLog
-from .forms import LoginForm, UserCreationForm, UserUpdateForm
+from .forms import LoginForm, UserUpdateForm, CustomUserCreationForm
 from .decorators import admin_required
 
 # ✅ Fonksyon pou log aksyon kritik yo
@@ -17,6 +17,7 @@ def log_action(actor, action, target=None, details=None):
         details=details or {}
     )
 
+# ----------------------- LOGIN / LOGOUT -----------------------
 @csrf_protect
 def login_view(request):
     if request.user.is_authenticated:
@@ -27,7 +28,7 @@ def login_view(request):
         password = request.POST.get('password')
         user = CustomUser.objects.filter(username=username).first()
 
-        # 🚨 Tcheke si kont lan locké avan menm verifye modpas
+        # 🚨 Tcheke si kont lan locké
         if user and user.is_locked():
             messages.error(request, "Votre compte est temporairement bloqué suite à plusieurs tentatives échouées.")
             return redirect('utilisateurs:login')
@@ -35,26 +36,25 @@ def login_view(request):
         auth_user = authenticate(request, username=username, password=password)
 
         if auth_user is not None:
-            # ✅ Reset compteur failed login
             auth_user.reset_failed_logins()
 
-            # ✅ Tcheke si kont obligatwa chanje modpas
+            # ✅ Tcheke si itilizatè dwe chanje modpas
             if auth_user.must_change_password:
                 login(request, auth_user)
                 messages.warning(request, "Vous devez changer votre mot de passe avant de continuer.")
-                return redirect('utilisateurs:password_change')  # paj chanjman modpas
+                return redirect('utilisateurs:password_change')
 
             login(request, auth_user)
             log_action(auth_user, "login_success")
             return redirect_to_dashboard(auth_user)
         else:
-            # 🚨 login echoué → ogmante compteur si user egziste
             if user:
                 user.register_failed_login()
             messages.error(request, "Nom d'utilisateur ou mot de passe incorrect.")
 
     return render(request, 'utilisateurs/login.html')
 
+@login_required
 def logout_view(request):
     if request.user.is_authenticated:
         log_action(request.user, "logout")
@@ -62,31 +62,22 @@ def logout_view(request):
     messages.info(request, "Vous avez été déconnecté avec succès.")
     return redirect('utilisateurs:login')
 
+# ----------------------- DASHBOARD -----------------------
 def redirect_to_dashboard(user):
-    if user.role == 'admin':
-        return redirect('utilisateurs:dash_admin')
-    elif user.role == 'secretaire':
-        return redirect('utilisateurs:dash_secretaire')
-    elif user.role == 'directeur':
-        return redirect('utilisateurs:dash_directeur')
-    elif user.role == 'archives':
-        return redirect('utilisateurs:dash_archives')
-    return redirect('utilisateurs:login')
+    # Tout itilizatè ale nan menm dashboard
+    return redirect('utilisateurs:dash_admin')
+
+def base(request):
+    return render(request, "utilisateurs/base.html")
 
 @login_required
-@admin_required
 def dashboard(request):
+    # Konte itilizatè selon wòl
     users_count = CustomUser.objects.count()
     archives_count = CustomUser.objects.filter(role='archives').count()
     secretaire_count = CustomUser.objects.filter(role='secretaire').count()
     directeur_count = CustomUser.objects.filter(role='directeur').count()
 
-    context = {
-        'users_count': users_count,
-        'archives_count': archives_count,
-        'secretaire_count': secretaire_count,
-        'directeur_count': directeur_count,
-    }
     modules = [
         {"nom": "Inscriptions", "icon": "fa-clipboard-user"},
         {"nom": "Élèves", "icon": "fa-user-graduate"},
@@ -96,38 +87,33 @@ def dashboard(request):
         {"nom": "Cours", "icon": "fa-chalkboard"},
         {"nom": "Utilisateurs", "icon": "fa-users-cog"},
     ]
-    context["modules"] = modules
+
+    context = {
+        'users_count': users_count,
+        'archives_count': archives_count,
+        'secretaire_count': secretaire_count,
+        'directeur_count': directeur_count,
+        'modules': modules,
+        'role': request.user.role  # pou kache/oswa montre bouton selon wòl
+    }
+
     return render(request, "utilisateurs/dash_admin.html", context)
-    # return render(request, 'utilisateurs/dash_admin.html', context)
 
-@login_required
-def base(request):
-    return render(request, 'utilisateurs/base.html')
-
-@login_required
-def secretaire_required(request):
-    return render(request, 'utilisateurs/dash_secretaire.html')
-
-@login_required
-def directeur_required(request):
-    return render(request, 'utilisateurs/dash_directeur.html')
-
-@login_required
-def dashboard_archives(request):
-    return render(request, 'utilisateurs/dash_archives.html')
-
+# ----------------------- UTILISATEURS -----------------------
 @login_required
 @admin_required
 def create_user(request):
     if request.method == 'POST':
-        form = UserCreationForm(request.POST)
+        form = CustomUserCreationForm(request.POST, request.FILES)
         if form.is_valid():
             user = form.save()
             log_action(request.user, "create_user", target=user.username)
             messages.success(request, f"Utilisateur {user.username} créé avec succès!")
             return redirect('utilisateurs:list_users')
+        else:
+            messages.error(request, "Veuillez corriger les erreurs dans le formulaire.")
     else:
-        form = UserCreationForm()
+        form = CustomUserCreationForm()
 
     return render(request, 'utilisateurs/create_user.html', {'form': form})
 
@@ -137,12 +123,14 @@ def update_user(request, user_id):
     user = get_object_or_404(CustomUser, id=user_id)
 
     if request.method == 'POST':
-        form = UserUpdateForm(request.POST, instance=user)
+        form = UserUpdateForm(request.POST, request.FILES, instance=user)
         if form.is_valid():
             form.save()
             log_action(request.user, "update_user", target=user.username)
             messages.success(request, f"Utilisateur {user.username} mis à jour avec succès!")
             return redirect('utilisateurs:list_users')
+        else:
+            messages.error(request, "Veuillez corriger les erreurs dans le formulaire.")
     else:
         form = UserUpdateForm(instance=user)
 
@@ -184,3 +172,34 @@ def toggle_user_status(request, user_id):
     log_action(request.user, "toggle_user_status", target=user.username, details={"status": status})
     messages.success(request, f"L'utilisateur {user.username} a été {status} avec succès.")
     return redirect('utilisateurs:list_users')
+
+@login_required
+def view_user(request, user_id):
+    utilisateur = get_object_or_404(CustomUser, id=user_id)
+    return render(request, 'utilisateurs/afficher.html', {'utilisateur': utilisateur})
+
+# ----------------------- CHANGER FOTO / MODPAS -----------------------
+@login_required
+def change_photo(request):
+    if request.method == 'POST' and request.FILES.get('photo'):
+        user = request.user
+        user.photo = request.FILES['photo']
+        user.save()
+        messages.success(request, "Photo de profil mise à jour avec succès.")
+    else:
+        messages.error(request, "Erreur lors de la mise à jour de la photo.")
+    return redirect(request.META.get('HTTP_REFERER', '/'))
+
+@login_required
+def change_password(request):
+    if request.method == 'POST':
+        form = PasswordChangeForm(request.user, request.POST)
+        if form.is_valid():
+            user = form.save()
+            update_session_auth_hash(request, user)
+            messages.success(request, 'Mot de passe changé avec succès.')
+        else:
+            for field, errors in form.errors.items():
+                for error in errors:
+                    messages.error(request, error)
+    return redirect(request.META.get('HTTP_REFERER', '/'))

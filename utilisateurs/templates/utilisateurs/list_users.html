@@ -5,19 +5,17 @@
 
 {% block content %}
 <div class="max-w-7xl mx-auto">
-    <!-- En-tête de la page -->
-    <div class="mb-6">
-        <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
-            <div>
-                <h1 class="text-3xl font-bold text-gray-900">Tous les utilisateurs</h1>
-                <p class="text-gray-600 mt-1">Gérez les comptes utilisateurs du système</p>
-            </div>
-            <a href="{% url 'utilisateurs:create_user' %}" 
-                  class="inline-flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-gray-700 via-gray-600 to-yellow-600 text-white rounded-lg hover:from-gray-800 hover:via-gray-700 hover:to-yellow-700 transition shadow-lg hover:shadow-xl transform hover:scale-105">
-                 <i class="fas fa-plus"></i>
-                <span class="font-semibold">Ajouter un utilisateur</span>
-            </a>
+    <!-- Header -->
+    <div class="mb-6 flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+        <div>
+            <h1 class="text-3xl font-bold text-gray-900">Tous les utilisateurs</h1>
+            <p class="text-gray-600 mt-1">Gérez les comptes utilisateurs du système</p>
         </div>
+        <a href="{% url 'utilisateurs:create_user' %}" 
+           class="inline-flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-gray-700 via-gray-600 to-yellow-600 text-white rounded-lg hover:from-gray-800 hover:via-gray-700 hover:to-yellow-700 transition shadow-lg hover:shadow-xl transform hover:scale-105">
+            <i class="fas fa-plus"></i>
+            <span class="font-semibold">Ajouter un utilisateur</span>
+        </a>
     </div>
 
     <!-- Filtres -->
@@ -30,9 +28,9 @@
             <select id="filterRole" class="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
                 <option value="">Tous les rôles</option>
                 <option value="admin">Administrateur</option>
-                <option value="Archiviste">Archiviste</option>
-                <option value="Secrétaire">Secrétaire</option>
-                <option value="Directeur">Directeur</option>
+                <option value="archives">Archiviste</option>
+                <option value="secretaire">Secrétaire</option>
+                <option value="directeur">Directeur</option>
             </select>
             <select id="filterStatus" class="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
                 <option value="">Tous les statuts</option>
@@ -51,21 +49,11 @@
                         <th class="px-6 py-3 text-left">
                             <input type="checkbox" class="rounded border-gray-300 text-blue-600 focus:ring-blue-500">
                         </th>
-                        <th class="px-6 py-3 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
-                           Nom d'utilisateur
-                        </th>
-                        <th class="px-6 py-3 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
-                            Email
-                        </th>
-                        <th class="px-6 py-3 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
-                            Rôle
-                        </th>
-                        <th class="px-6 py-3 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
-                            Statut
-                        </th>
-                        <th class="px-6 py-3 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
-                            Actions
-                        </th>
+                        <th class="px-6 py-3 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Nom d'utilisateur</th>
+                        <th class="px-6 py-3 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Email</th>
+                        <th class="px-6 py-3 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Rôle</th>
+                        <th class="px-6 py-3 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Statut</th>
+                        <th class="px-6 py-3 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Actions</th>
                     </tr>
                 </thead>
                 <tbody class="divide-y divide-gray-200">
@@ -76,50 +64,46 @@
                         </td>
                         <td class="px-6 py-4">
                             <div class="flex items-center gap-3">
-                                <div class="w-10 h-10 bg-blue-600 rounded-full flex items-center justify-center text-white font-semibold">
-                                    {{ user.username.0|upper }}
-                                </div>
+                                {% if user.photo %}
+                                    <img src="{{ user.photo.url }}" alt="Profil" class="w-10 h-10 rounded-full object-cover border border-gray-300">
+                                {% else %}
+                                    <div class="w-10 h-10 bg-blue-600 rounded-full flex items-center justify-center text-white font-semibold">
+                                        {{ user.username.0|upper }}
+                                    </div>
+                                {% endif %}
                                 <div>
                                     <div class="font-medium text-gray-900">{{ user.username }}</div>
                                 </div>
                             </div>
                         </td>
-                        <td class="px-6 py-4 text-gray-600">
-                            {{ user.email }}
-                        </td>
+                        <td class="px-6 py-4 text-gray-600">{{ user.email }}</td>
                         <td class="px-6 py-4">
                             {% if user.role == 'admin' %}
                             <span class="inline-flex items-center gap-1 px-3 py-1 bg-purple-100 text-purple-700 rounded-full text-sm font-medium">
-                                <i class="fas fa-user-shield text-xs"></i>
-                                Administrateur
+                                <i class="fas fa-user-shield text-xs"></i> Administrateur
                             </span>
-                            {% elif user.role == 'Archiviste' %}
+                            {% elif user.role == 'archives' %}
                             <span class="inline-flex items-center gap-1 px-3 py-1 bg-blue-100 text-blue-700 rounded-full text-sm font-medium">
-                                <i class="fas fa-archive text-xs"></i>
-                                Archiviste
+                                <i class="fas fa-archive text-xs"></i> Archiviste
                             </span>
-                            {% elif user.role == 'Directeur' %}
+                            {% elif user.role == 'directeur' %}
                             <span class="inline-flex items-center gap-1 px-3 py-1 bg-green-100 text-green-700 rounded-full text-sm font-medium">
-                                <i class="fas fa-user-tie text-xs"></i>
-                                Directeur
+                                <i class="fas fa-user-tie text-xs"></i> Directeur
                             </span>
                             {% else %}
                             <span class="inline-flex items-center gap-1 px-3 py-1 bg-gray-100 text-gray-700 rounded-full text-sm font-medium">
-                                <i class="fas fa-user text-xs"></i>
-                                Secrétaire
+                                <i class="fas fa-user text-xs"></i> Secrétaire
                             </span>
                             {% endif %}
                         </td>
                         <td class="px-6 py-4">
                             {% if user.is_active %}
                             <span class="inline-flex items-center gap-1 px-3 py-1 bg-green-100 text-green-700 rounded-full text-sm font-medium">
-                                <span class="w-2 h-2 bg-green-500 rounded-full"></span>
-                                Actif
+                                <span class="w-2 h-2 bg-green-500 rounded-full"></span> Actif
                             </span>
                             {% else %}
                             <span class="inline-flex items-center gap-1 px-3 py-1 bg-red-100 text-red-700 rounded-full text-sm font-medium">
-                                <span class="w-2 h-2 bg-red-500 rounded-full"></span>
-                                Inactif
+                                <span class="w-2 h-2 bg-red-500 rounded-full"></span> Inactif
                             </span>
                             {% endif %}
                         </td>
@@ -128,23 +112,15 @@
                                 <button onclick="toggleActionMenu({{ user.id }})" class="p-2 text-gray-600 hover:bg-gray-100 rounded-lg transition">
                                     <i class="fas fa-ellipsis-v"></i>
                                 </button>
-                                <!-- Menu déroulant -->
                                 <div id="actionMenu-{{ user.id }}" class="hidden absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-xl border border-gray-200 z-10">
-                                    <a href="#" class="w-full flex items-center gap-3 px-4 py-3 text-blue-600 hover:bg-blue-50 transition">
-                                        <i class="fas fa-eye"></i>
-                                        <span>Afficher</span>
+                                    <a href="{% url 'utilisateurs:afficher' user.id %}" class="w-full flex items-center gap-3 px-4 py-3 text-blue-600 hover:bg-blue-50 transition">
+                                        <i class="fas fa-eye"></i> Afficher
                                     </a>
                                     <a href="{% url 'utilisateurs:update_user' user.id %}" class="w-full flex items-center gap-3 px-4 py-3 text-green-600 hover:bg-green-50 transition border-t border-gray-100">
-                                        <i class="fas fa-edit"></i>
-                                        <span>Modifier</span>
-                                    </a>
-                                    <a href="#" onclick="return confirm('Êtes-vous sûr de vouloir archiver cet utilisateur ?')" class="w-full flex items-center gap-3 px-4 py-3 text-yellow-600 hover:bg-yellow-50 transition border-t border-gray-100">
-                                        <i class="fas fa-archive"></i>
-                                        <span>Archiver</span>
+                                        <i class="fas fa-edit"></i> Modifier
                                     </a>
                                     <a href="{% url 'utilisateurs:delete_user' user.id %}" onclick="return confirm('Êtes-vous sûr de vouloir supprimer cet utilisateur définitivement ?')" class="w-full flex items-center gap-3 px-4 py-3 text-red-600 hover:bg-red-50 transition border-t border-gray-100 rounded-b-lg">
-                                        <i class="fas fa-trash"></i>
-                                        <span>Supprimer</span>
+                                        <i class="fas fa-trash"></i> Supprimer
                                     </a>
                                 </div>
                             </div>
@@ -169,108 +145,36 @@
             </div>
             <div class="flex gap-2">
                 {% if users.has_previous %}
-                <a href="?page={{ users.previous_page_number }}" class="px-3 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 transition text-sm">
-                    Précédent
-                </a>
+                <a href="?page={{ users.previous_page_number }}" class="px-3 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 transition text-sm">Précédent</a>
                 {% else %}
-                <button disabled class="px-3 py-2 border border-gray-300 rounded-lg bg-gray-100 text-gray-400 cursor-not-allowed text-sm">
-                    Précédent
-                </button>
+                <button disabled class="px-3 py-2 border border-gray-300 rounded-lg bg-gray-100 text-gray-400 cursor-not-allowed text-sm">Précédent</button>
                 {% endif %}
 
-                <button class="px-3 py-2 bg-blue-600 text-white rounded-lg text-sm">
-                    {{ users.number|default:"1" }}
-                </button>
+                <button class="px-3 py-2 bg-blue-600 text-white rounded-lg text-sm">{{ users.number|default:"1" }}</button>
 
                 {% if users.has_next %}
-                <a href="?page={{ users.next_page_number }}" class="px-3 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 transition text-sm">
-                    Suivant
-                </a>
+                <a href="?page={{ users.next_page_number }}" class="px-3 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 transition text-sm">Suivant</a>
                 {% else %}
-                <button disabled class="px-3 py-2 border border-gray-300 rounded-lg bg-gray-100 text-gray-400 cursor-not-allowed text-sm">
-                    Suivant
-                </button>
+                <button disabled class="px-3 py-2 border border-gray-300 rounded-lg bg-gray-100 text-gray-400 cursor-not-allowed text-sm">Suivant</button>
                 {% endif %}
             </div>
         </div>
     </div>
 </div>
 
-<!-- Modal Ajouter Utilisateur
-<div id="addUserModal" class="fixed inset-0 bg-black bg-opacity-50 z-50 hidden items-center justify-center p-4">
-    <div class="bg-white rounded-lg shadow-xl max-w-2xl w-full max-h-[90vh] overflow-y-auto">
-        <div class="p-6 border-b border-gray-200 flex items-center justify-between">
-            <h2 class="text-2xl font-bold text-gray-900">Ajouter un utilisateur</h2>
-            <button onclick="closeAddUserModal()" class="text-gray-400 hover:text-gray-600">
-                <i class="fas fa-times text-xl"></i>
-            </button>
-        </div>
-        <form method="post" action="{% url 'utilisateurs:create_user' %}" class="p-6">
-            {% csrf_token %}
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div class="md:col-span-2">
-                    <label class="block text-sm font-medium text-gray-700 mb-2">Nom d'utilisateur</label>
-                    <input type="text" name="username" required class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
-                </div>
-                <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-2">Prénom</label>
-                    <input type="text" name="first_name" required class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
-                </div>
-                <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-2">Nom</label>
-                    <input type="text" name="last_name" required class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
-                </div>
-                <div class="md:col-span-2">
-                    <label class="block text-sm font-medium text-gray-700 mb-2">Email</label>
-                    <input type="email" name="email" required class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
-                </div>
-                <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-2">Rôle</label>
-                    <select name="role" required class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
-                        <option value="">Sélectionner un rôle</option>
-                        <option value="admin">Administrateur</option>
-                        <option value="Archiviste">Archiviste</option>
-                        <option value="Secrétaire">Secrétaire</option>
-                        <option value="Directeur">Directeur</option>
-                    </select>
-                </div>
-                <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-2">Mot de passe</label>
-                    <input type="password" name="password" required class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
-                </div>
-            </div>
-            <div class="mt-6 flex gap-3 justify-end">
-                <button type="button" onclick="closeAddUserModal()" class="px-6 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 transition">
-                    Annuler
-                </button>
-                <button type="submit" class="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition">
-                    Ajouter
-                </button>
-            </div>
-        </form>
-    </div>
-</div> -->
-
 <script>
     // Toggle menu déroulant
     function toggleActionMenu(userId) {
         const menu = document.getElementById('actionMenu-' + userId);
-        // Fermer tous les autres menus
         document.querySelectorAll('[id^="actionMenu-"]').forEach(m => {
-            if (m.id !== 'actionMenu-' + userId) {
-                m.classList.add('hidden');
-            }
+            if (m.id !== 'actionMenu-' + userId) { m.classList.add('hidden'); }
         });
-        // Toggle le menu actuel
         menu.classList.toggle('hidden');
     }
 
-    // Fermer les menus quand on clique ailleurs
     document.addEventListener('click', function(event) {
         if (!event.target.closest('button') && !event.target.closest('[id^="actionMenu-"]')) {
-            document.querySelectorAll('[id^="actionMenu-"]').forEach(menu => {
-                menu.classList.add('hidden');
-            });
+            document.querySelectorAll('[id^="actionMenu-"]').forEach(menu => { menu.classList.add('hidden'); });
         }
     });
 
@@ -278,7 +182,6 @@
     document.getElementById('searchUser').addEventListener('input', function(e) {
         const searchTerm = e.target.value.toLowerCase();
         const rows = document.querySelectorAll('tbody tr');
-        
         rows.forEach(row => {
             const text = row.textContent.toLowerCase();
             row.style.display = text.includes(searchTerm) ? '' : 'none';
@@ -289,14 +192,9 @@
     document.getElementById('filterRole').addEventListener('change', function(e) {
         const roleFilter = e.target.value.toLowerCase();
         const rows = document.querySelectorAll('tbody tr');
-        
         rows.forEach(row => {
-            if (roleFilter === '') {
-                row.style.display = '';
-            } else {
-                const roleText = row.querySelector('td:nth-child(4)').textContent.toLowerCase();
-                row.style.display = roleText.includes(roleFilter) ? '' : 'none';
-            }
+            if (roleFilter === '') { row.style.display = ''; }
+            else { row.style.display = row.querySelector('td:nth-child(4)').textContent.toLowerCase().includes(roleFilter) ? '' : 'none'; }
         });
     });
 
@@ -304,14 +202,9 @@
     document.getElementById('filterStatus').addEventListener('change', function(e) {
         const statusFilter = e.target.value.toLowerCase();
         const rows = document.querySelectorAll('tbody tr');
-        
         rows.forEach(row => {
-            if (statusFilter === '') {
-                row.style.display = '';
-            } else {
-                const statusText = row.querySelector('td:nth-child(5)').textContent.toLowerCase();
-                row.style.display = statusText.includes(statusFilter) ? '' : 'none';
-            }
+            if (statusFilter === '') { row.style.display = ''; }
+            else { row.style.display = row.querySelector('td:nth-child(5)').textContent.toLowerCase().includes(statusFilter) ? '' : 'none'; }
         });
     });
 </script>

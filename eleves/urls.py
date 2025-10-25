@@ -2,11 +2,9 @@ from django.urls import path
 from . import views
 
 app_name = 'eleves'
-
 urlpatterns = [
-    # Authentication
-    path('eleves/', views.eleves, name='eleves'),
-    path('add_eleves', views.add_eleves, name='add_eleves'),
-    path('modifier_eleves', views.modifier_eleves, name='modifier_eleves'),
-
+    path('eleve_list/', views.eleve_list, name='eleve_list'),
+    path('<int:pk>/eleve_detail', views.eleve_detail, name='eleve_detail'),
+    path('<int:pk>/eleve_update/', views.eleve_update, name='eleve_update'),
+    path('<int:pk>/eleve_delete/', views.eleve_delete, name='eleve_delete'),
 ]

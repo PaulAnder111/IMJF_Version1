@@ -3,8 +3,13 @@ from pathlib import Path
 import os
 from django.core.exceptions import ImproperlyConfigured
 
-# Build paths inside the project like this: BASE_DIR / 'subdir'.
+# 1️⃣ Defini baz pwojè a
 BASE_DIR = Path(__file__).resolve().parent.parent
+
+#  Media files (pou jere foto itilizatè)
+MEDIA_URL = '/media/'
+MEDIA_ROOT = BASE_DIR / 'media'
+
 
 
 # Quick-start development settings - unsuitable for production
@@ -105,24 +110,21 @@ DEFAULT_DB = {
     'NAME': BASE_DIR / 'db.sqlite3',
 }
 
-# Optional MySQL/Postgres configuration via environment variables
-DB_ENGINE = get_env_setting('DB_ENGINE', '')
-if DB_ENGINE:
-    DATABASES = {
+DATABASES = {
         'default': {
-            'ENGINE': DB_ENGINE,
-            'NAME': get_env_setting('DB_NAME', ''),
-            'USER': get_env_setting('DB_USER', ''),
-            'PASSWORD': get_env_setting('DB_PASSWORD', ''),
-            'HOST': get_env_setting('DB_HOST', ''),
-            'PORT': get_env_setting('DB_PORT', ''),
-            # Additional options can be provided via DB_OPTIONS as JSON if needed
-        }
-    }
-else:
-    DATABASES = {
-        'default': DEFAULT_DB
-    }
+            'ENGINE':'django.db.backends.mysql',
+            'NAME':'railway',
+            'USER': 'root',
+            'PASSWORD': 'OELrAflRuAwNLLyafbRItxigSlUvdbDf',
+            'HOST': 'trolley.proxy.rlwy.net',
+            'PORT': '44383',
+            'OPTIONS': {
+                'charset': 'utf8mb4',
+                'init_command': "SET sql_mode='STRICT_TRANS_TABLES'",
+            },   # Additional options can be provided via DB_OPTIONS as JSON if needed
+        },
+} 
+
 
 # NOTE: The previous monkeypatch of socket.getaddrinfo was removed. If you rely on
 # special DNS/hostname behavior for a specific hosting platform, please reintroduce

@@ -120,30 +120,23 @@
                 <div>
                     <label for="id_lieu_naissance" class="block text-sm font-semibold text-gray-700 mb-2">
                         <i class="fas fa-map-marker-alt text-yellow-500 mr-2"></i>Lieu de Naissance
+                        <span class="text-red-500">*</span>
                     </label>
-                    <input type="text" name="lieu_naissance" id="id_lieu_naissance"
+                    <input type="text" name="lieu_naissance" id="id_lieu_naissance" required
                         placeholder="Ex: Port-au-Prince, Haïti"
                         class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-yellow-500 focus:border-transparent transition-all">
                 </div>
 
-                <!-- Nationalité -->
-                <div>
-                    <label for="id_nationalite" class="block text-sm font-semibold text-gray-700 mb-2">
-                        <i class="fas fa-flag text-yellow-500 mr-2"></i>Nationalité
-                    </label>
-                    <input type="text" name="nationalite" id="id_nationalite" value="Haïtienne"
-                        placeholder="Ex: Haïtienne"
-                        class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-yellow-500 focus:border-transparent transition-all">
-                </div>
-
-                <!-- Photo (optionnel) -->
+                <!-- Adresse Complète -->
                 <div class="md:col-span-2">
-                    <label for="id_photo" class="block text-sm font-semibold text-gray-700 mb-2">
-                        <i class="fas fa-camera text-yellow-500 mr-2"></i>Photo de l'élève (Optionnel)
+                    <label for="id_adresse" class="block text-sm font-semibold text-gray-700 mb-2">
+                        <i class="fas fa-home text-yellow-500 mr-2"></i>Adresse Complète
+                        <span class="text-red-500">*</span>
                     </label>
-                    <input type="file" name="photo" id="id_photo" accept="image/*"
-                        class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-yellow-500 focus:border-transparent transition-all">
-                    <p class="text-xs text-gray-500 mt-1">Format accepté: JPG, PNG (Max 2MB)</p>
+                    <textarea name="adresse" id="id_adresse" rows="3" required
+                        class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-yellow-500 focus:border-transparent transition-all"
+                        placeholder="Ex: 123 Rue Jean-Jacques Dessalines, Delmas 33, Port-au-Prince"></textarea>
+                    <p class="text-xs text-gray-500 mt-1">Adresse résidentielle complète (rue, commune, département)</p>
                 </div>
             </div>
 
@@ -156,6 +149,17 @@
             </div>
 
             <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <!-- Niveau -->
+                <div>
+                    <label for="id_niveau" class="block text-sm font-semibold text-gray-700 mb-2">
+                        <i class="fas fa-layer-group text-yellow-500 mr-2"></i>Niveau scolaire
+                        <span class="text-red-500">*</span>
+                    </label>
+                    <input type="text" name="niveau" id="id_niveau" required
+                        placeholder="Ex: 6e année"
+                        class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-yellow-500 focus:border-transparent transition-all">
+                </div>
+
                 <!-- Classe -->
                 <div>
                     <label for="id_classe" class="block text-sm font-semibold text-gray-700 mb-2">
@@ -166,7 +170,7 @@
                         class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-yellow-500 focus:border-transparent transition-all">
                         <option value="">-- Sélectionner une classe --</option>
                         {% for classe in classes %}
-                            <option value="{{ classe.id }}">{{ classe.nom }} - {{ classe.niveau }}</option>
+                            <option value="{{ classe.id }}">{{ classe.nom_classe }} - {{ classe.niveau }}</option>
                         {% endfor %}
                     </select>
                 </div>
@@ -177,20 +181,9 @@
                         <i class="fas fa-calendar-alt text-yellow-500 mr-2"></i>Année Scolaire
                         <span class="text-red-500">*</span>
                     </label>
-                    <input type="text" name="annee_scolaire" id="id_annee_scolaire" value="2024-2025" required
-                        placeholder="Ex: 2024-2025"
+                    <input type="text" name="annee_scolaire" id="id_annee_scolaire" value="2025-2026" required
+                        placeholder="Ex: 2025-2026"
                         class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-yellow-500 focus:border-transparent transition-all">
-                </div>
-
-                <!-- Date d'Inscription -->
-                <div>
-                    <label for="id_date_inscription" class="block text-sm font-semibold text-gray-700 mb-2">
-                        <i class="fas fa-calendar-check text-yellow-500 mr-2"></i>Date d'Inscription
-                        <span class="text-red-500">*</span>
-                    </label>
-                    <input type="date" name="date_inscription" id="id_date_inscription" required
-                        class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-yellow-500 focus:border-transparent transition-all">
-                    <p class="text-xs text-gray-500 mt-1">Date du jour par défaut</p>
                 </div>
 
                 <!-- Statut -->
@@ -201,220 +194,75 @@
                     </label>
                     <select name="statut" id="id_statut" required
                         class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-yellow-500 focus:border-transparent transition-all">
-                        <option value="en_attente">⏳ En attente</option>
-                        <option value="approuve">✅ Approuvé</option>
-                        <option value="rejete">❌ Rejeté</option>
+                        <option value="pre-inscrit">⏳ Pré-inscrit</option>
+                        <option value="aktif">🟢 Actif</option>
+                        <option value="refize">❌ Refusé</option>
                     </select>
                 </div>
             </div>
 
-            <!-- Section: Contact -->
-            <div class="border-l-4 border-green-500 pl-4 mt-8">
+            <!-- Section: Informations Responsable -->
+            <div class="border-l-4 border-purple-500 pl-4 mt-8">
                 <h2 class="text-xl font-bold text-gray-800 mb-4 flex items-center">
-                    <i class="fas fa-address-book text-green-500 mr-3"></i>
-                    Informations de Contact
+                    <i class="fas fa-users text-purple-500 mr-3"></i>
+                    Informations du Responsable Légal
                 </h2>
             </div>
 
             <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <!-- Téléphone -->
+                <!-- Nom Complet du Responsable -->
                 <div>
-                    <label for="id_telephone" class="block text-sm font-semibold text-gray-700 mb-2">
-                        <i class="fas fa-phone text-yellow-500 mr-2"></i>Téléphone Principal
+                    <label for="id_personne_responsable" class="block text-sm font-semibold text-gray-700 mb-2">
+                        <i class="fas fa-user text-yellow-500 mr-2"></i>Nom Complet du Responsable
+                        <span class="text-red-500">*</span>
                     </label>
-                    <input type="tel" name="telephone" id="id_telephone"
+                    <input type="text" name="personne_responsable" id="id_personne_responsable" required
+                        placeholder="Ex: Jean BAPTISTE"
+                        class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-yellow-500 focus:border-transparent transition-all">
+                </div>
+
+                <!-- Profession du Responsable -->
+                <div>
+                    <label for="id_profession_responsable" class="block text-sm font-semibold text-gray-700 mb-2">
+                        <i class="fas fa-briefcase text-yellow-500 mr-2"></i>Profession du Responsable
+                        <span class="text-red-500">*</span>
+                    </label>
+                    <input type="text" name="profession_responsable" id="id_profession_responsable" required
+                        placeholder="Ex: Ingénieur"
+                        class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-yellow-500 focus:border-transparent transition-all">
+                </div>
+
+                <!-- Téléphone du Responsable -->
+                <div>
+                    <label for="id_telephone_responsable" class="block text-sm font-semibold text-gray-700 mb-2">
+                        <i class="fas fa-phone text-yellow-500 mr-2"></i>Téléphone du Responsable
+                        <span class="text-red-500">*</span>
+                    </label>
+                    <input type="tel" name="telephone_responsable" id="id_telephone_responsable" required
                         placeholder="+509 1234-5678"
                         class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-yellow-500 focus:border-transparent transition-all">
                     <p class="text-xs text-gray-500 mt-1">Format: +509 XXXX-XXXX</p>
                 </div>
 
-                <!-- Email -->
+                <!-- Email du Responsable -->
                 <div>
-                    <label for="id_email" class="block text-sm font-semibold text-gray-700 mb-2">
-                        <i class="fas fa-envelope text-yellow-500 mr-2"></i>Adresse Email
+                    <label for="id_email_responsable" class="block text-sm font-semibold text-gray-700 mb-2">
+                        <i class="fas fa-envelope text-yellow-500 mr-2"></i>Email du Responsable (Optionnel)
                     </label>
-                    <input type="email" name="email" id="id_email"
-                        placeholder="exemple@email.com"
+                    <input type="email" name="email_responsable" id="id_email_responsable"
+                        placeholder="responsable@email.com"
                         class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-yellow-500 focus:border-transparent transition-all">
-                    <p class="text-xs text-gray-500 mt-1">Email de contact (optionnel)</p>
                 </div>
 
-                <!-- Adresse Complète -->
-                <div class="md:col-span-2">
-                    <label for="id_adresse" class="block text-sm font-semibold text-gray-700 mb-2">
-                        <i class="fas fa-home text-yellow-500 mr-2"></i>Adresse Complète
-                    </label>
-                    <textarea name="adresse" id="id_adresse" rows="3"
-                        class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-yellow-500 focus:border-transparent transition-all"
-                        placeholder="Ex: 123 Rue Jean-Jacques Dessalines, Delmas 33, Port-au-Prince"></textarea>
-                    <p class="text-xs text-gray-500 mt-1">Adresse résidentielle complète</p>
-                </div>
-            </div>
-
-            <!-- Section: Informations Parents/Tuteurs -->
-            <div class="border-l-4 border-purple-500 pl-4 mt-8">
-                <h2 class="text-xl font-bold text-gray-800 mb-4 flex items-center">
-                    <i class="fas fa-users text-purple-500 mr-3"></i>
-                    Informations des Parents/Tuteurs
-                </h2>
-            </div>
-
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <!-- Nom Complet du Père -->
+                <!-- École d'origine -->
                 <div>
-                    <label for="id_nom_pere" class="block text-sm font-semibold text-gray-700 mb-2">
-                        <i class="fas fa-male text-yellow-500 mr-2"></i>Nom Complet du Père
+                    <label for="id_ecole_origine" class="block text-sm font-semibold text-gray-700 mb-2">
+                        <i class="fas fa-school text-yellow-500 mr-2"></i>École d'origine (Optionnel)
                     </label>
-                    <input type="text" name="nom_pere" id="id_nom_pere"
-                        placeholder="Ex: Jean BAPTISTE"
+                    <input type="text" name="ecole_origine" id="id_ecole_origine"
+                        placeholder="Ex: École Sainte-Marie"
                         class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-yellow-500 focus:border-transparent transition-all">
                 </div>
-
-                <!-- Téléphone Père -->
-                <div>
-                    <label for="id_tel_pere" class="block text-sm font-semibold text-gray-700 mb-2">
-                        <i class="fas fa-phone text-yellow-500 mr-2"></i>Téléphone du Père
-                    </label>
-                    <input type="tel" name="tel_pere" id="id_tel_pere"
-                        placeholder="+509 1234-5678"
-                        class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-yellow-500 focus:border-transparent transition-all">
-                </div>
-
-                <!-- Profession Père -->
-                <div>
-                    <label for="id_profession_pere" class="block text-sm font-semibold text-gray-700 mb-2">
-                        <i class="fas fa-briefcase text-yellow-500 mr-2"></i>Profession du Père
-                    </label>
-                    <input type="text" name="profession_pere" id="id_profession_pere"
-                        placeholder="Ex: Ingénieur"
-                        class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-yellow-500 focus:border-transparent transition-all">
-                </div>
-
-                <!-- Email Père -->
-                <div>
-                    <label for="id_email_pere" class="block text-sm font-semibold text-gray-700 mb-2">
-                        <i class="fas fa-envelope text-yellow-500 mr-2"></i>Email du Père
-                    </label>
-                    <input type="email" name="email_pere" id="id_email_pere"
-                        placeholder="pere@email.com"
-                        class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-yellow-500 focus:border-transparent transition-all">
-                </div>
-
-                <!-- Nom Complet de la Mère -->
-                <div>
-                    <label for="id_nom_mere" class="block text-sm font-semibold text-gray-700 mb-2">
-                        <i class="fas fa-female text-yellow-500 mr-2"></i>Nom Complet de la Mère
-                    </label>
-                    <input type="text" name="nom_mere" id="id_nom_mere"
-                        placeholder="Ex: Marie JOSEPH"
-                        class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-yellow-500 focus:border-transparent transition-all">
-                </div>
-
-                <!-- Téléphone Mère -->
-                <div>
-                    <label for="id_tel_mere" class="block text-sm font-semibold text-gray-700 mb-2">
-                        <i class="fas fa-phone text-yellow-500 mr-2"></i>Téléphone de la Mère
-                    </label>
-                    <input type="tel" name="tel_mere" id="id_tel_mere"
-                        placeholder="+509 1234-5678"
-                        class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-yellow-500 focus:border-transparent transition-all">
-                </div>
-
-                <!-- Profession Mère -->
-                <div>
-                    <label for="id_profession_mere" class="block text-sm font-semibold text-gray-700 mb-2">
-                        <i class="fas fa-briefcase text-yellow-500 mr-2"></i>Profession de la Mère
-                    </label>
-                    <input type="text" name="profession_mere" id="id_profession_mere"
-                        placeholder="Ex: Infirmière"
-                        class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-yellow-500 focus:border-transparent transition-all">
-                </div>
-
-                <!-- Email Mère -->
-                <div>
-                    <label for="id_email_mere" class="block text-sm font-semibold text-gray-700 mb-2">
-                        <i class="fas fa-envelope text-yellow-500 mr-2"></i>Email de la Mère
-                    </label>
-                    <input type="email" name="email_mere" id="id_email_mere"
-                        placeholder="mere@email.com"
-                        class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-yellow-500 focus:border-transparent transition-all">
-                </div>
-
-                <!-- Contact d'urgence -->
-                <div class="md:col-span-2">
-                    <label for="id_contact_urgence" class="block text-sm font-semibold text-gray-700 mb-2">
-                        <i class="fas fa-exclamation-triangle text-yellow-500 mr-2"></i>Contact d'urgence (Nom et Téléphone)
-                    </label>
-                    <input type="text" name="contact_urgence" id="id_contact_urgence"
-                        placeholder="Ex: Tante Lucie - +509 9876-5432"
-                        class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-yellow-500 focus:border-transparent transition-all">
-                </div>
-            </div>
-
-            <!-- Section: Informations Médicales (Optionnel) -->
-            <div class="border-l-4 border-red-500 pl-4 mt-8">
-                <h2 class="text-xl font-bold text-gray-800 mb-4 flex items-center">
-                    <i class="fas fa-heartbeat text-red-500 mr-3"></i>
-                    Informations Médicales (Optionnel)
-                </h2>
-            </div>
-
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <!-- Groupe Sanguin -->
-                <div>
-                    <label for="id_groupe_sanguin" class="block text-sm font-semibold text-gray-700 mb-2">
-                        <i class="fas fa-tint text-yellow-500 mr-2"></i>Groupe Sanguin
-                    </label>
-                    <select name="groupe_sanguin" id="id_groupe_sanguin"
-                        class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-yellow-500 focus:border-transparent transition-all">
-                        <option value="">-- Sélectionner --</option>
-                        <option value="A+">A+</option>
-                        <option value="A-">A-</option>
-                        <option value="B+">B+</option>
-                        <option value="B-">B-</option>
-                        <option value="AB+">AB+</option>
-                        <option value="AB-">AB-</option>
-                        <option value="O+">O+</option>
-                        <option value="O-">O-</option>
-                    </select>
-                </div>
-
-                <!-- Allergies -->
-                <div>
-                    <label for="id_allergies" class="block text-sm font-semibold text-gray-700 mb-2">
-                        <i class="fas fa-allergies text-yellow-500 mr-2"></i>Allergies connues
-                    </label>
-                    <input type="text" name="allergies" id="id_allergies"
-                        placeholder="Ex: Arachides, Pénicilline"
-                        class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-yellow-500 focus:border-transparent transition-all">
-                </div>
-
-                <!-- Conditions médicales -->
-                <div class="md:col-span-2">
-                    <label for="id_conditions_medicales" class="block text-sm font-semibold text-gray-700 mb-2">
-                        <i class="fas fa-notes-medical text-yellow-500 mr-2"></i>Conditions médicales particulières
-                    </label>
-                    <textarea name="conditions_medicales" id="id_conditions_medicales" rows="2"
-                        class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-yellow-500 focus:border-transparent transition-all"
-                        placeholder="Asthme, diabète, ou autres conditions importantes..."></textarea>
-                </div>
-            </div>
-
-            <!-- Section: Notes additionnelles -->
-            <div class="border-l-4 border-indigo-500 pl-4 mt-8">
-                <h2 class="text-xl font-bold text-gray-800 mb-4 flex items-center">
-                    <i class="fas fa-comment-dots text-indigo-500 mr-3"></i>
-                    Notes Additionnelles
-                </h2>
-            </div>
-
-            <div>
-                <label for="id_notes" class="block text-sm font-semibold text-gray-700 mb-2">
-                    <i class="fas fa-sticky-note text-yellow-500 mr-2"></i>Remarques ou informations supplémentaires
-                </label>
-                <textarea name="notes" id="id_notes" rows="4"
-                    class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-yellow-500 focus:border-transparent transition-all"
-                    placeholder="Ajoutez toute information jugée utile pour le dossier de l'élève..."></textarea>
             </div>
 
             <!-- Buttons Section -->

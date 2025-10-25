@@ -17,6 +17,18 @@ class CustomUser(AbstractUser):
     phone = models.CharField(max_length=20, blank=True, null=True)
     date_created = models.DateTimeField(auto_now_add=True)
     date_updated = models.DateTimeField(auto_now=True)
+    photo = models.ImageField(upload_to='avatars/', blank=True, null=True)
+
+    @property
+    def avatar_url(self):
+        if self.photo:
+            return self.photo.url
+        else:
+            return None
+
+    @property
+    def initial(self):
+        return self.first_name[0].upper() if self.first_name else self.username[0].upper()
 
     # Champs sekirite anplis
     failed_attempts = models.PositiveIntegerField(default=0)
@@ -27,6 +39,8 @@ class CustomUser(AbstractUser):
         db_table = 'utilisateurs'
         verbose_name = 'Utilisateur'
         verbose_name_plural = 'Utilisateurs'
+
+      
 
     def __str__(self):
         return f"{self.username} ({self.get_role_display()})"
@@ -85,9 +99,9 @@ def create_default_admin(sender, **kwargs):
         User = get_user_model()
         if not User.objects.filter(role='admin').exists():
             User.objects.create_superuser(
-                username='IMJFSysAdmin',
-                email='admin@ecole.com',
-                password='Trilogic2025@!',
+                username='Fedanoir',
+                email='institutionmixtejosephfedanoir@gmail.com',
+                password='@@fedanoir@@joseph@@2025@@!',
                 role='admin',
             )
-            print("Administrateur par défaut créé: IMJFSysAdmin / Trilogic2025@!")
+            print("Administrateur par défaut créé: Fedanoir / @@fedanoir@@joseph@@2025@@!")

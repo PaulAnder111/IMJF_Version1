@@ -8,81 +8,31 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
-        .sidebar-transition {
-            transition: width 0.3s ease-in-out, background-color 0.3s ease-in-out;
-        }
-        .sidebar-collapsed {
-            width: 80px;
-        }
-        .sidebar-expanded {
-            width: 256px;
-        }
-        .menu-text, .submenu-container, .chevron-icon {
-            transition: opacity 0.2s ease-in-out, width 0.2s ease-in-out;
-        }
-        .sidebar-collapsed .menu-text,
-        .sidebar-collapsed .submenu-container,
-        .sidebar-collapsed .chevron-icon {
-            opacity: 0;
-            width: 0;
-            overflow: hidden;
-            display: none;
-        }
-        .content-shift {
-            transition: margin-left 0.3s ease-in-out, background-color 0.3s ease-in-out;
-        }
-        .content-collapsed {
-            margin-left: 80px;
-        }
-        .content-expanded {
-            margin-left: 256px;
-        }
-        
+        /* Sidebar & content transition */
+        .sidebar-transition { transition: width 0.3s ease-in-out, background-color 0.3s ease-in-out; }
+        .sidebar-collapsed { width: 80px; }
+        .sidebar-expanded { width: 256px; }
+        .menu-text, .submenu-container, .chevron-icon { transition: opacity 0.2s ease-in-out, width 0.2s ease-in-out; }
+        .sidebar-collapsed .menu-text, .sidebar-collapsed .submenu-container, .sidebar-collapsed .chevron-icon { opacity:0;width:0;overflow:hidden;display:none; }
+        .content-shift { transition: margin-left 0.3s ease-in-out, background-color 0.3s ease-in-out; }
+        .content-collapsed { margin-left: 80px; }
+        .content-expanded { margin-left: 256px; }
+
         /* Dark Mode */
-        body.dark-mode {
-            background-color: #1a202c;
-            color: #e2e8f0;
-        }
-        body.dark-mode .sidebar-dark {
-            background-color: #2d3748;
-        }
-        body.dark-mode .header-dark {
-            background-color: #1a202c;
-            border-bottom-color: #4a5568;
-        }
-        body.dark-mode .menu-item-dark:hover {
-            background-color: #4a5568;
-        }
-        
-        /* Light Mode - Sidebar blanc */
-        body.light-mode .sidebar-light {
-            background-color: #ffffff;
-            color: #1a202c;
-            border-right: 1px solid #e2e8f0;
-        }
-        body.light-mode .menu-item-light {
-            color: #4a5568;
-        }
-        body.light-mode .menu-item-light:hover {
-            background-color: #fef3c7;
-        }
-        body.light-mode .menu-icon-light {
-            color: #4a5568;
-        }
-        body.light-mode .header-light {
-            background-color: #ffffff;
-            border-bottom: 1px solid #e2e8f0;
-        }
-        
-        @media (max-width: 768px) {
-            .sidebar-mobile-hidden {
-                transform: translateX(-100%);
-            }
-            .content-collapsed,
-            .content-expanded {
-                margin-left: 0 !important;
-            }
-        }
+        body.dark-mode { background-color: #1a202c; color: #e2e8f0; }
+        body.dark-mode .sidebar-dark { background-color: #2d3748; }
+        body.dark-mode .header-dark { background-color: #1a202c; border-bottom-color: #4a5568; }
+        body.dark-mode .menu-item-dark:hover { background-color: #4a5568; }
+
+        /* Light Mode */
+        body.light-mode .sidebar-light { background-color: #ffffff; color: #1a202c; border-right: 1px solid #e2e8f0; }
+        body.light-mode .menu-item-light { color: #4a5568; }
+        body.light-mode .menu-item-light:hover { background-color: #fef3c7; }
+        body.light-mode .menu-icon-light { color: #4a5568; }
+        body.light-mode .header-light { background-color: #ffffff; border-bottom: 1px solid #e2e8f0; }
+
+        /* Avatar */
+        .avatar-circle { width:40px;height:40px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:bold;cursor:pointer; }
     </style>
 </head>
 <body class="bg-gray-50 light-mode">
@@ -111,8 +61,28 @@
                 <a href="{% url 'utilisateurs:logout' %}" class="p-2 text-red-500 hover:bg-gray-100 rounded-lg transition" title="Déconnexion">
                     <i class="fas fa-sign-out-alt text-xl"></i>
                 </a>
-                <div class="w-10 h-10 bg-yellow-500 rounded-full flex items-center justify-center text-gray-900 font-semibold cursor-pointer hover:bg-yellow-600 transition">
-                    {{ request.user.first_name.0|default:"U" }}
+
+                <!-- Avatar + Dropdown -->
+                <div class="relative">
+                    <div id="avatarBtn" class="avatar-circle bg-yellow-500 text-gray-900 hover:bg-yellow-600 transition">
+                        {% if request.user.photo %}
+                            <img src="{{ request.user.photo.url }}" alt="Avatar" class="w-full h-full object-cover rounded-full">
+                        {% else %}
+                            {{ request.user.first_name.0|default:"U" }}
+                        {% endif %}
+                    </div>
+                    <!-- Dropdown Profil -->
+                    <div id="avatarDropdown" class="hidden absolute right-0 mt-2 w-64 bg-white shadow-lg rounded-lg z-50">
+                        <div class="p-4 border-b">
+                            <p class="font-semibold text-gray-800">{% if request.user.get_full_name %}{{ request.user.get_full_name }}{% else %}{{ request.user.username }}{% endif %}</p>
+                            <p class="text-gray-500 text-sm" id="greeting"></p>
+                        </div>
+                        <ul>
+                            <li><button id="modalProfileBtn" class="w-full text-left px-4 py-2 hover:bg-gray-100">Voir profil</button></li>
+                            <li><button id="modalPasswordBtn" class="w-full text-left px-4 py-2 hover:bg-gray-100">Changer mot de passe</button></li>
+                            <li><button id="modalPhotoBtn" class="w-full text-left px-4 py-2 hover:bg-gray-100">Changer photo</button></li>
+                        </ul>
+                    </div>
                 </div>
             </div>
         </div>
@@ -121,92 +91,20 @@
     <!-- Sidebar -->
     <aside id="sidebar" class="sidebar-light fixed left-0 top-0 h-full pt-16 z-30 sidebar-transition sidebar-expanded">
         <nav class="px-3 py-4 h-full flex flex-col">
-            <!-- Menu Principal -->
             <ul class="space-y-1 flex-1">
-                <!-- Home -->
-                <li>
-                    <a href="{% url 'utilisateurs:dash_admin' %}" class="menu-item-light flex items-center gap-3 px-4 py-3 rounded-lg transition">
-                        <i class="fas fa-home text-lg min-w-[20px] menu-icon-light"></i>
-                        <span class="menu-text whitespace-nowrap">Home</span>
-                    </a>
-                </li>
-
-                <!-- Inscription -->
-                <li>
-                    <a href="{% url 'inscriptions:inscription_list' %}" class="menu-item-light flex items-center gap-3 px-4 py-3 rounded-lg transition">
-                        <i class="fas fa-user-plus text-lg min-w-[20px] menu-icon-light"></i>
-                        <span class="menu-text whitespace-nowrap">Inscription</span>
-                    </a>
-                </li>
-
-                <!-- Élèves -->
-                <li>
-                    <a href="{% url 'eleves:eleves' %}" class="menu-item-light flex items-center gap-3 px-4 py-3 rounded-lg transition">
-                        <i class="fas fa-user-graduate text-lg min-w-[20px] menu-icon-light"></i>
-                        <span class="menu-text whitespace-nowrap">Élèves</span>
-                    </a>
-                </li>
-
-                <!-- Enseignants -->
-                <li>
-                    <a href="{% url 'enseignants:enseignants' %}" class="menu-item-light flex items-center gap-3 px-4 py-3 rounded-lg transition">
-                        <i class="fas fa-chalkboard-teacher text-lg min-w-[20px] menu-icon-light"></i>
-                        <span class="menu-text whitespace-nowrap">Enseignants</span>
-                    </a>
-                </li>
-
-                <!-- Classes -->
-                <li>
-                    <a href="{% url 'classes:classes' %}" class="menu-item-light flex items-center gap-3 px-4 py-3 rounded-lg transition">
-                        <i class="fas fa-school text-lg min-w-[20px] menu-icon-light"></i>
-                        <span class="menu-text whitespace-nowrap">Classes</span>
-                    </a>
-                </li>
-
-                <!-- Matières -->
-                <li>
-                    <a href="{% url 'matieres:matieres' %}" class="menu-item-light flex items-center gap-3 px-4 py-3 rounded-lg transition">
-                        <i class="fas fa-book text-lg min-w-[20px] menu-icon-light"></i>
-                        <span class="menu-text whitespace-nowrap">Matières</span>
-                    </a>
-                </li>
-
-                <!-- Cours -->
-                <li>
-                    <a href="{% url 'cours:cours' %}" class="menu-item-light flex items-center gap-3 px-4 py-3 rounded-lg transition">
-                        <i class="fas fa-calendar-alt text-lg min-w-[20px] menu-icon-light"></i>
-                        <span class="menu-text whitespace-nowrap">Cours</span>
-                    </a>
-                </li>
-
-                <!-- Archives -->
-                <li>
-                    <a href="#" class="menu-item-light flex items-center gap-3 px-4 py-3 rounded-lg transition">
-                        <i class="fas fa-archive text-lg min-w-[20px] menu-icon-light"></i>
-                        <span class="menu-text whitespace-nowrap">Archives</span>
-                    </a>
-                </li>
-
-                <!-- Utilisateurs -->
-                <li>
-                    <a href="{% url 'utilisateurs:list_users' %}" class="menu-item-light flex items-center gap-3 px-4 py-3 rounded-lg transition">
-                        <i class="fas fa-users text-lg min-w-[20px] menu-icon-light"></i>
-                        <span class="menu-text whitespace-nowrap">Utilisateurs</span>
-                    </a>
-                </li>
+                <li><a href="{% url 'utilisateurs:dash_admin' %}" class="menu-item-light flex items-center gap-3 px-4 py-3 rounded-lg transition"><i class="fas fa-home text-lg min-w-[20px] menu-icon-light"></i><span class="menu-text whitespace-nowrap">Home</span></a></li>
+                <li><a href="{% url 'inscriptions:inscription_list' %}" class="menu-item-light flex items-center gap-3 px-4 py-3 rounded-lg transition"><i class="fas fa-user-plus text-lg min-w-[20px] menu-icon-light"></i><span class="menu-text whitespace-nowrap">Inscription</span></a></li>
+                <li><a href="{% url 'eleves:eleve_list' %}" class="menu-item-light flex items-center gap-3 px-4 py-3 rounded-lg transition"><i class="fas fa-user-graduate text-lg min-w-[20px] menu-icon-light"></i><span class="menu-text whitespace-nowrap">Élèves</span></a></li>
+                <li><a href="{% url 'enseignants:enseignants' %}" class="menu-item-light flex items-center gap-3 px-4 py-3 rounded-lg transition"><i class="fas fa-chalkboard-teacher text-lg min-w-[20px] menu-icon-light"></i><span class="menu-text whitespace-nowrap">Enseignants</span></a></li>
+                <li><a href="{% url 'classes:classes' %}" class="menu-item-light flex items-center gap-3 px-4 py-3 rounded-lg transition"><i class="fas fa-school text-lg min-w-[20px] menu-icon-light"></i><span class="menu-text whitespace-nowrap">Classes</span></a></li>
+                <li><a href="{% url 'matieres:matieres' %}" class="menu-item-light flex items-center gap-3 px-4 py-3 rounded-lg transition"><i class="fas fa-book text-lg min-w-[20px] menu-icon-light"></i><span class="menu-text whitespace-nowrap">Matières</span></a></li>
+                <li><a href="{% url 'cours:cours' %}" class="menu-item-light flex items-center gap-3 px-4 py-3 rounded-lg transition"><i class="fas fa-calendar-alt text-lg min-w-[20px] menu-icon-light"></i><span class="menu-text whitespace-nowrap">Cours</span></a></li>
+                <li><a href="#" class="menu-item-light flex items-center gap-3 px-4 py-3 rounded-lg transition"><i class="fas fa-archive text-lg min-w-[20px] menu-icon-light"></i><span class="menu-text whitespace-nowrap">Archives</span></a></li>
+                <li><a href="{% url 'utilisateurs:list_users' %}" class="menu-item-light flex items-center gap-3 px-4 py-3 rounded-lg transition"><i class="fas fa-users text-lg min-w-[20px] menu-icon-light"></i><span class="menu-text whitespace-nowrap">Utilisateurs</span></a></li>
             </ul>
-
-            <!-- Séparateur -->
             <div class="border-t border-gray-200 my-2"></div>
-
-            <!-- Menu Paramètres en bas -->
             <ul class="space-y-1 mb-4">
-                <li>
-                    <a href="#" class="menu-item-light flex items-center gap-3 px-4 py-3 rounded-lg transition">
-                        <i class="fas fa-cog text-lg min-w-[20px] menu-icon-light"></i>
-                        <span class="menu-text whitespace-nowrap">Paramètres</span>
-                    </a>
-                </li>
+                <li><a href="#" class="menu-item-light flex items-center gap-3 px-4 py-3 rounded-lg transition"><i class="fas fa-cog text-lg min-w-[20px] menu-icon-light"></i><span class="menu-text whitespace-nowrap">Paramètres</span></a></li>
             </ul>
         </nav>
     </aside>
@@ -222,7 +120,44 @@
         </div>
     </main>
 
+    <!-- Modals Profil -->
+    <div id="modalProfile" class="hidden fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center">
+        <div class="bg-white rounded-lg shadow-lg w-96 p-6">
+            <h2 class="text-lg font-semibold mb-4">Profil Utilisateur</h2>
+            <p class="font-medium">Nom complet: {% if request.user.get_full_name %}{{ request.user.get_full_name }}{% else %}{{ request.user.username }}{% endif %}</p>
+            <p>Email: {{ request.user.email }}</p>
+            <button class="mt-4 bg-yellow-500 text-white px-4 py-2 rounded hover:bg-yellow-600" onclick="closeModal('modalProfile')">Fermer</button>
+        </div>
+    </div>
+
+    <div id="modalPassword" class="hidden fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center">
+        <div class="bg-white rounded-lg shadow-lg w-96 p-6">
+            <h2 class="text-lg font-semibold mb-4">Changer mot de passe</h2>
+            <form method="POST" action="{% url 'utilisateurs:change_password' %}">
+                {% csrf_token %}
+                <input type="password" name="old_password" placeholder="Ancien mot de passe" class="w-full mb-2 px-3 py-2 border rounded">
+                <input type="password" name="new_password1" placeholder="Nouveau mot de passe" class="w-full mb-2 px-3 py-2 border rounded">
+                <input type="password" name="new_password2" placeholder="Confirmer mot de passe" class="w-full mb-2 px-3 py-2 border rounded">
+                <button type="submit" class="mt-2 bg-yellow-500 text-white px-4 py-2 rounded hover:bg-yellow-600 w-full">Changer</button>
+            </form>
+            <button class="mt-2 bg-gray-300 text-gray-800 px-4 py-2 rounded hover:bg-gray-400 w-full" onclick="closeModal('modalPassword')">Annuler</button>
+        </div>
+    </div>
+
+    <div id="modalPhoto" class="hidden fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center">
+        <div class="bg-white rounded-lg shadow-lg w-96 p-6">
+            <h2 class="text-lg font-semibold mb-4">Changer photo de profil</h2>
+            <form method="POST" action="{% url 'utilisateurs:change_photo' %}" enctype="multipart/form-data">
+                {% csrf_token %}
+                <input type="file" name="photo" accept="image/*" class="w-full mb-2">
+                <button type="submit" class="mt-2 bg-yellow-500 text-white px-4 py-2 rounded hover:bg-yellow-600 w-full">Mettre à jour</button>
+            </form>
+            <button class="mt-2 bg-gray-300 text-gray-800 px-4 py-2 rounded hover:bg-gray-400 w-full" onclick="closeModal('modalPhoto')">Annuler</button>
+        </div>
+    </div>
+
     <script>
+        // Sidebar & dark mode JS
         const sidebar = document.getElementById('sidebar');
         const sidebarToggle = document.getElementById('sidebarToggle');
         const sidebarOverlay = document.getElementById('sidebarOverlay');
@@ -230,126 +165,68 @@
         const darkModeToggle = document.getElementById('darkModeToggle');
         let isMobile = window.innerWidth < 768;
 
-        // Charger le mode sauvegardé
+        // Dark mode initial
         const savedMode = localStorage.getItem('theme') || 'light';
         applyTheme(savedMode);
 
-        // Détection responsive
-        window.addEventListener('resize', () => {
-            isMobile = window.innerWidth < 768;
-            if (!isMobile) {
-                sidebarOverlay.classList.add('hidden');
-                sidebar.classList.remove('sidebar-mobile-hidden');
-            }
-        });
+        window.addEventListener('resize', ()=>{ isMobile = window.innerWidth<768; if(!isMobile){ sidebarOverlay.classList.add('hidden'); sidebar.classList.remove('sidebar-mobile-hidden'); }});
 
-        // Toggle Sidebar
-        sidebarToggle.addEventListener('click', () => {
-            if (isMobile) {
-                sidebar.classList.toggle('sidebar-mobile-hidden');
-                sidebarOverlay.classList.toggle('hidden');
-            } else {
-                sidebar.classList.toggle('sidebar-collapsed');
-                sidebar.classList.toggle('sidebar-expanded');
-                mainContent.classList.toggle('content-collapsed');
-                mainContent.classList.toggle('content-expanded');
-            }
+        sidebarToggle.addEventListener('click', ()=>{
+            if(isMobile){ sidebar.classList.toggle('sidebar-mobile-hidden'); sidebarOverlay.classList.toggle('hidden'); }
+            else{ sidebar.classList.toggle('sidebar-collapsed'); sidebar.classList.toggle('sidebar-expanded'); mainContent.classList.toggle('content-collapsed'); mainContent.classList.toggle('content-expanded'); }
         });
+        sidebarOverlay.addEventListener('click', ()=>{ if(isMobile){ sidebar.classList.add('sidebar-mobile-hidden'); sidebarOverlay.classList.add('hidden'); } });
 
-        // Fermer sidebar mobile sur overlay
-        sidebarOverlay.addEventListener('click', () => {
-            if (isMobile) {
-                sidebar.classList.add('sidebar-mobile-hidden');
-                sidebarOverlay.classList.add('hidden');
-            }
-        });
-
-        // Dark Mode Toggle
-        darkModeToggle.addEventListener('click', () => {
-            const currentTheme = document.body.classList.contains('dark-mode') ? 'dark' : 'light';
-            const newTheme = currentTheme === 'light' ? 'dark' : 'light';
+        darkModeToggle.addEventListener('click', ()=>{
+            const currentTheme = document.body.classList.contains('dark-mode') ? 'dark':'light';
+            const newTheme = currentTheme==='light' ? 'dark':'light';
             applyTheme(newTheme);
             localStorage.setItem('theme', newTheme);
         });
 
-        function applyTheme(theme) {
-            const body = document.body;
-            const header = document.querySelector('header');
-            const icon = darkModeToggle.querySelector('i');
-            
-            if (theme === 'dark') {
-                // Mode Sombre
-                body.classList.remove('light-mode');
-                body.classList.add('dark-mode');
-                body.style.backgroundColor = '#1a202c';
-                
-                sidebar.classList.remove('sidebar-light');
-                sidebar.classList.add('sidebar-dark', 'bg-gray-800', 'text-white');
-                sidebar.style.borderRight = 'none';
-                
-                header.classList.remove('header-light');
-                header.classList.add('header-dark', 'bg-gray-900', 'border-gray-700');
-                
-                // Changer couleurs des éléments du header
-                document.querySelectorAll('header button, header a').forEach(el => {
-                    el.classList.remove('text-gray-600', 'text-gray-800', 'hover:bg-gray-100');
-                    el.classList.add('text-gray-300', 'hover:bg-gray-800');
-                });
-                
-                document.querySelector('header .text-gray-800').classList.remove('text-gray-800');
-                document.querySelector('header .text-xl').classList.add('text-white');
-                
-                // Menu items dark
-                document.querySelectorAll('.menu-item-light').forEach(item => {
-                    item.classList.remove('menu-item-light', 'text-gray-600');
-                    item.classList.add('menu-item-dark', 'text-gray-300', 'hover:bg-gray-700');
-                });
-                
-                document.querySelectorAll('.menu-icon-light').forEach(item => {
-                    item.classList.remove('menu-icon-light', 'text-gray-600');
-                    item.classList.add('text-gray-400');
-                });
-                
-                icon.classList.remove('fa-moon');
-                icon.classList.add('fa-sun');
-                
+        function applyTheme(theme){
+            const body=document.body; const header=document.querySelector('header'); const icon=darkModeToggle.querySelector('i');
+            if(theme==='dark'){
+                body.classList.remove('light-mode'); body.classList.add('dark-mode'); body.style.backgroundColor='#1a202c';
+                sidebar.classList.remove('sidebar-light'); sidebar.classList.add('sidebar-dark','bg-gray-800','text-white'); sidebar.style.borderRight='none';
+                header.classList.remove('header-light'); header.classList.add('header-dark','bg-gray-900','border-gray-700');
+                document.querySelectorAll('header button, header a').forEach(el=>{ el.classList.remove('text-gray-600','text-gray-800','hover:bg-gray-100'); el.classList.add('text-gray-300','hover:bg-gray-800'); });
+                document.querySelectorAll('.menu-item-light').forEach(item=>{ item.classList.remove('menu-item-light','text-gray-600'); item.classList.add('menu-item-dark','text-gray-300','hover:bg-gray-700'); });
+                document.querySelectorAll('.menu-icon-light').forEach(item=>{ item.classList.remove('menu-icon-light','text-gray-600'); item.classList.add('text-gray-400'); });
+                icon.classList.remove('fa-moon'); icon.classList.add('fa-sun');
             } else {
-                // Mode Clair
-                body.classList.remove('dark-mode');
-                body.classList.add('light-mode');
-                body.style.backgroundColor = '#f9fafb';
-                
-                sidebar.classList.remove('sidebar-dark', 'bg-gray-800', 'text-white');
-                sidebar.classList.add('sidebar-light', 'bg-white');
-                sidebar.style.borderRight = '1px solid #e2e8f0';
-                
-                header.classList.remove('header-dark', 'bg-gray-900', 'border-gray-700');
-                header.classList.add('header-light', 'bg-white');
-                
-                // Changer couleurs des éléments du header
-                document.querySelectorAll('header button, header a').forEach(el => {
-                    el.classList.remove('text-gray-300', 'hover:bg-gray-800');
-                    el.classList.add('text-gray-600', 'hover:bg-gray-100');
-                });
-                
-                document.querySelector('header .text-xl').classList.remove('text-white');
-                document.querySelector('header .text-xl').classList.add('text-gray-800');
-                
-                // Menu items light
-                document.querySelectorAll('.menu-item-dark').forEach(item => {
-                    item.classList.remove('menu-item-dark', 'text-gray-300', 'hover:bg-gray-700');
-                    item.classList.add('menu-item-light', 'text-gray-600', 'hover:bg-yellow-50');
-                });
-                
-                document.querySelectorAll('.menu-icon-light, i.text-gray-400').forEach(item => {
-                    item.classList.remove('text-gray-400');
-                    item.classList.add('menu-icon-light', 'text-gray-600');
-                });
-                
-                icon.classList.remove('fa-sun');
-                icon.classList.add('fa-moon');
+                body.classList.remove('dark-mode'); body.classList.add('light-mode'); body.style.backgroundColor='#f9fafb';
+                sidebar.classList.remove('sidebar-dark','bg-gray-800','text-white'); sidebar.classList.add('sidebar-light','bg-white'); sidebar.style.borderRight='1px solid #e2e8f0';
+                header.classList.remove('header-dark','bg-gray-900','border-gray-700'); header.classList.add('header-light','bg-white');
+                document.querySelectorAll('header button, header a').forEach(el=>{ el.classList.remove('text-gray-300','hover:bg-gray-800'); el.classList.add('text-gray-600','hover:bg-gray-100'); });
+                document.querySelectorAll('.menu-item-dark').forEach(item=>{ item.classList.remove('menu-item-dark','text-gray-300','hover:bg-gray-700'); item.classList.add('menu-item-light','text-gray-600','hover:bg-yellow-50'); });
+                document.querySelectorAll('.menu-icon-light, i.text-gray-400').forEach(item=>{ item.classList.remove('text-gray-400'); item.classList.add('menu-icon-light','text-gray-600'); });
+                icon.classList.remove('fa-sun'); icon.classList.add('fa-moon');
             }
         }
+
+        // Avatar Dropdown
+        const avatarBtn=document.getElementById('avatarBtn');
+        const avatarDropdown=document.getElementById('avatarDropdown');
+        avatarBtn.addEventListener('click',()=>{ avatarDropdown.classList.toggle('hidden'); });
+
+        // Modals
+        const modalProfile=document.getElementById('modalProfile');
+        const modalPassword=document.getElementById('modalPassword');
+        const modalPhoto=document.getElementById('modalPhoto');
+
+        document.getElementById('modalProfileBtn').addEventListener('click',()=>{ openModal('modalProfile'); });
+        document.getElementById('modalPasswordBtn').addEventListener('click',()=>{ openModal('modalPassword'); });
+        document.getElementById('modalPhotoBtn').addEventListener('click',()=>{ openModal('modalPhoto'); });
+
+        function openModal(id){ document.getElementById(id).classList.remove('hidden'); avatarDropdown.classList.add('hidden'); }
+        function closeModal(id){ document.getElementById(id).classList.add('hidden'); }
+
+        // Bonjour / Bonsoir
+        const greetingEl=document.getElementById('greeting');
+        const hour=new Date().getHours();
+        const greetingText=hour>=5 && hour<18 ? "Bonjour" : "Bonsoir";
+        greetingEl.innerText=`${greetingText} {{ request.user.first_name|default:request.user.username }}`;
     </script>
 </body>
 </html>

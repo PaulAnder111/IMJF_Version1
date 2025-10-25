@@ -1,7 +1,6 @@
 {% extends "utilisateurs/base.html" %}
 
-{% block title %}Modifye Itilizatè - Sistèm Gestion Lekòl{% endblock %}
-
+{% block title %}Modifye Itilizatè - Système SYGEE{% endblock %}
 {% block nav_users %}text-gold font-semibold{% endblock %}
 
 {% block breadcrumb %}
@@ -16,261 +15,228 @@
 {% endblock %}
 
 {% block content %}
-<div class="max-w-2xl mx-auto">
-    <!-- Tit -->
-    <div class="mb-8">
-        <h2 class="text-3xl font-bold text-dark-gray">Modifye Itilizatè</h2>
-        <p class="text-gray-600 mt-2">Modifye enfòmasyon itilizatè {{ user.username }} nan fòm sa a</p>
-    </div>
+<div class="flex justify-center items-start min-h-[80vh] pt-10 pb-10 bg-gray-50 dark:bg-gray-900">
+    <div class="w-full max-w-2xl bg-white dark:bg-gray-800 rounded-2xl shadow-lg p-8">
 
-    <!-- Messages Django -->
-    {% if messages %}
-    <div class="mb-6 space-y-2">
-        {% for message in messages %}
-        <div class="p-4 rounded-lg {% if message.tags == 'success' %}bg-green-100 text-green-700 border border-green-300{% elif message.tags == 'error' %}bg-red-100 text-red-700 border border-red-300{% elif message.tags == 'warning' %}bg-yellow-100 text-yellow-700 border border-yellow-300{% else %}bg-blue-100 text-blue-700 border border-blue-300{% endif %}">
-            <div class="flex items-center justify-between">
-                <div class="flex items-center">
-                    {% if message.tags == 'success' %}
-                        <i class="fas fa-check-circle mr-2"></i>
-                    {% elif message.tags == 'error' %}
-                        <i class="fas fa-exclamation-circle mr-2"></i>
-                    {% elif message.tags == 'warning' %}
-                        <i class="fas fa-exclamation-triangle mr-2"></i>
-                    {% else %}
-                        <i class="fas fa-info-circle mr-2"></i>
-                    {% endif %}
-                    <span>{{ message }}</span>
-                </div>
-                <button onclick="this.parentElement.parentElement.remove()" class="text-gray-500 hover:text-gray-700">
-                    <i class="fas fa-times"></i>
-                </button>
+        <!-- Header ak degrade -->
+        <div class="flex items-center justify-between mb-6 p-4 rounded-xl bg-gradient-to-r from-gray-300 via-gray-100 to-yellow-200">
+            <div>
+                <h2 class="text-2xl font-bold text-gray-800 dark:text-white">Modifye Itilizatè</h2>
+                <p class="text-gray-600 dark:text-gray-400 mt-2 text-sm">Modifye enfòmasyon itilizatè {{ user.username }}.</p>
             </div>
+            <a href="{% url 'utilisateurs:list_users' %}" 
+               class="bg-custom-gold text-white px-4 py-2 rounded-lg font-semibold hover:bg-yellow-600 transition flex items-center space-x-2">
+                <i class="fas fa-arrow-left"></i>
+                <span>Retounen</span>
+            </a>
         </div>
-        {% endfor %}
-    </div>
-    {% endif %}
 
-    <!-- Fòm Modifye Django -->
-    <div class="bg-white dark:bg-gray-800 rounded-xl shadow-lg p-8">
-        <form method="POST" action="{% url 'utilisateurs:update_user' user.id %}">
+        <!-- Messages Django -->
+        {% if messages %}
+        <div class="mb-6 space-y-2">
+            {% for message in messages %}
+            <div class="p-4 rounded-lg 
+                {% if message.tags == 'success' %}bg-green-100 text-green-700 border border-green-300
+                {% elif message.tags == 'error' %}bg-red-100 text-red-700 border border-red-300
+                {% else %}bg-blue-100 text-blue-700 border border-blue-300{% endif %}">
+                <div class="flex items-center justify-between">
+                    <div class="flex items-center space-x-2">
+                        {% if message.tags == 'success' %}
+                            <i class="fas fa-check-circle"></i>
+                        {% elif message.tags == 'error' %}
+                            <i class="fas fa-exclamation-circle"></i>
+                        {% else %}
+                            <i class="fas fa-info-circle"></i>
+                        {% endif %}
+                        <span>{{ message }}</span>
+                    </div>
+                    <button onclick="this.parentElement.parentElement.remove()" class="text-gray-500 hover:text-gray-700">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+        {% endif %}
+
+        <!-- Formulaire -->
+        <form method="POST" action="{% url 'utilisateurs:update_user' user.id %}" enctype="multipart/form-data">
             {% csrf_token %}
-            
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <!-- ID (readonly) -->
-                <div>
-                    <label class="block text-dark-gray dark:text-gray-300 font-semibold mb-2">ID Itilizatè</label>
-                    <input type="text" 
-                           value="{{ user.id }}"
-                           class="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg bg-gray-100 dark:bg-gray-700 cursor-not-allowed"
-                           readonly>
+
+            <div class="grid grid-cols-2 gap-5">
+
+                <!-- Foto itilizatè -->
+                <div class="col-span-2 flex items-center space-x-4 mb-4">
+                    {% if user.photo %}
+                        <img id="photoPreview" src="{{ user.photo.url }}" alt="Profil" class="w-16 h-16 rounded-full object-cover border border-gray-300">
+                    {% else %}
+                        <div id="photoPreview" class="w-16 h-16 bg-blue-600 rounded-full flex items-center justify-center text-white font-semibold text-lg">
+                            {{ user.username.0|upper }}
+                        </div>
+                    {% endif %}
+                    <div class="flex-1">
+                        <label for="id_photo" class="block text-gray-800 dark:text-gray-200 font-semibold mb-1">Photo</label>
+                        <input type="file" name="photo" id="id_photo" onchange="loadFile(event)"
+                               class="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-gold">
+                    </div>
+                    <i class="fas fa-image text-yellow-500 mt-3"></i>
                 </div>
 
-                <!-- Non Itilizatè -->
-                <div>
-                    <label for="{{ form.username.id_for_label }}" class="block text-dark-gray dark:text-gray-300 font-semibold mb-2">
-                        Non Itilizatè
-                        {% if form.username.field.required %}<span class="text-red-500">*</span>{% endif %}
-                    </label>
-                    <input type="text" 
-                           name="{{ form.username.name }}"
-                           id="{{ form.username.id_for_label }}"
-                           value="{{ form.username.value|default:user.username }}"
-                           class="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-gold focus:border-transparent dark:bg-gray-700 dark:text-white {% if form.username.errors %}border-red-500{% endif %}"
-                           required>
-                    {% if form.username.errors %}
-                    <div class="text-red-600 text-sm mt-1">
-                        {% for error in form.username.errors %}
-                        <p>{{ error }}</p>
-                        {% endfor %}
+                <!-- Non itilizatè -->
+                <div class="flex items-start space-x-2">
+                    <i class="fas fa-user text-blue-500 mt-3"></i>
+                    <div class="flex-1">
+                        <label for="{{ form.username.id_for_label }}" class="block text-gray-800 dark:text-gray-200 font-semibold mb-1">
+                            Non itilizatè <span class="text-red-500">*</span>
+                        </label>
+                        <input type="text" name="{{ form.username.name }}" id="{{ form.username.id_for_label }}" 
+                               value="{{ form.username.value|default:user.username }}"
+                               class="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-gold {% if form.username.errors %}border-red-500{% endif %}" required>
+                        {% if form.username.errors %}
+                            <div class="text-red-600 text-sm mt-1">
+                                {% for error in form.username.errors %}<p>{{ error }}</p>{% endfor %}
+                            </div>
+                        {% endif %}
                     </div>
-                    {% endif %}
-                </div>
-
-                <!-- Imèl -->
-                <div class="md:col-span-2">
-                    <label for="{{ form.email.id_for_label }}" class="block text-dark-gray dark:text-gray-300 font-semibold mb-2">
-                        Adrès Imèl
-                        {% if form.email.field.required %}<span class="text-red-500">*</span>{% endif %}
-                    </label>
-                    <input type="email" 
-                           name="{{ form.email.name }}"
-                           id="{{ form.email.id_for_label }}"
-                           value="{{ form.email.value|default:user.email }}"
-                           class="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-gold focus:border-transparent dark:bg-gray-700 dark:text-white {% if form.email.errors %}border-red-500{% endif %}"
-                           placeholder="antre@imel.com"
-                           required>
-                    {% if form.email.errors %}
-                    <div class="text-red-600 text-sm mt-1">
-                        {% for error in form.email.errors %}
-                        <p>{{ error }}</p>
-                        {% endfor %}
-                    </div>
-                    {% endif %}
-                </div>
-
-                <!-- Non -->
-                <div>
-                    <label for="{{ form.first_name.id_for_label }}" class="block text-dark-gray dark:text-gray-300 font-semibold mb-2">
-                        Non
-                        {% if form.first_name.field.required %}<span class="text-red-500">*</span>{% endif %}
-                    </label>
-                    <input type="text" 
-                           name="{{ form.first_name.name }}"
-                           id="{{ form.first_name.id_for_label }}"
-                           value="{{ form.first_name.value|default:user.first_name }}"
-                           class="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-gold focus:border-transparent dark:bg-gray-700 dark:text-white {% if form.first_name.errors %}border-red-500{% endif %}"
-                           placeholder="Non">
-                    {% if form.first_name.errors %}
-                    <div class="text-red-600 text-sm mt-1">
-                        {% for error in form.first_name.errors %}
-                        <p>{{ error }}</p>
-                        {% endfor %}
-                    </div>
-                    {% endif %}
                 </div>
 
                 <!-- Ti non -->
-                <div>
-                    <label for="{{ form.last_name.id_for_label }}" class="block text-dark-gray dark:text-gray-300 font-semibold mb-2">
-                        Ti non
-                        {% if form.last_name.field.required %}<span class="text-red-500">*</span>{% endif %}
-                    </label>
-                    <input type="text" 
-                           name="{{ form.last_name.name }}"
-                           id="{{ form.last_name.id_for_label }}"
-                           value="{{ form.last_name.value|default:user.last_name }}"
-                           class="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-gold focus:border-transparent dark:bg-gray-700 dark:text-white {% if form.last_name.errors %}border-red-500{% endif %}"
-                           placeholder="Ti non">
-                    {% if form.last_name.errors %}
-                    <div class="text-red-600 text-sm mt-1">
-                        {% for error in form.last_name.errors %}
-                        <p>{{ error }}</p>
-                        {% endfor %}
+                <div class="flex items-start space-x-2">
+                    <i class="fas fa-user-check text-blue-600 mt-3"></i>
+                    <div class="flex-1">
+                        <label for="{{ form.last_name.id_for_label }}" class="block text-gray-800 dark:text-gray-200 font-semibold mb-1">
+                            Ti non
+                        </label>
+                        <input type="text" name="{{ form.last_name.name }}" id="{{ form.last_name.id_for_label }}"
+                               value="{{ form.last_name.value|default:user.last_name }}"
+                               class="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-gold {% if form.last_name.errors %}border-red-500{% endif %}">
                     </div>
-                    {% endif %}
                 </div>
 
-                <!-- Wòl -->
-                <div>
-                    <label for="{{ form.role.id_for_label }}" class="block text-dark-gray dark:text-gray-300 font-semibold mb-2">
-                        Wòl
-                        {% if form.role.field.required %}<span class="text-red-500">*</span>{% endif %}
-                    </label>
-                    <select name="{{ form.role.name }}"
-                            id="{{ form.role.id_for_label }}"
-                            class="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-gold focus:border-transparent dark:bg-gray-700 dark:text-white {% if form.role.errors %}border-red-500{% endif %}"
-                            required>
-                        <option value="">Role</option>
-                        <option value="admin" {% if form.role.value == 'admin' or user.role == 'admin' %}selected{% endif %}>Administrateur</option>
-                        <option value="directeur" {% if form.role.value == 'directeur' or user.role == 'directeur' %}selected{% endif %}>Directeur</option>
-                        <option value="secretaire" {% if form.role.value == 'secretaire' or user.role == 'secretaire' %}selected{% endif %}>Secrétaire</option>
-                        <option value="archiviste" {% if form.role.value == 'archiviste' or user.role == 'archiviste' %}selected{% endif %}>Archiviste</option>
-                    </select>
-                    {% if form.role.errors %}
-                    <div class="text-red-600 text-sm mt-1">
-                        {% for error in form.role.errors %}
-                        <p>{{ error }}</p>
-                        {% endfor %}
+                <!-- Non -->
+                <div class="flex items-start space-x-2">
+                    <i class="fas fa-user text-blue-500 mt-3"></i>
+                    <div class="flex-1">
+                        <label for="{{ form.first_name.id_for_label }}" class="block text-gray-800 dark:text-gray-200 font-semibold mb-1">
+                            Non
+                        </label>
+                        <input type="text" name="{{ form.first_name.name }}" id="{{ form.first_name.id_for_label }}"
+                               value="{{ form.first_name.value|default:user.first_name }}"
+                               class="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-gold {% if form.first_name.errors %}border-red-500{% endif %}">
                     </div>
-                    {% endif %}
+                </div>
+
+                <!-- Imèl -->
+                <div class="flex items-start space-x-2 col-span-2">
+                    <i class="fas fa-envelope text-green-500 mt-3"></i>
+                    <div class="flex-1">
+                        <label for="{{ form.email.id_for_label }}" class="block text-gray-800 dark:text-gray-200 font-semibold mb-1">
+                            Imèl <span class="text-red-500">*</span>
+                        </label>
+                        <input type="email" name="{{ form.email.name }}" id="{{ form.email.id_for_label }}"
+                               value="{{ form.email.value|default:user.email }}"
+                               class="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-gold {% if form.email.errors %}border-red-500{% endif %}" required>
+                    </div>
                 </div>
 
                 <!-- Telefòn -->
-                <div>
-                    <label for="{{ form.phone.id_for_label }}" class="block text-dark-gray dark:text-gray-300 font-semibold mb-2">
-                        Telefòn
-                    </label>
-                    <input type="text" 
-                           name="{{ form.phone.name }}"
-                           id="{{ form.phone.id_for_label }}"
-                           value="{{ form.phone.value|default:user.phone }}"
-                           class="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-gold focus:border-transparent dark:bg-gray-700 dark:text-white {% if form.phone.errors %}border-red-500{% endif %}"
-                           placeholder="Telefòn">
-                    {% if form.phone.errors %}
-                    <div class="text-red-600 text-sm mt-1">
-                        {% for error in form.phone.errors %}
-                        <p>{{ error }}</p>
-                        {% endfor %}
+                <div class="flex items-start space-x-2">
+                    <i class="fas fa-phone text-purple-500 mt-3"></i>
+                    <div class="flex-1">
+                        <label for="{{ form.phone.id_for_label }}" class="block text-gray-800 dark:text-gray-200 font-semibold mb-1">
+                            Telefòn
+                        </label>
+                        <input type="text" name="{{ form.phone.name }}" id="{{ form.phone.id_for_label }}"
+                               value="{{ form.phone.value|default:user.phone }}"
+                               class="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-gold {% if form.phone.errors %}border-red-500{% endif %}">
                     </div>
-                    {% endif %}
+                </div>
+
+                <!-- Wòl -->
+                <div class="flex items-start space-x-2">
+                    <i class="fas fa-user-shield text-red-500 mt-3"></i>
+                    <div class="flex-1">
+                        <label for="{{ form.role.id_for_label }}" class="block text-gray-800 dark:text-gray-200 font-semibold mb-1">
+                            Wòl <span class="text-red-500">*</span>
+                        </label>
+                        <select name="{{ form.role.name }}" id="{{ form.role.id_for_label }}"
+                                class="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-gold {% if form.role.errors %}border-red-500{% endif %}">
+                            <option value="">Chwazi wòl</option>
+                            <option value="admin" {% if form.role.value == 'admin' or user.role == 'admin' %}selected{% endif %}>Administrateur</option>
+                            <option value="directeur" {% if form.role.value == 'directeur' or user.role == 'directeur' %}selected{% endif %}>Directeur</option>
+                            <option value="secretaire" {% if form.role.value == 'secretaire' or user.role == 'secretaire' %}selected{% endif %}>Secrétaire</option>
+                            <option value="archives" {% if form.role.value == 'archives' or user.role == 'archives' %}selected{% endif %}>Archives</option>
+                        </select>
+                    </div>
                 </div>
 
                 <!-- Estati -->
-                <div class="md:col-span-2">
-                    <label class="block text-dark-gray dark:text-gray-300 font-semibold mb-2">Estati</label>
-                    <div class="flex items-center space-x-4">
-                        <label class="flex items-center">
-                            <input type="radio" 
-                                   name="is_active" 
-                                   value="true" 
-                                   {% if user.is_active %}checked{% endif %}
-                                   class="mr-2 text-gold focus:ring-gold">
-                            <span class="text-dark-gray dark:text-gray-300">Aktif</span>
-                        </label>
-                        <label class="flex items-center">
-                            <input type="radio" 
-                                   name="is_active" 
-                                   value="false" 
-                                   {% if not user.is_active %}checked{% endif %}
-                                   class="mr-2 text-gold focus:ring-gold">
-                            <span class="text-dark-gray dark:text-gray-300">Inaktif</span>
-                        </label>
+                <div class="flex items-start space-x-2 col-span-2">
+                    <i class="fas fa-toggle-on text-gray-700 mt-3"></i>
+                    <div class="flex-1">
+                        <label class="block text-gray-800 dark:text-gray-200 font-semibold mb-1">Estati</label>
+                        <div class="flex items-center space-x-4">
+                            <label class="flex items-center">
+                                <input type="radio" name="is_active" value="true" {% if user.is_active %}checked{% endif %} class="mr-2 text-gold focus:ring-gold">
+                                <span>Aktif</span>
+                            </label>
+                            <label class="flex items-center">
+                                <input type="radio" name="is_active" value="false" {% if not user.is_active %}checked{% endif %} class="mr-2 text-gold focus:ring-gold">
+                                <span>Inaktif</span>
+                            </label>
+                        </div>
                     </div>
                 </div>
+
             </div>
 
-            <!-- Bouton Aksyon -->
+            <!-- Boutons -->
             <div class="flex justify-end space-x-4 mt-8 pt-6 border-t border-gray-200 dark:border-gray-700">
                 <a href="{% url 'utilisateurs:list_users' %}" 
-                   class="flex items-center bg-gray-500 text-white px-8 py-3 rounded-lg hover:bg-gray-600 dark:bg-gray-600 dark:hover:bg-gray-700 transition duration-300 font-semibold">
+                   class="flex items-center bg-gray-500 text-white px-6 py-2 rounded-lg hover:bg-gray-600 transition font-semibold">
                     <i class="fas fa-times mr-2"></i>Anile
                 </a>
                 <button type="submit" 
-                        class="flex items-center bg-custom-gold text-white px-8 py-3 rounded-lg hover:bg-yellow-600 dark:bg-yellow-600 dark:hover:bg-yellow-700 transition duration-300 font-semibold">
+                        class="flex items-center bg-custom-gold text-white px-6 py-2 rounded-lg hover:bg-yellow-600 transition font-semibold">
                     <i class="fas fa-save mr-2"></i>Sove Chanjman
                 </button>
             </div>
+
         </form>
     </div>
 </div>
 
 <style>
     input, select {
-        width: 100%;
-        padding: 0.75rem;
-        border: 1px solid #d1d5db;
-        border-radius: 0.5rem;
-        background-color: white;
+        transition: all 0.3s ease;
     }
-    
-    .dark input, .dark select {
-        background-color: #374151;
-        border-color: #4b5563;
-        color: white;
-    }
-    
-    input:focus, select:focus {
+    input:focus, select:focus, input[type="file"]:focus {
         outline: none;
         box-shadow: 0 0 0 2px #d4af37;
-        color: #d4af37;
         border-color: #d4af37;
     }
-    
-    input[readonly] {
-        background-color: #f3f4f6;
-        color: #6b7280;
-    }
-    
-    .dark input[readonly] {
-        background-color: #4b5563;
-        color: #9ca3af;
-    }
+    i.fas { font-size: 1rem; }
 </style>
+
 {% endblock %}
 
 {% block extra_js %}
 <script>
-    // Auto-hide messages
+    // Preview foto
+    var loadFile = function(event) {
+        var output = document.getElementById('photoPreview');
+        if(output.tagName === 'IMG') {
+            output.src = URL.createObjectURL(event.target.files[0]);
+        } else {
+            const wrapper = document.createElement('img');
+            wrapper.id = 'photoPreview';
+            wrapper.className = 'w-16 h-16 rounded-full object-cover border border-gray-300';
+            wrapper.src = URL.createObjectURL(event.target.files[0]);
+            event.target.parentElement.parentElement.replaceChild(wrapper, output);
+        }
+    };
+
+    // Fade out messages
     setTimeout(function() {
         const messages = document.querySelectorAll('.mb-6 > div');
         messages.forEach(function(message) {
@@ -280,19 +246,11 @@
         });
     }, 5000);
 
-    // Konfimasyon anvan soumisyon
+    // Confirmation avant submit
     document.querySelector('form').addEventListener('submit', function(e) {
         if (!confirm('Èske w sèten w vle sove chanjman sa yo?')) {
             e.preventDefault();
         }
-    });
-
-    // Jere chanjman estati
-    const statusRadios = document.querySelectorAll('input[name="is_active"]');
-    statusRadios.forEach(radio => {
-        radio.addEventListener('change', function() {
-            console.log('Estati chanje:', this.value);
-        });
     });
 </script>
 {% endblock %}

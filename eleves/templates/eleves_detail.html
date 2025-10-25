@@ -1,0 +1,140 @@
+{% extends "utilisateurs/base.html" %}
+
+{% block title %}Détails Élève - SYGEE{% endblock %}
+
+{% block content %}
+<div class="max-w-4xl mx-auto p-6">
+    <!-- Header Section -->
+    <div class="bg-gradient-to-r from-gray-700 to-gray-800 rounded-lg shadow-lg p-6 mb-6">
+        <div class="flex items-center justify-between">
+            <div class="flex items-center space-x-4">
+                <div class="bg-yellow-500 p-3 rounded-lg">
+                    <i class="fas fa-file-alt text-white text-2xl"></i>
+                </div>
+                <div>
+                    <h1 class="text-2xl font-bold text-white">Détails de l'Élève</h1>
+                    <p class="text-gray-300 text-sm">Informations complètes de l'élève</p>
+                </div>
+            </div>
+            <a href="{% url 'eleves:eleve_list' %}" class="bg-gray-600 hover:bg-gray-700 text-white px-6 py-3 rounded-lg font-semibold transition-all duration-300 flex items-center space-x-2">
+                <i class="fas fa-arrow-left"></i>
+                <span>Retour</span>
+            </a>
+        </div>
+    </div>
+
+    <!-- Statut Badge -->
+    <div class="mb-6">
+        {% if eleve.statut == 'actif' %}
+            <span class="inline-flex items-center px-4 py-2 rounded-full text-sm font-semibold bg-green-100 text-green-800">
+                <i class="fas fa-user-check mr-2"></i>Actif
+            </span>
+        {% elif eleve.statut == 'radié' %}
+            <span class="inline-flex items-center px-4 py-2 rounded-full text-sm font-semibold bg-red-100 text-red-800">
+                <i class="fas fa-user-times mr-2"></i>Radié
+            </span>
+        {% else %}
+            <span class="inline-flex items-center px-4 py-2 rounded-full text-sm font-semibold bg-yellow-100 text-yellow-800">
+                <i class="fas fa-user-clock mr-2"></i>Suspendu
+            </span>
+        {% endif %}
+    </div>
+
+    <!-- Photo et Info de base -->
+    <div class="bg-white rounded-lg shadow-lg p-6 mb-6">
+        <div class="flex flex-col md:flex-row gap-6">
+            <div class="flex-shrink-0">
+                {% if eleve.photo %}
+                    <img src="{{ eleve.photo.url }}" alt="Photo de {{ eleve.prenom }}" 
+                         class="w-32 h-32 rounded-lg object-cover border-2 border-gray-200">
+                {% else %}
+                    <div class="w-32 h-32 rounded-lg bg-yellow-500 flex items-center justify-center text-white text-2xl font-bold border-2 border-yellow-400">
+                        {{ eleve.prenom.0|upper }}
+                    </div>
+                {% endif %}
+            </div>
+            <div class="flex-1">
+                <h2 class="text-2xl font-bold text-gray-800">{{ eleve.prenom }} {{ eleve.nom }}</h2>
+                <p class="text-lg text-gray-600">Matricule: <span class="font-mono font-semibold">{{ eleve.matricule }}</span></p>
+                <p class="text-gray-500 mt-2">Inscrit le: {{ eleve.date_inscription|date:"d/m/Y" }}</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Informations Personnelles -->
+    <div class="bg-white rounded-lg shadow-lg p-6 mb-6">
+        <div class="border-l-4 border-yellow-500 pl-4 mb-4">
+            <h2 class="text-xl font-bold text-gray-800 flex items-center">
+                <i class="fas fa-user text-yellow-500 mr-3"></i>
+                Informations Personnelles
+            </h2>
+        </div>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div>
+                <p class="text-sm text-gray-500">Date de Naissance</p>
+                <p class="font-semibold text-gray-800">{{ eleve.date_naissance|date:"d/m/Y" }}</p>
+            </div>
+            <div>
+                <p class="text-sm text-gray-500">Lieu de Naissance</p>
+                <p class="font-semibold text-gray-800">{{ eleve.lieu_naissance }}</p>
+            </div>
+            <div>
+                <p class="text-sm text-gray-500">Sexe</p>
+                <p class="font-semibold text-gray-800">
+                    {% if eleve.sexe == 'M' %}Masculin 🚹{% else %}Féminin 🚺{% endif %}
+                </p>
+            </div>
+            <div>
+                <p class="text-sm text-gray-500">Adresse</p>
+                <p class="font-semibold text-gray-800">{{ eleve.adresse }}</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Informations Académiques -->
+    <div class="bg-white rounded-lg shadow-lg p-6 mb-6">
+        <div class="border-l-4 border-blue-500 pl-4 mb-4">
+            <h2 class="text-xl font-bold text-gray-800 flex items-center">
+                <i class="fas fa-graduation-cap text-blue-500 mr-3"></i>
+                Informations Académiques
+            </h2>
+        </div>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div>
+                <p class="text-sm text-gray-500">Niveau scolaire</p>
+                <p class="font-semibold text-gray-800">{{ eleve.niveau }}</p>
+            </div>
+            <div>
+                <p class="text-sm text-gray-500">Classe actuelle</p>
+                <p class="font-semibold text-gray-800">
+                    {% if eleve.classe_actuelle %}
+                        {{ eleve.classe_actuelle.nom_classe }} - {{ eleve.classe_actuelle.niveau }}
+                    {% else %}
+                        <span class="text-gray-400">Non affecté</span>
+                    {% endif %}
+                </p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Actions -->
+    <div class="flex justify-end space-x-3">
+        <a href="{% url 'eleves:eleve_list' %}" 
+           class="px-6 py-3 bg-gray-300 hover:bg-gray-400 text-gray-700 font-semibold rounded-lg transition-all duration-300 flex items-center space-x-2">
+            <i class="fas fa-times"></i>
+            <span>Fermer</span>
+        </a>
+        <a href="{% url 'eleves:eleve_update' eleve.id %}" 
+           class="px-6 py-3 bg-blue-500 hover:bg-blue-600 text-white font-semibold rounded-lg transition-all duration-300 flex items-center space-x-2">
+            <i class="fas fa-edit"></i>
+            <span>Modifier</span>
+        </a>
+        <a href="{% url 'eleves:eleve_delete' eleve.id %}" 
+           class="px-6 py-3 bg-red-500 hover:bg-red-600 text-white font-semibold rounded-lg transition-all duration-300 flex items-center space-x-2"
+           onclick="return confirm('Voulez-vous vraiment supprimer cet élève ?')">
+            <i class="fas fa-trash"></i>
+            <span>Supprimer</span>
+        </a>
+    </div>
+</div>
+{% endblock %}

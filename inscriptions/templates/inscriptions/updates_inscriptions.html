@@ -104,18 +104,21 @@
                 <div>
                     <label for="id_lieu_naissance" class="block text-sm font-semibold text-gray-700 mb-2">
                         <i class="fas fa-map-marker-alt text-yellow-500 mr-2"></i>Lieu de Naissance
+                        <span class="text-red-500">*</span>
                     </label>
-                    <input type="text" name="lieu_naissance" id="id_lieu_naissance" value="{{ form.lieu_naissance.value|default:'' }}"
+                    <input type="text" name="lieu_naissance" id="id_lieu_naissance" value="{{ form.lieu_naissance.value|default:'' }}" required
                         class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-yellow-500 focus:border-transparent transition-all">
                 </div>
 
-                <!-- Nationalité -->
-                <div>
-                    <label for="id_nationalite" class="block text-sm font-semibold text-gray-700 mb-2">
-                        <i class="fas fa-flag text-yellow-500 mr-2"></i>Nationalité
+                <!-- Adresse Complète -->
+                <div class="md:col-span-2">
+                    <label for="id_adresse" class="block text-sm font-semibold text-gray-700 mb-2">
+                        <i class="fas fa-home text-yellow-500 mr-2"></i>Adresse Complète
+                        <span class="text-red-500">*</span>
                     </label>
-                    <input type="text" name="nationalite" id="id_nationalite" value="{{ form.nationalite.value|default:'' }}"
-                        class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-yellow-500 focus:border-transparent transition-all">
+                    <textarea name="adresse" id="id_adresse" rows="3" required
+                        class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-yellow-500 focus:border-transparent transition-all"
+                        placeholder="Entrez l'adresse complète (rue, commune, département)...">{{ form.adresse.value|default:'' }}</textarea>
                 </div>
             </div>
 
@@ -128,6 +131,17 @@
             </div>
 
             <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <!-- Niveau -->
+                <div>
+                    <label for="id_niveau" class="block text-sm font-semibold text-gray-700 mb-2">
+                        <i class="fas fa-layer-group text-yellow-500 mr-2"></i>Niveau scolaire
+                        <span class="text-red-500">*</span>
+                    </label>
+                    <input type="text" name="niveau" id="id_niveau" value="{{ form.niveau.value|default:'' }}" required
+                        class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-yellow-500 focus:border-transparent transition-all"
+                        placeholder="Ex: 6e année">
+                </div>
+
                 <!-- Classe -->
                 <div>
                     <label for="id_classe" class="block text-sm font-semibold text-gray-700 mb-2">
@@ -138,8 +152,8 @@
                         class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-yellow-500 focus:border-transparent transition-all">
                         <option value="">Sélectionner une classe...</option>
                         {% for classe in classes %}
-                            <option value="{{ classe.id }}" {% if form.classe.value == classe.id %}selected{% endif %}>
-                                {{ classe.nom }}
+                            <option value="{{ classe.id }}" {% if form.classe.value == classe.id|stringformat:"s" %}selected{% endif %}>
+                                {{ classe.nom_classe }} - {{ classe.niveau }}
                             </option>
                         {% endfor %}
                     </select>
@@ -152,117 +166,83 @@
                         <span class="text-red-500">*</span>
                     </label>
                     <input type="text" name="annee_scolaire" id="id_annee_scolaire" value="{{ form.annee_scolaire.value|default:'' }}" 
-                        placeholder="Ex: 2024-2025" required
-                        class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-yellow-500 focus:border-transparent transition-all">
-                </div>
-
-                <!-- Date d'Inscription -->
-                <div>
-                    <label for="id_date_inscription" class="block text-sm font-semibold text-gray-700 mb-2">
-                        <i class="fas fa-calendar-check text-yellow-500 mr-2"></i>Date d'Inscription
-                    </label>
-                    <input type="date" name="date_inscription" id="id_date_inscription" value="{{ form.date_inscription.value|date:'Y-m-d' }}"
+                        placeholder="Ex: 2025-2026" required
                         class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-yellow-500 focus:border-transparent transition-all">
                 </div>
 
                 <!-- Statut -->
                 <div>
                     <label for="id_statut" class="block text-sm font-semibold text-gray-700 mb-2">
-                        <i class="fas fa-info-circle text-yellow-500 mr-2"></i>Statut
+                        <i class="fas fa-info-circle text-yellow-500 mr-2"></i>Statut de l'inscription
                         <span class="text-red-500">*</span>
                     </label>
                     <select name="statut" id="id_statut" required
                         class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-yellow-500 focus:border-transparent transition-all">
-                        <option value="en_attente" {% if form.statut.value == 'en_attente' %}selected{% endif %}>En attente</option>
-                        <option value="approuve" {% if form.statut.value == 'approuve' %}selected{% endif %}>Approuvé</option>
-                        <option value="rejete" {% if form.statut.value == 'rejete' %}selected{% endif %}>Rejeté</option>
+                        <option value="pre-inscrit" {% if form.statut.value == 'pre-inscrit' %}selected{% endif %}>⏳ Pré-inscrit</option>
+                        <option value="aktif" {% if form.statut.value == 'aktif' %}selected{% endif %}>🟢 Actif</option>
+                        <option value="refize" {% if form.statut.value == 'refize' %}selected{% endif %}>❌ Refusé</option>
                     </select>
                 </div>
             </div>
 
-            <!-- Section: Contact -->
-            <div class="border-l-4 border-green-500 pl-4 mt-8">
-                <h2 class="text-xl font-bold text-gray-800 mb-4 flex items-center">
-                    <i class="fas fa-address-book text-green-500 mr-3"></i>
-                    Informations de Contact
-                </h2>
-            </div>
-
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <!-- Téléphone -->
-                <div>
-                    <label for="id_telephone" class="block text-sm font-semibold text-gray-700 mb-2">
-                        <i class="fas fa-phone text-yellow-500 mr-2"></i>Téléphone
-                    </label>
-                    <input type="tel" name="telephone" id="id_telephone" value="{{ form.telephone.value|default:'' }}" 
-                        placeholder="Ex: +509 1234-5678"
-                        class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-yellow-500 focus:border-transparent transition-all">
-                </div>
-
-                <!-- Email -->
-                <div>
-                    <label for="id_email" class="block text-sm font-semibold text-gray-700 mb-2">
-                        <i class="fas fa-envelope text-yellow-500 mr-2"></i>Email
-                    </label>
-                    <input type="email" name="email" id="id_email" value="{{ form.email.value|default:'' }}" 
-                        placeholder="exemple@email.com"
-                        class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-yellow-500 focus:border-transparent transition-all">
-                </div>
-
-                <!-- Adresse -->
-                <div class="md:col-span-2">
-                    <label for="id_adresse" class="block text-sm font-semibold text-gray-700 mb-2">
-                        <i class="fas fa-home text-yellow-500 mr-2"></i>Adresse Complète
-                    </label>
-                    <textarea name="adresse" id="id_adresse" rows="3"
-                        class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-yellow-500 focus:border-transparent transition-all"
-                        placeholder="Entrez l'adresse complète...">{{ form.adresse.value|default:'' }}</textarea>
-                </div>
-            </div>
-
-            <!-- Section: Informations Parents -->
+            <!-- Section: Informations Responsable -->
             <div class="border-l-4 border-purple-500 pl-4 mt-8">
                 <h2 class="text-xl font-bold text-gray-800 mb-4 flex items-center">
                     <i class="fas fa-users text-purple-500 mr-3"></i>
-                    Informations des Parents/Tuteurs
+                    Informations du Responsable Légal
                 </h2>
             </div>
 
             <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <!-- Nom du Père -->
+                <!-- Nom Complet du Responsable -->
                 <div>
-                    <label for="id_nom_pere" class="block text-sm font-semibold text-gray-700 mb-2">
-                        <i class="fas fa-male text-yellow-500 mr-2"></i>Nom du Père
+                    <label for="id_personne_responsable" class="block text-sm font-semibold text-gray-700 mb-2">
+                        <i class="fas fa-user text-yellow-500 mr-2"></i>Nom Complet du Responsable
+                        <span class="text-red-500">*</span>
                     </label>
-                    <input type="text" name="nom_pere" id="id_nom_pere" value="{{ form.nom_pere.value|default:'' }}"
+                    <input type="text" name="personne_responsable" id="id_personne_responsable" value="{{ form.personne_responsable.value|default:'' }}" required
                         class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-yellow-500 focus:border-transparent transition-all">
                 </div>
 
-                <!-- Téléphone Père -->
+                <!-- Profession du Responsable -->
                 <div>
-                    <label for="id_tel_pere" class="block text-sm font-semibold text-gray-700 mb-2">
-                        <i class="fas fa-phone text-yellow-500 mr-2"></i>Téléphone Père
+                    <label for="id_profession_responsable" class="block text-sm font-semibold text-gray-700 mb-2">
+                        <i class="fas fa-briefcase text-yellow-500 mr-2"></i>Profession du Responsable
+                        <span class="text-red-500">*</span>
                     </label>
-                    <input type="tel" name="tel_pere" id="id_tel_pere" value="{{ form.tel_pere.value|default:'' }}"
+                    <input type="text" name="profession_responsable" id="id_profession_responsable" value="{{ form.profession_responsable.value|default:'' }}" required
                         class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-yellow-500 focus:border-transparent transition-all">
                 </div>
 
-                <!-- Nom de la Mère -->
+                <!-- Téléphone du Responsable -->
                 <div>
-                    <label for="id_nom_mere" class="block text-sm font-semibold text-gray-700 mb-2">
-                        <i class="fas fa-female text-yellow-500 mr-2"></i>Nom de la Mère
+                    <label for="id_telephone_responsable" class="block text-sm font-semibold text-gray-700 mb-2">
+                        <i class="fas fa-phone text-yellow-500 mr-2"></i>Téléphone du Responsable
+                        <span class="text-red-500">*</span>
                     </label>
-                    <input type="text" name="nom_mere" id="id_nom_mere" value="{{ form.nom_mere.value|default:'' }}"
-                        class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-yellow-500 focus:border-transparent transition-all">
+                    <input type="tel" name="telephone_responsable" id="id_telephone_responsable" value="{{ form.telephone_responsable.value|default:'' }}" required
+                        class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-yellow-500 focus:border-transparent transition-all"
+                        placeholder="+509 XXXX-XXXX">
                 </div>
 
-                <!-- Téléphone Mère -->
+                <!-- Email du Responsable -->
                 <div>
-                    <label for="id_tel_mere" class="block text-sm font-semibold text-gray-700 mb-2">
-                        <i class="fas fa-phone text-yellow-500 mr-2"></i>Téléphone Mère
+                    <label for="id_email_responsable" class="block text-sm font-semibold text-gray-700 mb-2">
+                        <i class="fas fa-envelope text-yellow-500 mr-2"></i>Email du Responsable (Optionnel)
                     </label>
-                    <input type="tel" name="tel_mere" id="id_tel_mere" value="{{ form.tel_mere.value|default:'' }}"
-                        class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-yellow-500 focus:border-transparent transition-all">
+                    <input type="email" name="email_responsable" id="id_email_responsable" value="{{ form.email_responsable.value|default:'' }}"
+                        class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-yellow-500 focus:border-transparent transition-all"
+                        placeholder="responsable@email.com">
+                </div>
+
+                <!-- École d'origine -->
+                <div>
+                    <label for="id_ecole_origine" class="block text-sm font-semibold text-gray-700 mb-2">
+                        <i class="fas fa-school text-yellow-500 mr-2"></i>École d'origine (Optionnel)
+                    </label>
+                    <input type="text" name="ecole_origine" id="id_ecole_origine" value="{{ form.ecole_origine.value|default:'' }}"
+                        class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-yellow-500 focus:border-transparent transition-all"
+                        placeholder="Ex: École Sainte-Marie">
                 </div>
             </div>
 
