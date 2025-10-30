@@ -5,14 +5,13 @@
 
 {% block content %}
 <div class="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100">
-    <!-- Header Compact -->
+    <!-- HEADER -->
     <div class="bg-gradient-to-r from-gray-800 via-gray-700 to-yellow-600 shadow-md">
         <div class="max-w-7xl mx-auto px-3 sm:px-4 lg:px-6 py-4 flex flex-col md:flex-row justify-between items-center">
             <div class="mb-2 md:mb-0 text-center md:text-left">
                 <h1 class="text-2xl font-bold text-white flex items-center justify-center md:justify-start">
                     <svg class="w-7 h-7 mr-2 text-yellow-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
-                              d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"/>
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
                     </svg>
                     Gestion des Enseignants
                 </h1>
@@ -25,163 +24,93 @@
         </div>
     </div>
 
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
-        <!-- Messages -->
-        {% if messages %}
-            {% for message in messages %}
-            <div class="mb-4 p-3 rounded-lg shadow-md 
-                {% if message.tags == 'success' %}bg-green-50 border-l-4 border-green-500 text-green-800
-                {% elif message.tags == 'error' %}bg-red-50 border-l-4 border-red-500 text-red-800
-                {% elif message.tags == 'warning' %}bg-yellow-50 border-l-4 border-yellow-500 text-yellow-800
-                {% else %}bg-blue-50 border-l-4 border-blue-500 text-blue-800{% endif %}">
-                <div class="flex items-center">
-                    <svg class="w-5 h-5 mr-2" fill="currentColor" viewBox="0 0 20 20">
-                        <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd"/>
-                    </svg>
-                    <span class="font-medium text-sm">{{ message }}</span>
-                </div>
-            </div>
-            {% endfor %}
-        {% endif %}
-
-        <!-- Barre de recherche avec filtres -->
-        <div class="mb-6">
-            <form method="GET" action="{% url 'enseignants:enseignants' %}" class="flex flex-col lg:flex-row items-stretch lg:items-center gap-3">
-                
-                <!-- Bar Rechèch -->
-                <div class="flex-1 relative">
-                    <input type="text" name="search" value="{{ request.GET.search }}" 
-                           placeholder="Rechercher un enseignant..." 
-                           class="w-full pl-11 pr-4 py-2.5 border-2 border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-yellow-500 focus:border-yellow-500 transition bg-white shadow-sm text-sm">
-                    <svg class="absolute left-3.5 top-3 w-4 h-4 text-yellow-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" 
-                              d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
-                    </svg>
-                </div>
-
-                <!-- Filtre Par Spécialité -->
-                <div class="relative">
-                    <select name="specialite" 
-                            class="appearance-none w-full lg:w-48 pl-4 pr-10 py-2.5 border-2 border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-yellow-500 focus:border-yellow-500 transition bg-white shadow-sm text-sm font-medium text-gray-700 cursor-pointer">
-                        <option value="">Par Spécialité</option>
-                        <option value="diplome" {% if request.GET.specialite == 'diplome' %}selected{% endif %}>Diplômé</option>
-                        <option value="licence" {% if request.GET.specialite == 'licence' %}selected{% endif %}>Licencié</option>
-                        <option value="master" {% if request.GET.specialite == 'master' %}selected{% endif %}>Master</option>
-                        <option value="doctorat" {% if request.GET.specialite == 'doctorat' %}selected{% endif %}>Doctorat</option>
-                    </select>
-                    <svg class="absolute right-3 top-3.5 w-4 h-4 text-gray-500 pointer-events-none" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
-                    </svg>
-                </div>
-
-                <!-- Filtre Statuts -->
-                <div class="relative">
-                    <select name="statut" 
-                            class="appearance-none w-full lg:w-40 pl-4 pr-10 py-2.5 border-2 border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-yellow-500 focus:border-yellow-500 transition bg-white shadow-sm text-sm font-medium text-gray-700 cursor-pointer">
-                        <option value="">Statuts</option>
-                        <option value="actif" {% if request.GET.statut == 'actif' %}selected{% endif %}>Actif</option>
-                        <option value="inactif" {% if request.GET.statut == 'inactif' %}selected{% endif %}>Inactif</option>
-                    </select>
-                    <svg class="absolute right-3 top-3.5 w-4 h-4 text-gray-500 pointer-events-none" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
-                    </svg>
-                </div>
-
-                <!-- Bouton Réinitialiser -->
-                <a href="{% url 'enseignants:enseignants' %}" 
-                   class="inline-flex items-center justify-center bg-gray-500 hover:bg-gray-600 text-white font-medium px-4 py-2.5 rounded-lg shadow-md transform hover:scale-105 transition duration-300 text-sm whitespace-nowrap">
-                    <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/>
-                    </svg>
-                    Réinitialiser
-                </a>
-            </form>
+    <!-- STATISTIQUES -->
+    <div class="max-w-7xl mx-auto mt-6 px-6 grid grid-cols-2 md:grid-cols-5 gap-4 text-center">
+        <div class="bg-white shadow-md rounded-xl p-4 border-t-4 border-yellow-500">
+            <h3 class="text-sm font-medium text-gray-600">Total</h3>
+            <p class="text-2xl font-bold text-gray-900">{{ total_enseignants }}</p>
         </div>
+        <div class="bg-white shadow-md rounded-xl p-4 border-t-4 border-green-500">
+            <h3 class="text-sm font-medium text-gray-600">Actifs</h3>
+            <p class="text-2xl font-bold text-green-600">{{ enseignants_actifs }}</p>
+        </div>
+        <div class="bg-white shadow-md rounded-xl p-4 border-t-4 border-red-500">
+            <h3 class="text-sm font-medium text-gray-600">Inactifs</h3>
+            <p class="text-2xl font-bold text-red-600">{{ enseignants_inactifs }}</p>
+        </div>
+        <div class="bg-white shadow-md rounded-xl p-4 border-t-4 border-blue-500">
+            <h3 class="text-sm font-medium text-gray-600">Hommes</h3>
+            <p class="text-2xl font-bold text-blue-600">{{ total_hommes }}</p>
+        </div>
+        <div class="bg-white shadow-md rounded-xl p-4 border-t-4 border-pink-500">
+            <h3 class="text-sm font-medium text-gray-600">Femmes</h3>
+            <p class="text-2xl font-bold text-pink-600">{{ total_femmes }}</p>
+        </div>
+    </div>
 
-        <!-- Tableau des enseignants -->
-        {% if enseignants_list %}
+    <!-- LISTE -->
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+        {% if enseignants %}
         <div class="bg-white rounded-2xl shadow-lg overflow-hidden">
             <div class="overflow-x-auto">
                 <table class="w-full">
                     <thead class="bg-gray-800 text-white">
                         <tr>
-                            <th class="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wider">Matricule</th>
-                            <th class="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wider">Enseignant</th>
-                            <th class="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wider">Contact</th>
-                            <th class="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wider">Spécialité</th>
-                            <th class="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wider">Statut</th>
-                            <th class="px-4 py-3 text-center text-xs font-semibold uppercase tracking-wider">Actions</th>
+                            <th class="px-4 py-3 text-left text-xs font-semibold uppercase">Matricule</th>
+                            <th class="px-4 py-3 text-left text-xs font-semibold uppercase">Nom & Prénom</th>
+                            <th class="px-4 py-3 text-left text-xs font-semibold uppercase">Email</th>
+                            <th class="px-4 py-3 text-left text-xs font-semibold uppercase">Téléphone</th>
+                            <th class="px-4 py-3 text-left text-xs font-semibold uppercase">Matières</th>
+                            <th class="px-4 py-3 text-left text-xs font-semibold uppercase">Statut</th>
+                            <th class="px-4 py-3 text-center text-xs font-semibold uppercase">Actions</th>
                         </tr>
                     </thead>
                     <tbody class="divide-y divide-gray-200">
-                        {% for enseignant in enseignants_list %}
+                        {% for enseignant in enseignants %}
                         <tr class="hover:bg-gray-50 transition">
-                            <td class="px-4 py-3 text-sm text-gray-900 font-semibold">{{ forloop.counter }}</td>
-                            <td class="px-4 py-3">
-                                <div class="flex items-center">
-                                    <div class="w-10 h-10 bg-gradient-to-br from-yellow-400 to-yellow-600 rounded-full flex items-center justify-center text-white font-bold mr-3 shadow-md">
-                                        {{ enseignant.nom.0|upper }}
-                                    </div>
-                                    <div>
-                                        <p class="font-semibold text-gray-900 text-sm">{{ enseignant.nom }} {{ enseignant.prenom }}</p>
-                                        <p class="text-xs text-gray-500">
-                                            <svg class="w-3 h-3 inline mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/>
-                                            </svg>
-                                            {{ enseignant.email }}
-                                        </p>
-                                    </div>
-                                </div>
-                            </td>
+                            <td class="px-4 py-3 text-sm text-gray-900">{{ forloop.counter }}</td>
+                            <td class="px-4 py-3 text-sm text-gray-700">{{ enseignant.matricule }}</td>
+                            <td class="px-4 py-3 text-sm font-medium text-gray-900">{{ enseignant.nom }} {{ enseignant.prenom }}</td>
+                            <td class="px-4 py-3 text-sm text-gray-700">{{ enseignant.email }}</td>
+                            <td class="px-4 py-3 text-sm text-gray-700">{{ enseignant.telephone }}</td>
                             <td class="px-4 py-3 text-sm text-gray-700">
-                                <div class="flex items-center">
-                                    <svg class="w-4 h-4 mr-1.5 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z"/>
-                                    </svg>
-                                    {{ enseignant.telephone }}
-                                </div>
+                                {% for mat in enseignant.matieres.all %}
+                                    <span class="bg-yellow-100 text-yellow-800 px-2 py-1 rounded-full text-xs font-medium mr-1">{{ mat.nom_matiere }}</span>
+                                {% empty %}
+                                    <span class="text-gray-400 italic">Aucune</span>
+                                {% endfor %}
                             </td>
-                            <td class="px-4 py-3">
-                                <span class="inline-flex items-center bg-blue-100 text-blue-800 text-xs font-semibold px-2.5 py-1 rounded-full">
-                                    <svg class="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"/>
-                                    </svg>
-                                    {{ enseignant.specialite|default:"Non défini" }}
-                                </span>
-                            </td>
-                            <td class="px-4 py-3">
-                                {% if enseignant.actif %}
-                                <span class="inline-flex items-center bg-green-100 text-green-800 text-xs font-bold px-2.5 py-1 rounded-full">
-                                    <svg class="w-3 h-3 mr-1" fill="currentColor" viewBox="0 0 20 20">
-                                        <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
-                                    </svg>
-                                    Actif
-                                </span>
+                            <td class="px-4 py-3 text-sm">
+                                {% if enseignant.statut == 'actif' %}
+                                    <span class="bg-green-100 text-green-700 px-2 py-1 rounded-full text-xs font-semibold">Actif</span>
                                 {% else %}
-                                <span class="inline-flex items-center bg-red-100 text-red-800 text-xs font-bold px-2.5 py-1 rounded-full">
-                                    <svg class="w-3 h-3 mr-1" fill="currentColor" viewBox="0 0 20 20">
-                                        <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd"/>
-                                    </svg>
-                                    Inactif
-                                </span>
+                                    <span class="bg-red-100 text-red-700 px-2 py-1 rounded-full text-xs font-semibold">Inactif</span>
                                 {% endif %}
                             </td>
-                            <td class="px-4 py-3">
+                            <td class="px-4 py-3 text-center">
                                 <div class="flex justify-center gap-2">
+                                    <a href="{% url 'enseignants:details_enseignant' enseignant.id %}"
+                                       class="text-gray-700 hover:text-gray-900 bg-gray-100 hover:bg-gray-200 px-3 py-1.5 rounded-lg transition text-sm font-medium"
+                                       title="Voir Détails">
+                                        <svg class="w-4 h-4 inline" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                                        </svg>
+                                    </a>
                                     <a href="{% url 'enseignants:modifier_enseignant' enseignant.id %}"
                                        class="text-blue-600 hover:text-blue-700 bg-blue-50 hover:bg-blue-100 px-3 py-1.5 rounded-lg transition text-sm font-medium"
                                        title="Modifier">
                                         <svg class="w-4 h-4 inline" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/>
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
                                         </svg>
                                     </a>
-                                    <button onclick="confirmDelete('{{ enseignant.id }}', '{{ enseignant.nom }} {{ enseignant.prenom }}')"
-                                            class="text-red-600 hover:text-red-700 bg-red-50 hover:bg-red-100 px-3 py-1.5 rounded-lg transition text-sm font-medium"
-                                            title="Supprimer">
+                                    <a href="{% url 'enseignants:archiver_enseignant' enseignant.id %}"
+                                       class="text-red-600 hover:text-red-700 bg-red-50 hover:bg-red-100 px-3 py-1.5 rounded-lg transition text-sm font-medium"
+                                       title="Archiver">
                                         <svg class="w-4 h-4 inline" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m14 0H5m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3m4 0H7" />
                                         </svg>
-                                    </button>
+                                    </a>
                                 </div>
                             </td>
                         </tr>
@@ -191,118 +120,35 @@
             </div>
         </div>
 
-        <!-- Pagination -->
-        {% if enseignants_list.has_other_pages %}
+        <!-- PAGINATION -->
+        {% if enseignants.has_other_pages %}
         <div class="mt-6 flex justify-center items-center gap-4">
-            {% if enseignants_list.has_previous %}
-                <a href="?page={{ enseignants_list.previous_page_number }}{% if request.GET.search %}&search={{ request.GET.search }}{% endif %}{% if request.GET.specialite %}&specialite={{ request.GET.specialite }}{% endif %}{% if request.GET.statut %}&statut={{ request.GET.statut }}{% endif %}" 
-                   class="inline-flex items-center px-6 py-3 bg-gray-700 hover:bg-gray-800 text-white font-medium rounded-lg shadow-md transform hover:scale-105 transition duration-300">
-                    <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/>
-                    </svg>
-                    Précédent
-                </a>
+            {% if enseignants.has_previous %}
+                <a href="?page={{ enseignants.previous_page_number }}" class="px-4 py-2 bg-gray-700 hover:bg-gray-800 text-white rounded-lg shadow-md text-sm">← Précédent</a>
             {% else %}
-                <button disabled 
-                        class="inline-flex items-center px-6 py-3 bg-gray-300 text-gray-500 font-medium rounded-lg shadow-md cursor-not-allowed opacity-50">
-                    <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/>
-                    </svg>
-                    Précédent
-                </button>
+                <span class="px-4 py-2 bg-gray-300 text-gray-500 rounded-lg text-sm cursor-not-allowed">← Précédent</span>
             {% endif %}
 
-            <span class="text-gray-700 font-medium px-4 py-2 bg-gray-100 rounded-lg">
-                Page {{ enseignants_list.number }} sur {{ enseignants_list.paginator.num_pages }}
+            <span class="px-3 py-2 bg-gray-100 rounded-lg text-gray-700 text-sm font-medium">
+                Page {{ enseignants.number }} sur {{ enseignants.paginator.num_pages }}
             </span>
 
-            {% if enseignants_list.has_next %}
-                <a href="?page={{ enseignants_list.next_page_number }}{% if request.GET.search %}&search={{ request.GET.search }}{% endif %}{% if request.GET.specialite %}&specialite={{ request.GET.specialite }}{% endif %}{% if request.GET.statut %}&statut={{ request.GET.statut }}{% endif %}" 
-                   class="inline-flex items-center px-6 py-3 bg-yellow-500 hover:bg-yellow-600 text-gray-900 font-medium rounded-lg shadow-md transform hover:scale-105 transition duration-300">
-                    Suivant
-                    <svg class="w-5 h-5 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
-                    </svg>
-                </a>
+            {% if enseignants.has_next %}
+                <a href="?page={{ enseignants.next_page_number }}" class="px-4 py-2 bg-yellow-500 hover:bg-yellow-600 text-gray-900 rounded-lg shadow-md text-sm">Suivant →</a>
             {% else %}
-                <button disabled 
-                        class="inline-flex items-center px-6 py-3 bg-gray-300 text-gray-500 font-medium rounded-lg shadow-md cursor-not-allowed opacity-50">
-                    Suivant
-                    <svg class="w-5 h-5 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
-                    </svg>
-                </button>
+                <span class="px-4 py-2 bg-gray-300 text-gray-500 rounded-lg text-sm cursor-not-allowed">Suivant →</span>
             {% endif %}
         </div>
         {% endif %}
-
         {% else %}
-        <!-- État Vide -->
         <div class="bg-white rounded-2xl shadow-lg p-12 text-center">
             <svg class="w-24 h-24 mx-auto text-gray-300 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"/>
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
             </svg>
             <h3 class="text-2xl font-bold text-gray-700 mb-2">Aucun enseignant trouvé</h3>
             <p class="text-gray-500 mb-6">Commencez par ajouter votre premier enseignant</p>
-            
         </div>
         {% endif %}
     </div>
 </div>
-
-<!-- Modal de suppression -->
-<div id="deleteModal" class="hidden fixed inset-0 bg-black bg-opacity-60 overflow-y-auto h-full w-full z-50 flex items-center justify-center p-4">
-    <div class="relative bg-white rounded-2xl shadow-2xl max-w-md w-full mx-auto">
-        <div class="p-6">
-            <div class="flex items-center justify-center w-14 h-14 mx-auto bg-red-100 rounded-full mb-4">
-                <svg class="w-7 h-7 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/>
-                </svg>
-            </div>
-            <h3 class="text-xl font-bold text-gray-900 text-center mb-2">Supprimer l'enseignant</h3>
-            <p class="text-gray-600 text-center mb-6 text-sm" id="deleteMessage">
-                Êtes-vous sûr de vouloir supprimer cet enseignant ?
-            </p>
-            <div class="flex gap-3">
-                <button onclick="closeDeleteModal()" 
-                        class="flex-1 px-5 py-2.5 bg-gray-200 hover:bg-gray-300 text-gray-800 font-medium rounded-lg transition duration-300">
-                    Annuler
-                </button>
-                <form id="deleteForm" method="POST" class="flex-1">
-                    {% csrf_token %}
-                    <button type="submit" 
-                            class="w-full px-5 py-2.5 bg-red-600 hover:bg-red-700 text-white font-bold rounded-lg transition duration-300">
-                        Supprimer
-                    </button>
-                </form>
-            </div>
-        </div>
-    </div>
-</div>
-
-<script>
-function confirmDelete(enseignantId, enseignantNom) {
-    const modal = document.getElementById('deleteModal');
-    const form = document.getElementById('deleteForm');
-    const message = document.getElementById('deleteMessage');
-    
-    message.innerHTML = `Êtes-vous sûr de vouloir supprimer <strong>"${enseignantNom}"</strong> ?`;
-    form.action = `/enseignants/supprimer/${enseignantId}/`;
-    
-    modal.classList.remove('hidden');
-}
-
-function closeDeleteModal() {
-    document.getElementById('deleteModal').classList.add('hidden');
-}
-
-document.getElementById('deleteModal')?.addEventListener('click', function(e) {
-    if (e.target === this) closeDeleteModal();
-});
-
-// Fermer avec ESC
-document.addEventListener('keydown', function(e) {
-    if (e.key === 'Escape') closeDeleteModal();
-});
-</script>
 {% endblock %}

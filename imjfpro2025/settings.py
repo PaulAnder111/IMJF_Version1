@@ -39,9 +39,9 @@ else:
 # -----------------------------------------------------
 AUTH_USER_MODEL = 'utilisateurs.CustomUser'
 STATIC_URL = '/static/'
-LOGIN_URL = '/login/'
+LOGIN_URL = '/utilisateurs/login/'
 LOGIN_REDIRECT_URL = '/utilisateurs/dash_admin/'
-LOGOUT_REDIRECT_URL = '/login/'
+LOGOUT_REDIRECT_URL = '/utilisateurs/login/'
 # ------------------------------------------------------
 # Application definition
 
@@ -52,15 +52,15 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'widget_tweaks',
     'utilisateurs',
     'eleves',
     'enseignants',
     'cours',
+    'core',
     'matieres',
     'classes',
     'inscriptions',
-   
-    
 ]
 # -------------------------------------------------------------------------------
 # Password validation
@@ -115,9 +115,9 @@ DATABASES = {
             'ENGINE':'django.db.backends.mysql',
             'NAME':'railway',
             'USER': 'root',
-            'PASSWORD': 'OELrAflRuAwNLLyafbRItxigSlUvdbDf',
-            'HOST': 'trolley.proxy.rlwy.net',
-            'PORT': '44383',
+            'PASSWORD': 'hdrSblIWPxixCHSVyaVRpypVdrTqnfUZ',
+            'HOST': 'ballast.proxy.rlwy.net',
+            'PORT': '53755',
             'OPTIONS': {
                 'charset': 'utf8mb4',
                 'init_command': "SET sql_mode='STRICT_TRANS_TABLES'",
@@ -193,3 +193,25 @@ SECURE_HSTS_PRELOAD = True
 # Lòt Sekirite
 SECURE_SSL_REDIRECT = False  # True sèlman ak SSL
 SECURE_PROXY_SSL_HEADER = None  # Si w pa dèyè proxy
+
+
+LOGGING = {
+    'version': 1,
+    'disable_existing_loggers': False,
+    'handlers': {
+        'console': {
+            'class': 'logging.StreamHandler',
+        },
+    },
+    'root': {
+        'handlers': ['console'],
+        'level': 'DEBUG',
+    },
+    'loggers': {
+        'django': {
+            'handlers': ['console'],
+            'level': 'DEBUG',
+            'propagate': False,
+        },
+    },
+}

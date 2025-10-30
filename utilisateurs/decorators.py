@@ -8,16 +8,11 @@ def admin_required(function):
         raise PermissionDenied
     return wrap
 
-def resp_admin_required(function):
-    def wrap(request, *args, **kwargs):
-        if request.user.is_authenticated and request.user.role in ['admin', 'resp_admin']:
-            return function(request, *args, **kwargs)
-        raise PermissionDenied
-    return wrap
+
 
 def teacher_required(function):
     def wrap(request, *args, **kwargs):
-        if request.user.is_authenticated and request.user.role in ['admin', 'teacher']:
+        if request.user.is_authenticated and request.user.role in ['admin', 'archives']:
             return function(request, *args, **kwargs)
         raise PermissionDenied
     return wrap

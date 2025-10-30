@@ -55,30 +55,69 @@
             <form method="post" class="space-y-6">
                 {% csrf_token %}
                 <div>
-                    <label class="block font-semibold text-gray-700 mb-2">Nom du cours</label>
-                    <input type="text" name="nom" required
-                        class="w-full border-2 border-gray-300 rounded-xl px-4 py-3 focus:ring-4 focus:ring-yellow-500 focus:border-yellow-500 outline-none transition">
-                </div>
-
-                <div>
-                    <label class="block font-semibold text-gray-700 mb-2">Code du cours</label>
-                    <input type="text" name="code" required
-                        class="w-full border-2 border-gray-300 rounded-xl px-4 py-3 focus:ring-4 focus:ring-yellow-500 focus:border-yellow-500 outline-none transition">
-                </div>
-
-                <div>
-                    <label class="block font-semibold text-gray-700 mb-2">Matière associée</label>
+                    <label class="block font-semibold text-gray-700 mb-2">Matière</label>
                     <select name="matiere" required
                         class="w-full border-2 border-gray-300 rounded-xl px-4 py-3 focus:ring-4 focus:ring-yellow-500 focus:border-yellow-500 outline-none transition">
                         {% for matiere in matieres %}
-                        <option value="{{ matiere.id }}">{{ matiere.nom }}</option>
+                        <option value="{{ matiere.id }}">{{ matiere.nom_matiere }}</option>
                         {% endfor %}
                     </select>
                 </div>
 
+                <div>
+                    <label class="block font-semibold text-gray-700 mb-2">Classe</label>
+                    <select name="classe" required
+                        class="w-full border-2 border-gray-300 rounded-xl px-4 py-3 focus:ring-4 focus:ring-yellow-500 focus:border-yellow-500 outline-none transition">
+                        {% for classe in classes %}
+                        <option value="{{ classe.id }}">{{ classe.nom_classe }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+
+                <div>
+                    <label class="block font-semibold text-gray-700 mb-2">Enseignant</label>
+                    <select name="enseignant" required
+                        class="w-full border-2 border-gray-300 rounded-xl px-4 py-3 focus:ring-4 focus:ring-yellow-500 focus:border-yellow-500 outline-none transition">
+                        {% for enseignant in enseignants %}
+                        <option value="{{ enseignant.id }}">{{ enseignant.prenom }} {{ enseignant.nom }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div>
+                        <label class="block font-semibold text-gray-700 mb-2">Jour</label>
+                        <select name="jour" required
+                            class="w-full border-2 border-gray-300 rounded-xl px-4 py-3 focus:ring-4 focus:ring-yellow-500 focus:border-yellow-500 outline-none transition">
+                            <option value="Lundi">Lundi</option>
+                            <option value="Mardi">Mardi</option>
+                            <option value="Mercredi">Mercredi</option>
+                            <option value="Jeudi">Jeudi</option>
+                            <option value="Vendredi">Vendredi</option>
+                            <option value="Samedi">Samedi</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block font-semibold text-gray-700 mb-2">Heure de début</label>
+                        <input type="time" name="heure_debut" required
+                            class="w-full border-2 border-gray-300 rounded-xl px-4 py-3 focus:ring-4 focus:ring-yellow-500 focus:border-yellow-500 outline-none transition">
+                    </div>
+                    <div>
+                        <label class="block font-semibold text-gray-700 mb-2">Heure de fin</label>
+                        <input type="time" name="heure_fin" required
+                            class="w-full border-2 border-gray-300 rounded-xl px-4 py-3 focus:ring-4 focus:ring-yellow-500 focus:border-yellow-500 outline-none transition">
+                    </div>
+                    <div>
+                        <label class="block font-semibold text-gray-700 mb-2">Salle</label>
+                        <input type="text" name="salle"
+                            class="w-full border-2 border-gray-300 rounded-xl px-4 py-3 focus:ring-4 focus:ring-yellow-500 focus:border-yellow-500 outline-none transition"
+                            placeholder="Ex: Salle 101">
+                    </div>
+                </div>
+
                 <div class="flex items-center space-x-2">
-                    <input type="checkbox" name="actif" id="actif" class="w-5 h-5 text-yellow-500 focus:ring-yellow-500 border-gray-300 rounded">
-                    <label for="actif" class="font-medium text-gray-800">Actif</label>
+                    <input type="checkbox" name="statut" id="statut" value="actif" checked class="w-5 h-5 text-yellow-500 focus:ring-yellow-500 border-gray-300 rounded">
+                    <label for="statut" class="font-medium text-gray-800">Actif</label>
                 </div>
 
                 <div class="flex justify-end pt-4 space-x-4">

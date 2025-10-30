@@ -5,8 +5,8 @@ app_name = 'classes'
 
 urlpatterns = [
     # Classes
-    path('classes/', views.classes, name='classes'),
-    path('classes/ajouter/', views.ajouter_classes, name='ajouter_classes'),
-    path('classes/modifier/<int:classe_id>/', views.modifier_classes, name='modifier_classes'),
-
+    path('', views.classe_list, name='classe_list'),
+    path('ajouter_classes/', views.classe_create, name='ajouter_classes'),
+    path('modifier_classes/<int:classe_id>/', views.classe_update, name='modifier_classes'),
+    path('supprimer/<int:classe_id>',views.classe_delete,name='classe_confirm_delete'),
 ]

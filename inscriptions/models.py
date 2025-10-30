@@ -55,11 +55,11 @@ class Inscription(models.Model):
         max_length=100,
         verbose_name="Profession du responsable"
     )
-    telephone_responsable = models.CharField(
+    telephone_responsable = models.CharField( unique= True,
         max_length=20,
         verbose_name="Téléphone du responsable"
     )
-    email_responsable = models.EmailField(
+    email_responsable = models.EmailField( unique=True,
         blank=True,
         null=True,
         verbose_name="Email du responsable (optionnel)"

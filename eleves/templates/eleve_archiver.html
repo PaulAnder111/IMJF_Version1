@@ -1,0 +1,55 @@
+{% extends 'utilisateurs/base.html' %}
+{% load static %}
+
+{% block title %}Archives des Élèves - SYGEE{% endblock %}
+
+{% block content %}
+<div class="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100">
+  <div class="bg-gradient-to-r from-gray-800 via-gray-700 to-yellow-600 shadow-md">
+      <div class="max-w-7xl mx-auto px-3 sm:px-4 lg:px-6 py-4 flex justify-between items-center">
+          <h1 class="text-2xl font-bold text-white">Élèves Archivés</h1>
+          <a href="{% url 'eleves:eleve_list' %}" class="inline-flex items-center bg-yellow-500 hover:bg-yellow-600 text-gray-900 px-4 py-2 rounded-lg shadow">← Retour aux élèves actifs</a>
+      </div>
+  </div>
+
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-6">
+      <table class="w-full text-left bg-white rounded-2xl shadow-lg">
+          <thead class="bg-gray-800 text-white">
+              <tr>
+                  <th class="px-6 py-3">Matricule</th>
+                  <th class="px-6 py-3">Nom</th>
+                  <th class="px-6 py-3">Prénom</th>
+                  <th class="px-6 py-3">Classe</th>
+                  <th class="px-6 py-3">Actions</th>
+              </tr>
+          </thead>
+          <tbody>
+              {% for eleve in eleves %}
+              <tr class="border-b hover:bg-gray-50 transition">
+                  <td class="px-6 py-3">{{ eleve.matricule }}</td>
+                  <td class="px-6 py-3">{{ eleve.nom|upper }}</td>
+                  <td class="px-6 py-3">{{ eleve.prenom|title }}</td>
+                  <td class="px-6 py-3">
+                      {% if eleve.classe_actuelle %}
+                          {{ eleve.classe_actuelle.nom_classe }}
+                      {% else %}
+                          <span class="text-gray-400">Non affecté</span>
+                      {% endif %}
+                  </td>
+                  <td class="px-6 py-3">
+                      <form action="{% url 'eleves:eleve_restaurer' eleve.id %}" method="POST" style="display:inline;">
+                          {% csrf_token %}
+                          <button type="submit" class="text-green-600 hover:text-green-800" onclick="return confirm('Restaurer cet élève ?')">Restaurer</button>
+                      </form>
+                  </td>
+              </tr>
+              {% empty %}
+              <tr>
+                  <td colspan="5" class="text-center py-6 text-gray-500">Aucun élève archivé</td>
+              </tr>
+              {% endfor %}
+          </tbody>
+      </table>
+  </div>
+</div>
+{% endblock %}

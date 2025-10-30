@@ -15,37 +15,85 @@
     <!-- Formulaire -->
     <form method="post" class="space-y-5">
         {% csrf_token %}
-        <!-- Nom du cours -->
+        <!-- Matière -->
         <div>
-            <label for="nom" class="block font-semibold text-gray-700 mb-1">Nom du cours</label>
-            <input type="text" id="nom" name="nom" value="{{ cours.nom }}" required
-                   class="w-full border rounded-lg px-3 py-2 focus:ring-2 focus:ring-yellow-400 focus:outline-none">
-        </div>
-
-        <!-- Code -->
-        <div>
-            <label for="code" class="block font-semibold text-gray-700 mb-1">Code</label>
-            <input type="text" id="code" name="code" value="{{ cours.code }}" required
-                   class="w-full border rounded-lg px-3 py-2 focus:ring-2 focus:ring-yellow-400 focus:outline-none">
-        </div>
-
-        <!-- Matière associée -->
-        <div>
-            <label for="matiere" class="block font-semibold text-gray-700 mb-1">Matière associée</label>
+            <label for="matiere" class="block font-semibold text-gray-700 mb-1">Matière</label>
             <select id="matiere" name="matiere" required
                     class="w-full border rounded-lg px-3 py-2 focus:ring-2 focus:ring-yellow-400 focus:outline-none">
                 {% for matiere in matieres %}
                     <option value="{{ matiere.id }}" {% if matiere.id == cours.matiere.id %}selected{% endif %}>
-                        {{ matiere.nom }}
+                        {{ matiere.nom_matiere }}
                     </option>
                 {% endfor %}
             </select>
         </div>
 
-        <!-- Statut actif -->
+        <!-- Classe -->
+        <div>
+            <label for="classe" class="block font-semibold text-gray-700 mb-1">Classe</label>
+            <select id="classe" name="classe" required
+                    class="w-full border rounded-lg px-3 py-2 focus:ring-2 focus:ring-yellow-400 focus:outline-none">
+                {% for classe in classes %}
+                    <option value="{{ classe.id }}" {% if classe.id == cours.classe.id %}selected{% endif %}>
+                        {{ classe.nom_classe }}
+                    </option>
+                {% endfor %}
+            </select>
+        </div>
+
+        <!-- Enseignant -->
+        <div>
+            <label for="enseignant" class="block font-semibold text-gray-700 mb-1">Enseignant</label>
+            <select id="enseignant" name="enseignant" required
+                    class="w-full border rounded-lg px-3 py-2 focus:ring-2 focus:ring-yellow-400 focus:outline-none">
+                {% for enseignant in enseignants %}
+                    <option value="{{ enseignant.id }}" {% if enseignant.id == cours.enseignant.id %}selected{% endif %}>
+                        {{ enseignant.prenom }} {{ enseignant.nom }}
+                    </option>
+                {% endfor %}
+            </select>
+        </div>
+
+        <!-- Jour -->
+        <div>
+            <label for="jour" class="block font-semibold text-gray-700 mb-1">Jour</label>
+            <select id="jour" name="jour" required
+                    class="w-full border rounded-lg px-3 py-2 focus:ring-2 focus:ring-yellow-400 focus:outline-none">
+                <option value="Lundi" {% if cours.jour == 'Lundi' %}selected{% endif %}>Lundi</option>
+                <option value="Mardi" {% if cours.jour == 'Mardi' %}selected{% endif %}>Mardi</option>
+                <option value="Mercredi" {% if cours.jour == 'Mercredi' %}selected{% endif %}>Mercredi</option>
+                <option value="Jeudi" {% if cours.jour == 'Jeudi' %}selected{% endif %}>Jeudi</option>
+                <option value="Vendredi" {% if cours.jour == 'Vendredi' %}selected{% endif %}>Vendredi</option>
+                <option value="Samedi" {% if cours.jour == 'Samedi' %}selected{% endif %}>Samedi</option>
+            </select>
+        </div>
+
+        <!-- Heure de début -->
+        <div>
+            <label for="heure_debut" class="block font-semibold text-gray-700 mb-1">Heure de début</label>
+            <input type="time" id="heure_debut" name="heure_debut" value="{{ cours.heure_debut|time:'H:i' }}" required
+                   class="w-full border rounded-lg px-3 py-2 focus:ring-2 focus:ring-yellow-400 focus:outline-none">
+        </div>
+
+        <!-- Heure de fin -->
+        <div>
+            <label for="heure_fin" class="block font-semibold text-gray-700 mb-1">Heure de fin</label>
+            <input type="time" id="heure_fin" name="heure_fin" value="{{ cours.heure_fin|time:'H:i' }}" required
+                   class="w-full border rounded-lg px-3 py-2 focus:ring-2 focus:ring-yellow-400 focus:outline-none">
+        </div>
+
+        <!-- Salle -->
+        <div>
+            <label for="salle" class="block font-semibold text-gray-700 mb-1">Salle</label>
+            <input type="text" id="salle" name="salle" value="{{ cours.salle }}"
+                   class="w-full border rounded-lg px-3 py-2 focus:ring-2 focus:ring-yellow-400 focus:outline-none"
+                   placeholder="Ex: Salle 101">
+        </div>
+
+        <!-- Statut -->
         <div class="flex items-center">
-            <input type="checkbox" name="actif" id="actif" {% if cours.actif %}checked{% endif %} class="mr-2 h-4 w-4 text-yellow-500 focus:ring-yellow-400 border-gray-300 rounded">
-            <label for="actif" class="font-medium text-gray-700">Actif</label>
+            <input type="checkbox" name="statut" id="statut" {% if cours.statut == 'actif' %}checked{% endif %} value="actif" class="mr-2 h-4 w-4 text-yellow-500 focus:ring-yellow-400 border-gray-300 rounded">
+            <label for="statut" class="font-medium text-gray-700">Actif</label>
         </div>
 
         <!-- Boutons d'action -->

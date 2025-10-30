@@ -22,13 +22,13 @@ class LoginForm(AuthenticationForm):
 class CustomUserCreationForm(UserCreationForm):
     class Meta:
         model = CustomUser
-        fields = ['username', 'first_name', 'last_name', 'email', 'phone', 'role', 'photo', 'password1', 'password2']
+        fields = ['username', 'first_name', 'last_name', 'email', 'telephone', 'role', 'photo', 'password1', 'password2']
 
 # Fòm pou modifye yon itilizatè (update)
 class UserUpdateForm(forms.ModelForm):
     class Meta:
         model = CustomUser
-        fields = ['username', 'first_name', 'last_name', 'email', 'phone', 'role', 'photo', 'is_active']
+        fields = ['username', 'first_name', 'last_name', 'email', 'telephone', 'role', 'photo', 'is_active']
 
     # Validation pou imèl pou evite doublon
     def clean_email(self):

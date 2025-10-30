@@ -50,3 +50,16 @@ class Classe(models.Model):
 
     def __str__(self):
         return f"{self.nom_classe} ({self.niveau})"
+
+    @property
+    def effectif_actuel(self):
+        """Kalkile efektif reyèl la atravè Eleve yo"""
+        from eleves.models import Eleve
+        return Eleve.objects.filter(classe_actuelle=self, statut='actif').count()
+    
+
+    @property
+    def pourcentage_remplissage(self):
+        if self.capacite_max == 0:
+            return 0
+        return min(100, int((self.effectif_actuel / self.capacite_max) * 100))
