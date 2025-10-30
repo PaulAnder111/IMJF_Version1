@@ -4,8 +4,9 @@ from django.db.models.signals import post_migrate
 from django.dispatch import receiver
 from django.utils import timezone
 from datetime import timedelta
+from core.models import BaseModel  # Nou itilize BaseModel pou email & telephone
 
-class CustomUser(AbstractUser):
+class CustomUser(AbstractUser, BaseModel):
     ROLE_CHOICES = (
         ('admin', 'Administrateur Système'),
         ('secretaire', 'Secrétaire'),
@@ -14,17 +15,13 @@ class CustomUser(AbstractUser):
     )
 
     role = models.CharField(max_length=20, choices=ROLE_CHOICES, default='archives')
-    telephone = models.CharField(max_length=20, blank=True,unique=True, null=True)
     date_created = models.DateTimeField(auto_now_add=True)
     date_updated = models.DateTimeField(auto_now=True)
     photo = models.ImageField(upload_to='avatars/', blank=True, null=True)
 
     @property
     def avatar_url(self):
-        if self.photo:
-            return self.photo.url
-        else:
-            return None
+        return self.photo.url if self.photo else None
 
     @property
     def initial(self):
@@ -40,28 +37,19 @@ class CustomUser(AbstractUser):
         verbose_name = 'Utilisateur'
         verbose_name_plural = 'Utilisateurs'
 
-      
-
     def __str__(self):
         return f"{self.username} ({self.get_role_display()})"
 
-    # Fonksyon pratik pou teste wòl yo
-    def is_admin(self):
-        return self.role == 'admin'
+    # Fonksyon wòl
+    def is_admin(self): return self.role == 'admin'
+    def is_secretaire(self): return self.role == 'secretaire'
+    def is_directeur(self): return self.role == 'directeur'
+    def is_archives(self): return self.role == 'archives'
 
-    def is_secretaire(self):
-        return self.role == 'secretaire'
-
-    def is_directeur(self):
-        return self.role == 'directeur'
-
-    def is_archives(self):
-        return self.role == 'archives'
-
-    # Fonksyon pou jere lockout apre echèk login
+    # Fonksyon pou lockout
     def register_failed_login(self):
         self.failed_attempts += 1
-        if self.failed_attempts >= 5:  # limit la ka modifyab
+        if self.failed_attempts >= 5:
             self.locked_until = timezone.now() + timedelta(minutes=15)
         self.save()
 
@@ -91,7 +79,6 @@ class AuditLog(models.Model):
         return f"{self.timestamp} | {self.actor} | {self.action}"
 
 
-# ✅ Création de l'administrateur par défaut (admin sys)
 @receiver(post_migrate)
 def create_default_admin(sender, **kwargs):
     if sender.name == 'utilisateurs':

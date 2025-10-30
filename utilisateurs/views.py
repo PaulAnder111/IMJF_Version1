@@ -5,7 +5,7 @@ from django.contrib import messages
 from django.views.decorators.csrf import csrf_protect
 from django.contrib.auth.forms import PasswordChangeForm
 from .models import CustomUser, AuditLog
-from .forms import LoginForm, UserUpdateForm, CustomUserCreationForm
+# from .forms import  UserUpdateForm, CustomUserCreationForm
 from .decorators import admin_required
 
 # ✅ Fonksyon pou log aksyon kritik yo

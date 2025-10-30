@@ -1,31 +1,28 @@
-# core/models.py
-from django.core.exceptions import ValidationError
+from django.db import models
 
-class UniqueContactMixin:
-    """Assure que téléphone et email sont uniques à travers toutes les apps."""
+class BaseModel(models.Model):
+    """
+    🏗️ Modèl baz pou tout lòt modèl nan sistèm lan.
+    Li bay chan komen tankou:
+      - email (inik atravè tout sistèm lan)
+      - telephone (inik atravè tout sistèm lan)
+      - date_created
+      - date_updated
+    """
 
-    def clean(self):
-        super().clean()
-        from utilisateurs.models import CustomUser
-        from eleves.models import Eleve
-        from enseignants.models import Enseignant
+    email = models.EmailField(unique=True, null=True, blank=True)
+    telephone = models.CharField(max_length=20, unique=True, null=True, blank=True)
+    date_created = models.DateTimeField(auto_now_add=True)
+    date_updated = models.DateTimeField(auto_now=True)
 
-        # Vérifie unicité du téléphone
-        if self.telephone:
-            exists = (
-                CustomUser.objects.filter(telephone=self.telephone).exclude(pk=self.pk).exists() or
-                Eleve.objects.filter(telephone=self.telephone).exclude(pk=self.pk).exists() or
-                Enseignant.objects.filter(telephone=self.telephone).exclude(pk=self.pk).exists()
-            )
-            if exists:
-                raise ValidationError("Ce numéro de téléphone est déjà utilisé dans le système.")
+    class Meta:
+        abstract = True  # Pa kreye tab pou BaseModel, li sèlman bay chan pou lòt modèl
 
-        # Vérifie unicité du mail
-        if self.email:
-            exists = (
-                CustomUser.objects.filter(email=self.email).exclude(pk=self.pk).exists() or
-                Eleve.objects.filter(email=self.email).exclude(pk=self.pk).exists() or
-                Enseignant.objects.filter(email=self.email).exclude(pk=self.pk).exists()
-            )
-            if exists:
-                raise ValidationError("Cet email est déjà utilisé dans le système.")
+    def __str__(self):
+        # Yon string reprezantasyon jeneral pou tout modèl ki herite
+        # Si modèl lan gen 'nom' oswa 'username', li pral itilize li
+        if hasattr(self, 'username'):
+            return self.username
+        elif hasattr(self, 'nom'):
+            return self.nom
+        return f"{self.__class__.__name__} ({self.id})"
