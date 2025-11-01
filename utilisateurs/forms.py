@@ -1,7 +1,6 @@
 # utilisateurs/forms.py
 from django import forms
 from .models import CustomUser
-from .forms import LoginForm, UserUpdateForm, CustomUserCreationForm
 from core.models import BaseModel
 from django.core.exceptions import ValidationError
 

@@ -1,10 +1,7 @@
 # matieres/views.py
-
-from pyexpat.errors import messages
+from django.contrib import messages
 from django.shortcuts import render, get_object_or_404, redirect
-from django.contrib.auth.decorators import user_passes_test
 from django.contrib.auth.decorators import login_required
-from utilisateurs.decorators import admin_required
 from .models import Matiere
 from django.db.models import Q, Sum
 from .forms import MatiereForm
@@ -45,16 +42,15 @@ def matiere_create(request):
         if form.is_valid():
             matiere = form.save(commit=False)
             if not matiere.statut:
-                matiere.statut = 'actif'  # ✅ default si pa chwazi
+                matiere.statut = 'actif'
             matiere.save()
-            messages.success(request, "✅ Matière enregistrée avec succès !")
+            messages.success(request, "Matière enregistrée avec succès !")
             return redirect('matieres:matieres')
         else:
-            messages.error(request, "❌ Erreur lors de l’enregistrement.")
+            messages.error(request, "Erreur lors de l’enregistrement.")
     else:
         form = MatiereForm()
     return render(request, 'matieres/ajouter_matiere.html', {'form': form, 'titre': "Ajouter une matière"})
-
 
 @login_required
 def matiere_update(request, pk):

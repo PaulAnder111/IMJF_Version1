@@ -5,6 +5,7 @@
 
 {% block content %}
 <div class="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100">
+
     <!-- Header -->
     <div class="bg-gradient-to-r from-gray-800 via-gray-700 to-yellow-600 shadow-md">
         <div class="max-w-7xl mx-auto px-3 sm:px-4 lg:px-6 py-4 flex flex-col md:flex-row justify-between items-center">
@@ -45,35 +46,56 @@
         </div>
     </div>
 
+    <!-- Barre de recherche et filtres -->
+    <div class="max-w-7xl mx-auto mt-6 px-6 flex flex-col sm:flex-row gap-4 items-center">
+        <!-- Recherche -->
+        <input type="text" id="searchInput" placeholder="Rechercher par Matière, Enseignant, Jour..."
+               class="flex-1 border rounded-lg px-3 py-2 focus:ring-2 focus:ring-yellow-400 focus:outline-none"
+               onkeyup="filterTable()">
+
+        <!-- Filtre Statut -->
+        <select id="filterStatut" class="border rounded-lg px-3 py-2 focus:ring-2 focus:ring-yellow-400 focus:outline-none"
+                onchange="filterTable()">
+            <option value="">Tous Statuts</option>
+            <option value="actif">Actif</option>
+            <option value="inactif">Inactif</option>
+        </select>
+
+        <!-- Filtre Classe -->
+        <select id="filterClasse" class="border rounded-lg px-3 py-2 focus:ring-2 focus:ring-yellow-400 focus:outline-none"
+                onchange="filterTable()">
+            <option value="">Toutes Classes</option>
+            {% for classe in classes %}
+            <option value="{{ classe.nom_classe }}">{{ classe.nom_classe }}</option>
+            {% endfor %}
+        </select>
+    </div>
+
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
-        {% if cours_list %}
-        <div class="bg-white rounded-2xl shadow-lg overflow-hidden">
+        {% if cours %}
+        <div class="bg-white rounded-2xl shadow-lg overflow-hidden mt-4">
             <div class="overflow-x-auto">
                 <table class="w-full">
                     <thead class="bg-gray-800 text-white">
                         <tr>
-                            <th class="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wider">#</th>
-                            <th class="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wider">Matière</th>
-                            <th class="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wider">Classe</th>
-                            <th class="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wider">Enseignant</th>
-                            <th class="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wider">Jour</th>
-                            <th class="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wider">Heures</th>
-                            <th class="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wider">Salle</th>
-                            <th class="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wider">Statut</th>
-                            <th class="px-4 py-3 text-center text-xs font-semibold uppercase tracking-wider">Actions</th>
-                        </tr>
+                          <th class="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wider">Matière</th>
+                          <th class="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wider">Classe</th>
+                          <th class="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wider">Enseignant</th>
+                          <th class="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wider">Jour</th>
+                          <th class="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wider">Heures</th>
+                          <th class="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wider">Salle</th>
+                          <th class="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wider">Statut</th>
+                          <th class="px-4 py-3 text-center text-xs font-semibold uppercase tracking-wider">Actions</th>
+                     </tr>
                     </thead>
                     <tbody class="divide-y divide-gray-200">
-                        {% for cours in cours_list %}
+                        {% for cours in cours %}
                         <tr class="hover:bg-gray-50 transition">
-                            <td class="px-4 py-3 text-sm text-gray-900 font-semibold">{{ forloop.counter }}</td>
                             <td class="px-4 py-3 text-sm text-gray-800">{{ cours.matiere.nom|default:cours.matiere }}</td>
                             <td class="px-4 py-3 text-sm text-gray-700">{{ cours.classe.nom|default:cours.classe }}</td>
                             <td class="px-4 py-3 text-sm text-gray-700">{{ cours.enseignant.nom }} {{ cours.enseignant.prenom }}</td>
                             <td class="px-4 py-3 text-sm text-gray-700">{{ cours.jour }}</td>
-                            <td class="px-4 py-3 text-sm text-gray-700">
-                                {{ cours.heure_debut }} - {{ cours.heure_fin }}
-                            </td>
+                            <td class="px-4 py-3 text-sm text-gray-700">{{ cours.heure_debut }} - {{ cours.heure_fin }}</td>
                             <td class="px-4 py-3 text-sm text-gray-700">{{ cours.salle|default:"-" }}</td>
                             <td class="px-4 py-3 text-sm">
                                 {% if cours.statut == 'actif' %}
@@ -84,7 +106,7 @@
                             </td>
                             <td class="px-4 py-3 text-center">
                                 <div class="flex justify-center gap-2">
-                                    <a href="{% url 'cours:details_cours' cours.id %}"
+                                    <a href="#"
                                        class="text-gray-700 hover:text-gray-900 bg-gray-100 hover:bg-gray-200 px-3 py-1.5 rounded-lg transition text-sm font-medium"
                                        title="Voir Détails">
                                         <svg class="w-4 h-4 inline" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -94,7 +116,6 @@
                                                   d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
                                         </svg>
                                     </a>
-
                                     <a href="{% url 'cours:modifier_cours' cours.id %}"
                                        class="text-blue-600 hover:text-blue-700 bg-blue-50 hover:bg-blue-100 px-3 py-1.5 rounded-lg transition text-sm font-medium"
                                        title="Modifier">
@@ -103,7 +124,6 @@
                                                   d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
                                         </svg>
                                     </a>
-
                                     <button onclick="confirmDelete('{{ cours.id }}', '{{ cours.matiere.nom }}')"
                                             class="text-red-600 hover:text-red-700 bg-red-50 hover:bg-red-100 px-3 py-1.5 rounded-lg transition text-sm font-medium"
                                             title="Supprimer">
@@ -121,28 +141,8 @@
             </div>
         </div>
 
-        <!-- Pagination -->
-        {% if cours_list.has_other_pages %}
-        <div class="mt-6 flex justify-center items-center gap-4">
-            {% if cours_list.has_previous %}
-                <a href="?page={{ cours_list.previous_page_number }}" class="px-4 py-2 bg-gray-700 hover:bg-gray-800 text-white rounded-lg shadow-md text-sm">← Précédent</a>
-            {% else %}
-                <span class="px-4 py-2 bg-gray-300 text-gray-500 rounded-lg text-sm cursor-not-allowed">← Précédent</span>
-            {% endif %}
-
-            <span class="px-3 py-2 bg-gray-100 rounded-lg text-gray-700 text-sm font-medium">
-                Page {{ cours_list.number }} sur {{ cours_list.paginator.num_pages }}
-            </span>
-
-            {% if cours_list.has_next %}
-                <a href="?page={{ cours_list.next_page_number }}" class="px-4 py-2 bg-yellow-500 hover:bg-yellow-600 text-gray-900 rounded-lg shadow-md text-sm">Suivant →</a>
-            {% else %}
-                <span class="px-4 py-2 bg-gray-300 text-gray-500 rounded-lg text-sm cursor-not-allowed">Suivant →</span>
-            {% endif %}
-        </div>
-        {% endif %}
         {% else %}
-        <div class="bg-white rounded-2xl shadow-lg p-12 text-center">
+        <div class="bg-white rounded-2xl shadow-lg p-12 text-center mt-6">
             <svg class="w-24 h-24 mx-auto text-gray-300 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                       d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13"/>
@@ -154,14 +154,67 @@
     </div>
 </div>
 
+<!-- Modal Messages -->
+<div id="messageModal" class="fixed inset-0 flex items-center justify-center bg-black bg-opacity-40 z-50 hidden">
+    <div class="bg-white rounded-xl shadow-lg max-w-md w-full p-6 relative">
+        <button onclick="closeModal()" class="absolute top-3 right-3 text-gray-500 hover:text-gray-700">✖</button>
+        <div id="modalMessageContent" class="text-gray-800 text-sm font-medium"></div>
+    </div>
+</div>
+
 <script>
+// Modal messages
+document.addEventListener('DOMContentLoaded', () => {
+     {% if messages %}
+        const modal = document.getElementById('messageModal');
+        const content = document.getElementById('modalMessageContent');
+
+        let html = '';
+        {% for message in messages %}
+            html += `<div class="mb-2 px-4 py-2 rounded 
+                        {% if message.tags == 'success' %}bg-green-100 text-green-700{% endif %}
+                        {% if message.tags == 'error' %}bg-red-100 text-red-700{% endif %}
+                        {% if message.tags == 'warning' %}bg-yellow-100 text-yellow-700{% endif %}">${{ message|safe }}</div>`;
+        {% endfor %}
+        content.innerHTML = html;
+        modal.classList.remove('hidden');
+        setTimeout(() => { modal.classList.add('hidden'); }, 5000);
+    {% endif %}
+});
+
+function closeModal() {
+    document.getElementById('messageModal').classList.add('hidden');
+}
+
+// Recherche et filtres live
+function filterTable() {
+    const input = document.getElementById("searchInput").value.toLowerCase();
+    const statutFilter = document.getElementById("filterStatut").value.toLowerCase();
+    const classeFilter = document.getElementById("filterClasse").value.toLowerCase();
+    const table = document.querySelector("table tbody");
+    const rows = table.getElementsByTagName("tr");
+
+    for (let i = 0; i < rows.length; i++) {
+        const cols = rows[i].getElementsByTagName("td");
+        let matiere = cols[0].textContent.toLowerCase();
+        let classe = cols[1].textContent.toLowerCase();
+        let enseignant = cols[2].textContent.toLowerCase();
+        let jour = cols[3].textContent.toLowerCase();
+        let statut = cols[6].textContent.toLowerCase();
+
+        let matchesSearch = matiere.includes(input) || enseignant.includes(input) || jour.includes(input);
+        let matchesStatut = statutFilter === "" || statut.includes(statutFilter);
+        let matchesClasse = classeFilter === "" || classe.includes(classeFilter);
+
+        rows[i].style.display = (matchesSearch && matchesStatut && matchesClasse) ? "" : "none";
+    }
+}
+
+// Confirmation suppression
 function confirmDelete(coursId, coursName) {
-    const modal = document.getElementById('deleteModal');
-    const form = document.getElementById('deleteForm');
-    const message = document.getElementById('deleteMessage');
-    message.innerHTML = `Êtes-vous sûr de vouloir supprimer le cours <strong>"${coursName}"</strong> ?`;
-    form.action = `/cours/supprimer/${coursId}/`;
-    modal.classList.remove('hidden');
+    if(confirm(`Êtes-vous sûr de vouloir supprimer le cours "${coursName}" ?`)) {
+        window.location.href = `/cours/supprimer/${coursId}/`;
+    }
 }
 </script>
 {% endblock %}

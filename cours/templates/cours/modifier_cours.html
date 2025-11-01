@@ -1,6 +1,9 @@
 {% extends 'utilisateurs/base.html' %}
+{% block title %}Modifier un Cours - SYGEE{% endblock %}
+
 {% block content %}
 <div class="max-w-4xl mx-auto bg-white p-6 mt-8 shadow-lg rounded-lg">
+
     <!-- Titre -->
     <div class="flex items-center justify-between mb-6">
         <h2 class="text-2xl md:text-3xl font-bold text-gray-800">
@@ -12,9 +15,39 @@
         </a>
     </div>
 
+    <!-- Messages -->
+    <div class="space-y-3 mb-5">
+        {% if messages %}
+            {% for message in messages %}
+                <div 
+                    class="flex items-center p-4 rounded-lg shadow-lg transition transform hover:scale-[1.01]
+                    {% if message.tags == 'success' %}
+                        bg-green-50 border-l-4 border-green-500 text-green-800
+                    {% elif message.tags == 'error' %}
+                        bg-red-50 border-l-4 border-red-500 text-red-800 animate-pulse
+                    {% else %}
+                        bg-yellow-50 border-l-4 border-yellow-500 text-yellow-800
+                    {% endif %}">
+                    
+                    <svg class="w-6 h-6 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        {% if message.tags == 'success' %}
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+                        {% elif message.tags == 'error' %}
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                        {% else %}
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m0-4h.01M12 17h.01" />
+                        {% endif %}
+                    </svg>
+                    <span class="font-medium text-base">{{ message }}</span>
+                </div>
+            {% endfor %}
+        {% endif %}
+    </div>
+
     <!-- Formulaire -->
     <form method="post" class="space-y-5">
         {% csrf_token %}
+
         <!-- Matière -->
         <div>
             <label for="matiere" class="block font-semibold text-gray-700 mb-1">Matière</label>
@@ -59,12 +92,9 @@
             <label for="jour" class="block font-semibold text-gray-700 mb-1">Jour</label>
             <select id="jour" name="jour" required
                     class="w-full border rounded-lg px-3 py-2 focus:ring-2 focus:ring-yellow-400 focus:outline-none">
-                <option value="Lundi" {% if cours.jour == 'Lundi' %}selected{% endif %}>Lundi</option>
-                <option value="Mardi" {% if cours.jour == 'Mardi' %}selected{% endif %}>Mardi</option>
-                <option value="Mercredi" {% if cours.jour == 'Mercredi' %}selected{% endif %}>Mercredi</option>
-                <option value="Jeudi" {% if cours.jour == 'Jeudi' %}selected{% endif %}>Jeudi</option>
-                <option value="Vendredi" {% if cours.jour == 'Vendredi' %}selected{% endif %}>Vendredi</option>
-                <option value="Samedi" {% if cours.jour == 'Samedi' %}selected{% endif %}>Samedi</option>
+                {% for j in jours %}
+                    <option value="{{ j }}" {% if cours.jour == j %}selected{% endif %}>{{ j }}</option>
+                {% endfor %}
             </select>
         </div>
 
@@ -92,7 +122,8 @@
 
         <!-- Statut -->
         <div class="flex items-center">
-            <input type="checkbox" name="statut" id="statut" {% if cours.statut == 'actif' %}checked{% endif %} value="actif" class="mr-2 h-4 w-4 text-yellow-500 focus:ring-yellow-400 border-gray-300 rounded">
+            <input type="checkbox" name="statut" id="statut" {% if cours.statut == 'actif' %}checked{% endif %} value="actif"
+                   class="mr-2 h-4 w-4 text-yellow-500 focus:ring-yellow-400 border-gray-300 rounded">
             <label for="statut" class="font-medium text-gray-700">Actif</label>
         </div>
 
@@ -109,4 +140,16 @@
         </div>
     </form>
 </div>
+
+<!-- 🔸 Script pou fade-out mesaj apre 2 segonn -->
+<script>
+    setTimeout(() => {
+        const alerts = document.querySelectorAll('.animate-pulse, .bg-green-50, .bg-yellow-50, .bg-red-50');
+        alerts.forEach(alert => {
+            alert.style.transition = 'opacity 0.8s ease';
+            alert.style.opacity = '0';
+            setTimeout(() => alert.remove(), 800);
+        });
+    }, 2000);
+</script>
 {% endblock %}

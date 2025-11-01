@@ -1,6 +1,27 @@
 from django.db import models
 from django.utils import timezone
 
+class HistoriqueEleve(models.Model):
+    ACTIONS = [
+        ('inscription', 'Nouvelle inscription'),
+        ('changement_classe', 'Changement de classe'),
+        ('suspension', 'Suspension'),
+        ('reprise', 'Reprise des cours'),
+        ('graduation', 'Diplômé'),
+        ('discipline', 'Mesure disciplinaire'),
+        ('autre', 'Autre'),
+    ]
+
+    eleve = models.ForeignKey('Eleve', on_delete=models.CASCADE, related_name='historique_eleves')
+    action = models.CharField(max_length=50, choices=ACTIONS)
+    description = models.TextField()
+    date_action = models.DateTimeField(default=timezone.now)
+    effectue_par = models.ForeignKey('utilisateurs.CustomUser', on_delete=models.SET_NULL, null=True, blank=True)
+
+    def __str__(self):
+        return f"{self.eleve.nom} - {self.get_action_display()} ({self.date_action.strftime('%Y-%m-%d')})"
+    
+    
 class Eleve(models.Model):
     matricule = models.CharField(max_length=50, unique=True, verbose_name="Matricule")
     nom = models.CharField(max_length=100)

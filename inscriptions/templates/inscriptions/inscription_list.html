@@ -1,7 +1,7 @@
 {% extends 'utilisateurs/base.html' %}
 {% block content %}
 
-<!-- SECTION HEADER AVEC GRADIAN -->
+<!-- SECTION HEADER AVEC GRADIENT (GRIS FONSE → OR) -->
 <div class="bg-gradient-to-r from-gray-800 to-amber-500 py-4 px-3 sm:px-6 text-white shadow-md mb-6 rounded-lg">
   <div class="max-w-7xl mx-auto flex flex-col sm:flex-row justify-between items-center gap-2">
     <div class="text-center sm:text-left">
@@ -18,17 +18,17 @@
   </div>
 </div>
 
-<!-- Statistiques -->
+<!-- Statistiques avec dégradés -->
 <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-6">
-  <div class="bg-gradient-to-r from-yellow-400 to-amber-500 text-white p-4 rounded-lg shadow flex flex-col items-center">
+  <div class="bg-gradient-to-r from-gray-700 to-amber-500 text-white p-4 rounded-lg shadow flex flex-col items-center">
     <p class="text-sm opacity-90">Total Inscriptions</p>
     <p class="text-2xl font-bold">{{ inscriptions|length }}</p>
   </div>
-  <div class="bg-green-500 text-white p-4 rounded-lg shadow flex flex-col items-center">
+  <div class="bg-gradient-to-r from-green-400 to-green-600 text-white p-4 rounded-lg shadow flex flex-col items-center">
     <p class="text-sm opacity-90">Actifs</p>
     <p class="text-2xl font-bold">{{ inscriptions|length }}</p>
   </div>
-  <div class="bg-gray-400 text-white p-4 rounded-lg shadow flex flex-col items-center">
+  <div class="bg-gradient-to-r from-gray-500 to-gray-700 text-white p-4 rounded-lg shadow flex flex-col items-center">
     <p class="text-sm opacity-90">Inactifs</p>
     <p class="text-2xl font-bold">0</p>
   </div>
@@ -51,7 +51,7 @@
 <!-- TABLEAU DES INSCRIPTIONS -->
 <div class="bg-white rounded-2xl shadow-lg overflow-hidden border border-yellow-200 mt-6">
   <div class="overflow-x-auto">
-    <table class="w-full">
+    <table class="w-full" id="inscriptions-table">
       <thead class="bg-amber-100 border-b border-yellow-300">
         <tr>
           <th class="px-6 py-3 text-left text-xs font-bold text-gray-700 uppercase">Nom</th>
@@ -65,106 +65,83 @@
       </thead>
       <tbody class="divide-y divide-gray-200">
         {% for inscription in inscriptions %}
-        <tr class="hover:bg-yellow-50 transition duration-200 ease-in-out">
+        <tr id="inscription-row-{{ inscription.id }}" class="hover:bg-yellow-50 transition duration-200 ease-in-out">
           <td class="px-6 py-3 text-sm text-gray-800">{{ inscription.nom }}</td>
           <td class="px-6 py-3 text-sm text-gray-800">{{ inscription.prenom }}</td>
           <td class="px-6 py-3 text-sm text-gray-800">{{ inscription.classe.nom_classe }}</td>
           <td class="px-6 py-3 text-sm text-gray-800">{{ inscription.annee_scolaire }}</td>
           <td class="px-6 py-3 text-sm text-gray-800">{{ inscription.telephone_responsable }}</td>
-
           <td class="px-6 py-3 text-sm text-gray-800">
             {% if inscription.statut == 'pre-inscrit' %}
-              <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold bg-yellow-100 text-yellow-800">
-                Pré-inscrit
-              </span>
+              <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold bg-yellow-100 text-yellow-800">Pré-inscrit</span>
             {% elif inscription.statut == 'validé' %}
-              <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold bg-blue-100 text-blue-800">
-                Validé
-              </span>
+              <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold bg-blue-100 text-blue-800">Validé</span>
             {% elif inscription.statut == 'aktif' %}
-              <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold bg-green-100 text-green-800">
-                Actif
-              </span>
+              <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold bg-green-100 text-green-800">Actif</span>
             {% else %}
-              <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold bg-red-100 text-red-800">
-                Refusé
-              </span>
+              <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold bg-red-100 text-red-800">Refusé</span>
             {% endif %}
           </td>
-
           <td class="px-6 py-3 text-center">
             <div class="flex items-center justify-center gap-2">
-
-              <!-- 👁️ Voir -->
-              <a href="{% url 'inscriptions:afficher_inscription' inscription.id %}" 
-                 class="p-2 bg-green-100 text-green-600 rounded-lg hover:bg-green-200 hover:scale-110 transform transition"
-                 title="Voir détails">
-                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                        d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                        d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/>
-                </svg>
+              <!-- Bouton Voir -->
+              <a href="{% url 'inscriptions:afficher_inscription' inscription.id %}" class="p-2 bg-green-100 text-green-600 rounded-lg hover:bg-green-200 hover:scale-110 transform transition" title="Voir détails">
+                <!-- SVG … -->
               </a>
 
-              <!-- ✏️ Modifier -->
-              <a href="{% url 'inscriptions:updates_inscriptions' inscription.id %}" 
-                 class="p-2 bg-blue-100 text-blue-600 rounded-lg hover:bg-blue-200 hover:scale-110 transform transition"
-                 title="Modifier">
-                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                        d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414
-                           a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/>
-                </svg>
+              <!-- Bouton Modifier -->
+              <a href="{% url 'inscriptions:updates_inscriptions' inscription.id %}" class="p-2 bg-blue-100 text-blue-600 rounded-lg hover:bg-blue-200 hover:scale-110 transform transition" title="Modifier">
+                <!-- SVG … -->
               </a>
 
-              <!-- 🗑️ Supprimer -->
-              <form method="POST" 
-                    action="{% url 'inscriptions:delete_inscription' inscription.id %}" 
-                    onsubmit="return confirm('Voulez-vous vraiment supprimer cette inscription ?')" 
-                    class="inline">
-                {% csrf_token %}
-                <button type="submit"
-                        class="p-2 bg-red-100 text-red-600 rounded-lg hover:bg-red-200 hover:scale-110 transform transition"
-                        title="Supprimer">
-                  <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                          d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862
-                             a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6
-                             m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
-                  </svg>
-                </button>
-              </form>
+              <!-- Bouton Supprimer (AJAX) -->
+              <button class="p-2 bg-red-100 text-red-600 rounded-lg hover:bg-red-200 hover:scale-110 transform transition delete-btn" 
+                      data-id="{{ inscription.id }}" title="Supprimer">
+                <!-- SVG … -->
+              </button>
             </div>
           </td>
         </tr>
         {% empty %}
         <tr>
-          <td colspan="8" class="px-6 py-4 text-center text-gray-500">
-            Aucun enregistrement trouvé
-          </td>
+          <td colspan="8" class="px-6 py-4 text-center text-gray-500">Aucun enregistrement trouvé</td>
         </tr>
         {% endfor %}
       </tbody>
     </table>
   </div>
-
-  <!-- Pagination -->
-  <div class="bg-gray-50 px-6 py-4 border-t border-gray-200 flex flex-col sm:flex-row justify-between items-center gap-3">
-    <div class="text-sm text-gray-700">
-      Affiche <span class="font-semibold">1</span> - 
-      <span class="font-semibold">{{ inscriptions|length }}</span> sur 
-      <span class="font-semibold">{{ inscriptions|length }}</span> résultat(s)
-    </div>
-    <div class="flex gap-2">
-      <button class="px-4 py-2 bg-white border border-gray-300 rounded-lg text-sm font-medium text-gray-700 hover:bg-gray-50">
-        Précédent
-      </button>
-      <button class="px-4 py-2 bg-gradient-to-r from-yellow-400 to-amber-500 text-white rounded-lg text-sm font-medium hover:from-yellow-500 hover:to-amber-600">
-        Suivant
-      </button>
-    </div>
-  </div>
 </div>
+
+<!-- JavaScript pou delete ak AJAX -->
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+  const buttons = document.querySelectorAll('.delete-btn');
+  buttons.forEach(button => {
+    button.addEventListener('click', function() {
+      const inscriptionId = this.dataset.id;
+      if (confirm('Voulez-vous vraiment supprimer cette inscription ?')) {
+        fetch("{% url 'inscriptions:delete_inscription' 0 %}".replace('0', inscriptionId), {
+          method: 'POST',
+          headers: {
+            'X-CSRFToken': '{{ csrf_token }}',
+            'X-Requested-With': 'XMLHttpRequest'
+          },
+        })
+        .then(response => {
+          if (response.ok) {
+            document.getElementById('inscription-row-' + inscriptionId).remove();
+          } else {
+            alert('Erreur: Impossible de supprimer cette inscription.');
+          }
+        })
+        .catch(error => {
+          console.error('Erreur:', error);
+          alert('Erreur réseau: Impossible de supprimer.');
+        });
+      }
+    });
+  });
+});
+</script>
 
 {% endblock %}

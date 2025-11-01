@@ -2,7 +2,7 @@ from django.db import models
 
 class BaseModel(models.Model):
     """
-    🏗️ Modèl baz pou tout lòt modèl nan sistèm lan.
+     Modèl baz pou tout lòt modèl nan sistèm lan.
     Li bay chan komen tankou:
       - email (inik atravè tout sistèm lan)
       - telephone (inik atravè tout sistèm lan)
