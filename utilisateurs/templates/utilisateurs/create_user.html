@@ -1,7 +1,7 @@
 {% extends "utilisateurs/base.html" %}
 {% load static %}
 
-{% block title %}Ajouter un Utilisateur - Système SYGEE{% endblock %}
+{% block title %}Ajouter un Utilisateur - SYGEE{% endblock %}
 {% block nav_users %}text-gold font-semibold{% endblock %}
 
 {% block breadcrumb %}
@@ -17,9 +17,9 @@
 
 {% block content %}
 <div class="flex justify-center items-start min-h-[80vh] pt-10 pb-10 bg-gray-50 dark:bg-gray-900">
-    <div class="w-full max-w-2xl bg-white dark:bg-gray-800 rounded-2xl shadow-lg p-8">
+    <div class="w-full max-w-3xl bg-white dark:bg-gray-800 rounded-2xl shadow-lg p-8">
 
-        <!-- Header ak degrade -->
+        <!-- Header -->
         <div class="flex items-center justify-between mb-6 p-4 rounded-xl bg-gradient-to-r from-gray-300 via-gray-100 to-yellow-200">
             <div>
                 <h2 class="text-2xl font-bold text-gray-800 dark:text-white">Ajouter un Utilisateur</h2>
@@ -32,7 +32,7 @@
             </a>
         </div>
 
-        <!-- Messages Django -->
+        <!-- Messages -->
         {% if messages %}
         <div class="mb-6 space-y-2">
             {% for message in messages %}
@@ -60,87 +60,56 @@
         </div>
         {% endif %}
 
-        <!-- Formulaire -->
+        <!-- Formulaire Horizontal -->
         <form method="POST" action="{% url 'utilisateurs:create_user' %}" enctype="multipart/form-data" id="createUserForm">
             {% csrf_token %}
+            <div class="space-y-6">
 
-            <div class="grid grid-cols-2 gap-5">
                 {% for field in form %}
-                <div class="flex items-start space-x-2">
-                    {% if field.name == 'photo' %}
-                    <div class="flex items-center space-x-2">
-                        <div id="photoPreview" class="w-10 h-10 bg-blue-600 rounded-full flex items-center justify-center text-white font-semibold">
-                            U
-                        </div>
-                        <div class="flex-1">
-                            <label for="{{ field.id_for_label }}" class="block text-gray-800 dark:text-gray-200 font-semibold mb-1">
-                                Photo
-                            </label>
-                            <input type="file" name="photo" id="{{ field.id_for_label }}" 
-                                   onchange="loadFile(event)"
-                                   class="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-gold {% if field.errors %}border-red-500{% endif %}">
-                            <div class="text-red-600 text-sm mt-1" id="error_photo"></div>
-                        </div>
-                    </div>
-                    {% else %}
-                    <i class="fas 
-                        {% if field.name == 'first_name' %}fa-user text-blue-500
-                        {% elif field.name == 'last_name' %}fa-user-check text-blue-600
-                        {% elif field.name == 'email' %}fa-envelope text-green-500
-                        {% elif field.name == 'phone' %}fa-phone text-purple-500
-                        {% elif field.name == 'role' %}fa-user-shield text-red-500
-                        {% elif field.name == 'password1' or field.name == 'password2' %}fa-lock text-gray-700
-                        {% else %}fa-info-circle text-gray-400
-                        {% endif %} mt-3"></i>
-
-                    <div class="flex-1">
-                        <label for="{{ field.id_for_label }}" class="block text-gray-800 dark:text-gray-200 font-semibold mb-1">
-                            {{ field.label }}
-                            {% if field.field.required %}<span class="text-red-500">*</span>{% endif %}
-                        </label>
-
+                <div class="flex items-center space-x-4">
+                    <label for="{{ field.id_for_label }}" class="w-1/3 text-gray-700 font-semibold">{{ field.label }}{% if field.field.required %}<span class="text-red-500">*</span>{% endif %}</label>
+                    <div class="w-2/3">
                         {% if field.name == 'role' %}
-                            <select name="{{ field.name }}" id="{{ field.id_for_label }}" 
-                                    class="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-gold"
-                                    required>
+                            <select name="{{ field.name }}" id="{{ field.id_for_label }}" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-gold">
                                 <option value="">Choisir un rôle</option>
                                 <option value="admin">Administrateur</option>
                                 <option value="secretaire">Secrétaire</option>
                                 <option value="directeur">Directeur</option>
                                 <option value="archives">Archives</option>
                             </select>
+                        {% elif field.name == 'photo' %}
+                            <input type="file" name="{{ field.name }}" id="{{ field.id_for_label }}" accept="image/*"
+                                   class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-gold">
                         {% elif field.name == 'phone' %}
                             <div class="flex">
-                                <span class="inline-flex items-center px-3 rounded-l-lg border border-r-0 border-gray-300 dark:border-gray-600 bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-300 text-sm">+509</span>
-                                <input type="text" name="{{ field.name }}" id="{{ field.id_for_label }}"
-                                       maxlength="8" pattern="[0-9]{8}" placeholder="XXXXXXXX"
-                                       class="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-r-lg focus:outline-none focus:ring-2 focus:ring-gold">
+                                <span class="inline-flex items-center px-3 rounded-l-lg border border-r-0 border-gray-300 bg-gray-100 text-gray-600 text-sm">+509</span>
+                                <input type="text" name="{{ field.name }}" id="{{ field.id_for_label }}" maxlength="8" pattern="[0-9]{8}" placeholder="XXXXXXXX"
+                                       class="w-full px-4 py-2 border border-gray-300 rounded-r-lg focus:outline-none focus:ring-2 focus:ring-gold">
                             </div>
                         {% elif field.name == 'password1' or field.name == 'password2' %}
-                            <input type="password" name="{{ field.name }}" id="{{ field.id_for_label }}"
-                                   class="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-gold">
+                            <input type="password" name="{{ field.name }}" id="{{ field.id_for_label }}" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-gold">
                         {% else %}
-                            <input type="text" name="{{ field.name }}" id="{{ field.id_for_label }}"
-                                   class="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-gold">
+                            <input type="text" name="{{ field.name }}" id="{{ field.id_for_label }}" value="{{ field.value|default:'' }}"
+                                   class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-gold">
                         {% endif %}
-
-                        <div class="text-red-600 text-sm mt-1" id="error_{{ field.name }}"></div>
+                        {% if field.errors %}
+                            <p class="text-red-600 text-sm mt-1">{{ field.errors|striptags }}</p>
+                        {% endif %}
                     </div>
-                    {% endif %}
-                 </div>
-               {% endfor %}
-            </div>
+                </div>
+                {% endfor %}
 
-            <!-- Boutons d’action -->
-            <div class="flex justify-end space-x-4 mt-8 pt-6 border-t border-gray-200 dark:border-gray-700">
-                <a href="{% url 'utilisateurs:list_users' %}" 
-                   class="flex items-center bg-gray-500 text-white px-6 py-2 rounded-lg hover:bg-gray-600 transition duration-300 font-semibold">
-                    <i class="fas fa-times mr-2"></i>Annuler
-                </a>
-                <button type="submit" 
-                        class="flex items-center bg-custom-gold text-white px-6 py-2 rounded-lg hover:bg-yellow-600 transition duration-300 font-semibold">
-                    <i class="fas fa-save mr-2"></i>Enregistrer
-                </button>
+                <!-- Boutons -->
+                <div class="flex justify-end space-x-4 pt-4 border-t border-gray-200">
+                    <a href="{% url 'utilisateurs:list_users' %}" 
+                       class="flex items-center bg-gray-500 text-white px-6 py-2 rounded-lg hover:bg-gray-600 transition duration-300 font-semibold">
+                        <i class="fas fa-times mr-2"></i>Annuler
+                    </a>
+                    <button type="submit" 
+                            class="flex items-center bg-custom-gold text-white px-6 py-2 rounded-lg hover:bg-yellow-600 transition duration-300 font-semibold">
+                        <i class="fas fa-save mr-2"></i>Enregistrer
+                    </button>
+                </div>
             </div>
         </form>
     </div>
@@ -155,58 +124,6 @@
         box-shadow: 0 0 0 2px #d4af37;
         border-color: #d4af37;
     }
-    i.fas {
-        font-size: 1rem;
-    }
 </style>
 
-{% endblock %}
-
-{% block extra_js %}
-<script>
-    // Fade out messages
-    setTimeout(function() {
-        const messages = document.querySelectorAll('.mb-6 > div');
-        messages.forEach(function(message) {
-            message.style.transition = 'opacity 0.5s';
-            message.style.opacity = '0';
-            setTimeout(() => message.remove(), 500);
-        });
-    }, 5000);
-
-    // Preview foto
-    var loadFile = function(event) {
-        var output = document.getElementById('photoPreview');
-        if(output.tagName === 'DIV') {
-            const wrapper = document.createElement('img');
-            wrapper.id = 'photoPreview';
-            wrapper.className = 'w-10 h-10 rounded-full object-cover border border-gray-300';
-            output.replaceWith(wrapper);
-            output = wrapper;
-        }
-        output.src = URL.createObjectURL(event.target.files[0]);
-    };
-
-    // Validation front-end pou chan obligatwa
-    document.getElementById('createUserForm').addEventListener('submit', function(e){
-        let form = e.target;
-        let errors = 0;
-
-        ['username','first_name','last_name','email','role','password1','password2'].forEach(function(name){
-            const field = document.getElementById('id_' + name);
-            const errorDiv = document.getElementById('error_' + name);
-            if(field && !field.value.trim()){
-                errors++;
-                errorDiv.textContent = 'Ce champ est obligatoire';
-            } else if(errorDiv){
-                errorDiv.textContent = '';
-            }
-        });
-
-        if(errors > 0){
-            e.preventDefault();
-            alert('Veuillez remplir tous les champs obligatoires.');
-        }
-    });
-</script>
 {% endblock %}

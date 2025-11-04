@@ -10,4 +10,4 @@ urlpatterns = [
     path('ajouter/', views.cours_create, name='ajouter_cours'),
     path('modifier/<int:pk>/', views.cours_update, name='modifier_cours'),
     path('supprimer/<int:pk>/', views.cours_delete, name='supprimer_cours'),
-]
+  ]

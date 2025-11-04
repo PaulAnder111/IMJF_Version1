@@ -1,22 +1,25 @@
-# utilisateurs/forms.py
-from django import forms
-from .models import CustomUser
-from core.models import BaseModel
-from django.core.exceptions import ValidationError
 
-class CustomUserForm(forms.ModelForm):
+from django import forms
+from django.contrib.auth.forms import UserCreationForm
+from .models import CustomUser
+
+class CustomUserCreationForm(UserCreationForm):
     class Meta:
         model = CustomUser
-        fields = '__all__'
+        fields = ['username', 'first_name', 'last_name', 'email', 'telephone', 'role', 'photo']
+
+class CustomUserUpdateForm(forms.ModelForm):
+    class Meta:
+        model = CustomUser
+        fields = ['username', 'first_name', 'last_name', 'email', 'telephone', 'role', 'photo', 'is_active']
+        widgets = {
+            'role': forms.Select(attrs={'class': 'form-select'}),
+            'is_active': forms.CheckboxInput(attrs={'class': 'form-checkbox'}),
+        }
 
     def clean_email(self):
         email = self.cleaned_data.get('email')
-        if email and BaseModel.objects.filter(email=email).exists():
-            raise ValidationError("Cet email est déjà utilisé dans le système.")
+        user_id = self.instance.id  # ID itilizatè ou ap modifye a
+        if CustomUser.objects.exclude(id=user_id).filter(email=email).exists():
+            raise forms.ValidationError("Cet email est déjà utilisé par un autre utilisateur.")
         return email
-
-    def clean_telephone(self):
-        telephone = self.cleaned_data.get('telephone')
-        if telephone and BaseModel.objects.filter(telephone=telephone).exists():
-            raise ValidationError("Ce numéro de téléphone est déjà utilisé dans le système.")
-        return telephone

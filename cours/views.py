@@ -7,8 +7,14 @@ from matieres.models import Matiere
 from classes.models import Classe
 from enseignants.models import Enseignant
 from django.core.exceptions import ValidationError
+from django.shortcuts import render
+from django.contrib.auth.decorators import login_required
+from django.http import HttpResponse
+from .models import Cours
+from django.template.loader import get_template
+import io
 
-JOURS = ["Lundi", "Mardi", "Mercredi", "Jeudi", "Vendredi", "Samedi"]
+JOURS = ["Lundi", "Mardi", "Mercredi", "Jeudi", "Vendredi"]
 
 @login_required
 def cours_list(request):

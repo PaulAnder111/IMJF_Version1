@@ -1,0 +1,56 @@
+{% extends 'utilisateurs/base.html' %}
+{% block title %}Liste des Cours{% endblock %}
+
+{% block content %}
+<div class="min-h-screen bg-gray-100 py-8">
+    <div class="max-w-6xl mx-auto px-4">
+
+        <!-- Titre + Export PDF -->
+        <div class="flex justify-between items-center mb-6">
+            <h1 class="text-2xl font-bold text-gray-800">📚 Liste des Cours</h1>
+            <a href="?export_pdf=true"
+               class="px-4 py-2 bg-yellow-500 hover:bg-yellow-600 text-white font-semibold rounded-lg shadow-md transition">
+               📄 Exporter PDF
+            </a>
+        </div>
+
+        <!-- Table -->
+        <div class="overflow-x-auto bg-white shadow-md rounded-lg">
+            <table class="min-w-full table-auto">
+                <thead class="bg-gray-200">
+                    <tr>
+                        <th class="px-4 py-2 border">Matière</th>
+                        <th class="px-4 py-2 border">Classe</th>
+                        <th class="px-4 py-2 border">Enseignant</th>
+                        <th class="px-4 py-2 border">Jour</th>
+                        <th class="px-4 py-2 border">Heure Début</th>
+                        <th class="px-4 py-2 border">Heure Fin</th>
+                        <th class="px-4 py-2 border">Salle</th>
+                        <th class="px-4 py-2 border">Statut</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for cours in cours_list %}
+                    <tr class="hover:bg-gray-100">
+                        <td class="px-4 py-2 border">{{ cours.matiere.nom_matiere }}</td>
+                        <td class="px-4 py-2 border">{{ cours.classe.nom_classe }}</td>
+                        <td class="px-4 py-2 border">{{ cours.enseignant.prenom }} {{ cours.enseignant.nom }}</td>
+                        <td class="px-4 py-2 border">{{ cours.jour }}</td>
+                        <td class="px-4 py-2 border">{{ cours.heure_debut|time:"H:i" }}</td>
+                        <td class="px-4 py-2 border">{{ cours.heure_fin|time:"H:i" }}</td>
+                        <td class="px-4 py-2 border">{{ cours.salle }}</td>
+                        <td class="px-4 py-2 border">{{ cours.statut }}</td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="8" class="text-center px-4 py-2 border text-gray-500">
+                            Aucun cours trouvé.
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}

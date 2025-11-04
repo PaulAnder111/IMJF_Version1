@@ -3,7 +3,7 @@ from django.contrib import messages
 from django.contrib.auth.decorators import login_required, permission_required
 from django.db.models import Q
 from .forms import EleveForm
-from .models import Eleve
+from .models import Eleve, HistoriqueEleve
 from inscriptions.models import HistoriqueClasses
 from classes.models import Classe
 from django.core.paginator import Paginator
@@ -45,44 +45,53 @@ def eleves_list(request):
     return render(request, 'eleve_list.html', context)
 
 
+
 # --- DETAIL ELEVE ---
 @login_required
 def eleve_detail(request, pk):
     eleve = get_object_or_404(Eleve, pk=pk)
-    # Récupère l'historique des classes pour cet élève
-    historique = HistoriqueClasses.objects.filter(eleve=eleve).order_by('-date_change')
+
+    # Récupère l'historique des actions pour cet élève
+    historique = HistoriqueEleve.objects.filter(eleve=eleve).order_by('-date_action')
+
     return render(request, 'eleves_detail.html', {
         'eleve': eleve,
-        'historique_classes': historique
+        'historique_classes': historique  
     })
 
+# --- MODIFIER ELEVE ---
 
-# --- UPDATE ELEVE ---
 @login_required
 def eleve_update(request, pk):
     eleve = get_object_or_404(Eleve, pk=pk)
+    classes = Classe.objects.all()
+    ancienne_classe = eleve.classe_actuelle  # ← Nou kenbe ansyen klas la
+
     if request.method == 'POST':
         form = EleveForm(request.POST, request.FILES, instance=eleve)
         if form.is_valid():
-            # Vérifie si la classe change
-            classe_prec = eleve.classe_actuelle
-            eleve = form.save()
-            if classe_prec != eleve.classe_actuelle:
-                HistoriqueClasses.objects.create(
+            eleve_modifie = form.save(commit=False)
+            
+            # --- Vérifie si la classe a changé ---
+            if ancienne_classe != eleve_modifie.classe_actuelle:
+                HistoriqueEleve.objects.create(
                     eleve=eleve,
-                    classe=eleve.classe_actuelle,
-                    annee_scolaire="{}-{}".format(eleve.date_created.year, eleve.date_created.year+1)
+                    action='changement_classe',
+                    description=f"L'élève a été déplacé de {ancienne_classe} à {eleve_modifie.classe_actuelle}",
+                    effectue_par=request.user
                 )
-            messages.success(request, "Élève mis à jour avec succès !")
+
+            # --- Enregistre les changements ---
+            eleve_modifie.save()
+            messages.success(request, "Les informations de l'élève ont été mises à jour avec succès.")
             return redirect('eleves:eleve_detail', pk=eleve.pk)
-        else:
-            messages.error(request, "Veuillez corriger les erreurs ci-dessous.")
     else:
         form = EleveForm(instance=eleve)
 
     return render(request, 'eleve_update.html', {
         'form': form,
-        'eleve': eleve
+        'eleve': eleve,
+        'classes': classes,
     })
 
 

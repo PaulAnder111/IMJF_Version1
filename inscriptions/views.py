@@ -2,10 +2,48 @@ from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.http import Http404
+
+from django.contrib.auth.models import User
+from enseignants.models import Enseignant
+from matieres.models import Matiere
 from .models import Inscription, HistoriqueClasses
 from .forms import InscriptionForm
 from classes.models import Classe
 from eleves.models import Eleve
+
+
+@login_required
+def dash_admin(request):
+    # Statistiques principales
+    inscriptions_count = Inscription.objects.count()
+    eleves_count = Eleve.objects.count()
+    enseignants_count = Enseignant.objects.count()
+    classes_count = Classe.objects.count()
+    matieres_count = Matiere.objects.count()
+    users_count = User.objects.count()
+    secretaires_count = User.objects.filter(role='secretaire').count()
+    directeurs_count = User.objects.filter(role='directeur').count()
+    archives_count = 0  # Si w gen modèl archive, mete li la
+    cours_count = 0     # Si w gen modèl Cours, mete li la
+
+    # Nouvelles inscriptions (5 dernières)
+    recent_inscriptions = Inscription.objects.all().order_by('-date_created')[:5]
+
+    context = {
+        'inscriptions_count': inscriptions_count,
+        'eleves_count': eleves_count,
+        'enseignants_count': enseignants_count,
+        'classes_count': classes_count,
+        'matieres_count': matieres_count,
+        'users_count': users_count,
+        'secretaires_count': secretaires_count,
+        'directeurs_count': directeurs_count,
+        'archives_count': archives_count,
+        'cours_count': cours_count,
+        'recent_inscriptions': recent_inscriptions,
+    }
+
+    return render(request, 'utilisateurs/dash_admin.html', context)
 
 # --- Fonksyon pou jenere Matricule otomatik ---
 def generer_matricule():

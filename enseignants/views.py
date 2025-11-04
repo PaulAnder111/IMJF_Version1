@@ -28,8 +28,8 @@ def enseignant_list(request):
     if statut:
         enseignants = enseignants.filter(statut=statut)
 
-    # Pagination
-    paginator = Paginator(enseignants.order_by('nom'), 10)
+    # Pagination - 5 par page
+    paginator = Paginator(enseignants.order_by('nom'), 5)
     page_number = request.GET.get('page')
     page_obj = paginator.get_page(page_number)
 
@@ -57,16 +57,27 @@ def create_enseignant(request):
     if request.method == 'POST':
         form = EnseignantForm(request.POST, request.FILES)
         if form.is_valid():
-            enseignant = form.save(commit=False)
-            enseignant.cree_par = request.user
-            enseignant.statut = 'actif'
-            enseignant.save()
-            messages.success(request, f"L'enseignant {enseignant.nom} {enseignant.prenom} ajouté avec succès.")
-            return redirect('enseignants:enseignants')
+            try:
+                enseignant = form.save(commit=False)
+                enseignant.cree_par = request.user
+                enseignant.statut = 'actif'
+                enseignant.save()
+                
+                # Sove ManyToMany après avoir sauvegardé l'instance
+                form.save_m2m()
+                
+                messages.success(request, f"L'enseignant {enseignant.nom} {enseignant.prenom} ajouté avec succès.")
+                return redirect('enseignants:enseignants')
+            except Exception as e:
+                messages.error(request, f"Erreur lors de l'enregistrement: {str(e)}")
         else:
-            messages.error(request, "Veuillez corriger les erreurs dans le formulaire.")
+            # Affiche les erreurs du formulaire
+            for field, errors in form.errors.items():
+                for error in errors:
+                    messages.error(request, f"{field}: {error}")
     else:
         form = EnseignantForm()
+    
     return render(request, 'enseignants/ajouter_enseignant.html', {'form': form})
 
 
@@ -84,11 +95,18 @@ def enseignant_update(request, pk):
     if request.method == 'POST':
         form = EnseignantForm(request.POST, request.FILES, instance=enseignant)
         if form.is_valid():
-            enseignant = form.save(commit=False)
-            enseignant.modifier_par = request.user
-            enseignant.save()
-            messages.success(request, "Informations mises à jour avec succès !")
-            return redirect('enseignants:enseignant_detail', pk=enseignant.pk)
+            try:
+                enseignant = form.save(commit=False)
+                enseignant.modifier_par = request.user
+                enseignant.save()
+                
+                # Sove ManyToMany après avoir sauvegardé l'instance
+                form.save_m2m()
+                
+                messages.success(request, "Informations mises à jour avec succès !")
+                return redirect('enseignants:enseignants', pk=enseignant.pk)
+            except Exception as e:
+                messages.error(request, f"Erreur lors de la mise à jour: {str(e)}")
         else:
             messages.error(request, "Veuillez corriger les erreurs ci-dessous.")
     else:
