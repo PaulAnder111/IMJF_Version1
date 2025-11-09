@@ -1,0 +1,9 @@
+{% extends 'utilisateurs/base.html' %}
+
+{% block content %}
+<div class="text-center mt-5">
+    <h1 class="text-danger fw-bold">⛔ Accès refusé</h1>
+    <p>Vous n’avez pas la permission d’accéder à cette page.</p>
+    <a href="{% url 'utilisateurs:dash_admin' %}" class="btn btn-warning mt-3">Retour au tableau de bord</a>
+</div>
+{% endblock %}

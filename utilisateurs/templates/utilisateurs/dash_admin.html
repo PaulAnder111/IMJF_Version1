@@ -1,31 +1,26 @@
 {% extends "utilisateurs/base.html" %}
 
-{% block title %}Dashboard Admin - IMJF{% endblock %}
+{% block title %}Dashboard - IMJF{% endblock %}
 
 {% block content %}
 <div class="space-y-6">
-    <!-- Titre du Dashboard -->
-    <div class="mb-6">
-        <h1 class="text-2xl md:text-3xl font-bold text-gray-600 dark:text-gray-80">
-            <i class="fas fa-tachometer-alt text-yellow-500 mr-2"></i>
-            Tableau de Bord
-        </h1>
-    </div>
-
-    <!-- Statistics Cards Grid - Responsive -->
-    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-4 md:gap-5">
+    <!-- Vérification du rôle admin -->
+    {% if request.user.role == 'admin' %}
+    
+    <!-- Statistics Cards Grid - Responsive (Tout estatistik pou admin) -->
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-4 md:gap-5" id="statsGrid">
         
         <!-- Card 1: Inscriptions -->
-        <div class="bg-white dark:bg-gray-800 rounded-xl shadow-lg hover:shadow-xl transform hover:-translate-y-1 transition-all duration-300">
+        <div class="stat-card bg-white dark:bg-gray-800 rounded-xl shadow-lg transform transition-all duration-500 animate-float" data-color="yellow">
             <div class="p-5">
                 <div class="flex items-center justify-between mb-3">
                     <div class="flex-shrink-0">
-                        <div class="w-14 h-14 bg-gradient-to-br from-yellow-400 to-yellow-600 rounded-lg flex items-center justify-center shadow-md">
+                        <div class="w-14 h-14 bg-gradient-to-br from-yellow-400 to-yellow-600 rounded-lg flex items-center justify-center shadow-md icon-container">
                             <i class="fas fa-user-plus text-white text-2xl"></i>
                         </div>
                     </div>
                     <div class="text-right">
-                        <p class="text-3xl font-bold text-gray-800 dark:text-white">{{ inscriptions_count|default:"0" }}</p>
+                        <p class="text-3xl font-bold text-gray-800 dark:text-white counter" data-target="{{ inscriptions_count|default:'0' }}">0</p>
                     </div>
                 </div>
                 <div>
@@ -33,7 +28,7 @@
                     <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">Nouvelles inscriptions</p>
                 </div>
             </div>
-            <div class="bg-yellow-50 dark:bg-yellow-900/20 px-5 py-2 rounded-b-xl">
+            <div class="bg-yellow-50 dark:bg-yellow-900/20 px-5 py-2 rounded-b-xl footer-container">
                 <p class="text-xs text-yellow-700 dark:text-yellow-400 font-medium">
                     <i class="fas fa-arrow-up mr-1"></i> +12% ce mois
                 </p>
@@ -41,16 +36,16 @@
         </div>
 
         <!-- Card 2: Élèves -->
-        <div class="bg-white dark:bg-gray-800 rounded-xl shadow-lg hover:shadow-xl transform hover:-translate-y-1 transition-all duration-300">
+        <div class="stat-card bg-white dark:bg-gray-800 rounded-xl shadow-lg transform transition-all duration-500 animate-float" data-color="blue" style="animation-delay: 0.1s;">
             <div class="p-5">
                 <div class="flex items-center justify-between mb-3">
                     <div class="flex-shrink-0">
-                        <div class="w-14 h-14 bg-gradient-to-br from-blue-400 to-blue-600 rounded-lg flex items-center justify-center shadow-md">
+                        <div class="w-14 h-14 bg-gradient-to-br from-blue-400 to-blue-600 rounded-lg flex items-center justify-center shadow-md icon-container">
                             <i class="fas fa-user-graduate text-white text-2xl"></i>
                         </div>
                     </div>
                     <div class="text-right">
-                        <p class="text-3xl font-bold text-gray-800 dark:text-white">{{ eleves_count|default:"0" }}</p>
+                        <p class="text-3xl font-bold text-gray-800 dark:text-white counter" data-target="{{ eleves_count|default:'0' }}">0</p>
                     </div>
                 </div>
                 <div>
@@ -58,7 +53,7 @@
                     <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">Total des élèves</p>
                 </div>
             </div>
-            <div class="bg-blue-50 dark:bg-blue-900/20 px-5 py-2 rounded-b-xl">
+            <div class="bg-blue-50 dark:bg-blue-900/20 px-5 py-2 rounded-b-xl footer-container">
                 <p class="text-xs text-blue-700 dark:text-blue-400 font-medium">
                     <i class="fas fa-users mr-1"></i> Actifs aujourd'hui
                 </p>
@@ -66,16 +61,16 @@
         </div>
 
         <!-- Card 3: Enseignants -->
-        <div class="bg-white dark:bg-gray-800 rounded-xl shadow-lg hover:shadow-xl transform hover:-translate-y-1 transition-all duration-300">
+        <div class="stat-card bg-white dark:bg-gray-800 rounded-xl shadow-lg transform transition-all duration-500 animate-float" data-color="green" style="animation-delay: 0.2s;">
             <div class="p-5">
                 <div class="flex items-center justify-between mb-3">
                     <div class="flex-shrink-0">
-                        <div class="w-14 h-14 bg-gradient-to-br from-green-400 to-green-600 rounded-lg flex items-center justify-center shadow-md">
+                        <div class="w-14 h-14 bg-gradient-to-br from-green-400 to-green-600 rounded-lg flex items-center justify-center shadow-md icon-container">
                             <i class="fas fa-chalkboard-teacher text-white text-2xl"></i>
                         </div>
                     </div>
                     <div class="text-right">
-                        <p class="text-3xl font-bold text-gray-800 dark:text-white">{{ enseignants_count|default:"0" }}</p>
+                        <p class="text-3xl font-bold text-gray-800 dark:text-white counter" data-target="{{ enseignants_count|default:'0' }}">0</p>
                     </div>
                 </div>
                 <div>
@@ -83,7 +78,7 @@
                     <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">Personnel enseignant</p>
                 </div>
             </div>
-            <div class="bg-green-50 dark:bg-green-900/20 px-5 py-2 rounded-b-xl">
+            <div class="bg-green-50 dark:bg-green-900/20 px-5 py-2 rounded-b-xl footer-container">
                 <p class="text-xs text-green-700 dark:text-green-400 font-medium">
                     <i class="fas fa-check-circle mr-1"></i> Tous présents
                 </p>
@@ -91,16 +86,16 @@
         </div>
 
         <!-- Card 4: Classes -->
-        <div class="bg-white dark:bg-gray-800 rounded-xl shadow-lg hover:shadow-xl transform hover:-translate-y-1 transition-all duration-300">
+        <div class="stat-card bg-white dark:bg-gray-800 rounded-xl shadow-lg transform transition-all duration-500 animate-float" data-color="purple" style="animation-delay: 0.3s;">
             <div class="p-5">
                 <div class="flex items-center justify-between mb-3">
                     <div class="flex-shrink-0">
-                        <div class="w-14 h-14 bg-gradient-to-br from-purple-400 to-purple-600 rounded-lg flex items-center justify-center shadow-md">
+                        <div class="w-14 h-14 bg-gradient-to-br from-purple-400 to-purple-600 rounded-lg flex items-center justify-center shadow-md icon-container">
                             <i class="fas fa-door-open text-white text-2xl"></i>
                         </div>
                     </div>
                     <div class="text-right">
-                        <p class="text-3xl font-bold text-gray-800 dark:text-white">{{ classes_count|default:"0" }}</p>
+                        <p class="text-3xl font-bold text-gray-800 dark:text-white counter" data-target="{{ classes_count|default:'0' }}">0</p>
                     </div>
                 </div>
                 <div>
@@ -108,7 +103,7 @@
                     <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">Salles de classe</p>
                 </div>
             </div>
-            <div class="bg-purple-50 dark:bg-purple-900/20 px-5 py-2 rounded-b-xl">
+            <div class="bg-purple-50 dark:bg-purple-900/20 px-5 py-2 rounded-b-xl footer-container">
                 <p class="text-xs text-purple-700 dark:text-purple-400 font-medium">
                     <i class="fas fa-calendar mr-1"></i> En cours
                 </p>
@@ -116,16 +111,16 @@
         </div>
 
         <!-- Card 5: Matières -->
-        <div class="bg-white dark:bg-gray-800 rounded-xl shadow-lg hover:shadow-xl transform hover:-translate-y-1 transition-all duration-300">
+        <div class="stat-card bg-white dark:bg-gray-800 rounded-xl shadow-lg transform transition-all duration-500 animate-float" data-color="pink" style="animation-delay: 0.4s;">
             <div class="p-5">
                 <div class="flex items-center justify-between mb-3">
                     <div class="flex-shrink-0">
-                        <div class="w-14 h-14 bg-gradient-to-br from-pink-400 to-pink-600 rounded-lg flex items-center justify-center shadow-md">
+                        <div class="w-14 h-14 bg-gradient-to-br from-pink-400 to-pink-600 rounded-lg flex items-center justify-center shadow-md icon-container">
                             <i class="fas fa-book text-white text-2xl"></i>
                         </div>
                     </div>
                     <div class="text-right">
-                        <p class="text-3xl font-bold text-gray-800 dark:text-white">{{ matieres_count|default:"0" }}</p>
+                        <p class="text-3xl font-bold text-gray-800 dark:text-white counter" data-target="{{ matieres_count|default:'0' }}">0</p>
                     </div>
                 </div>
                 <div>
@@ -133,7 +128,7 @@
                     <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">Matières enseignées</p>
                 </div>
             </div>
-            <div class="bg-pink-50 dark:bg-pink-900/20 px-5 py-2 rounded-b-xl">
+            <div class="bg-pink-50 dark:bg-pink-900/20 px-5 py-2 rounded-b-xl footer-container">
                 <p class="text-xs text-pink-700 dark:text-pink-400 font-medium">
                     <i class="fas fa-graduation-cap mr-1"></i> Programme complet
                 </p>
@@ -143,19 +138,19 @@
     </div>
 
     <!-- Deuxième rangée de statistiques -->
-    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-4 md:gap-5">
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-4 md:gap-5" id="statsGrid2">
 
         <!-- Card 6: Cours -->
-        <div class="bg-white dark:bg-gray-800 rounded-xl shadow-lg hover:shadow-xl transform hover:-translate-y-1 transition-all duration-300">
+        <div class="stat-card bg-white dark:bg-gray-800 rounded-xl shadow-lg transform transition-all duration-500 animate-float" data-color="orange" style="animation-delay: 0.5s;">
             <div class="p-5">
                 <div class="flex items-center justify-between mb-3">
                     <div class="flex-shrink-0">
-                        <div class="w-14 h-14 bg-gradient-to-br from-orange-400 to-orange-600 rounded-lg flex items-center justify-center shadow-md">
+                        <div class="w-14 h-14 bg-gradient-to-br from-orange-400 to-orange-600 rounded-lg flex items-center justify-center shadow-md icon-container">
                             <i class="fas fa-calendar-alt text-white text-2xl"></i>
                         </div>
                     </div>
                     <div class="text-right">
-                        <p class="text-3xl font-bold text-gray-800 dark:text-white">{{ cours_count|default:"0" }}</p>
+                        <p class="text-3xl font-bold text-gray-800 dark:text-white counter" data-target="{{ cours_count|default:'0' }}">0</p>
                     </div>
                 </div>
                 <div>
@@ -163,7 +158,7 @@
                     <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">Programme de cours</p>
                 </div>
             </div>
-            <div class="bg-orange-50 dark:bg-orange-900/20 px-5 py-2 rounded-b-xl">
+            <div class="bg-orange-50 dark:bg-orange-900/20 px-5 py-2 rounded-b-xl footer-container">
                 <p class="text-xs text-orange-700 dark:text-orange-400 font-medium">
                     <i class="fas fa-clock mr-1"></i> Planifiés
                 </p>
@@ -171,16 +166,16 @@
         </div>
 
         <!-- Card 7: Secrétaire -->
-        <div class="bg-white dark:bg-gray-800 rounded-xl shadow-lg hover:shadow-xl transform hover:-translate-y-1 transition-all duration-300">
+        <div class="stat-card bg-white dark:bg-gray-800 rounded-xl shadow-lg transform transition-all duration-500 animate-float" data-color="teal" style="animation-delay: 0.6s;">
             <div class="p-5">
                 <div class="flex items-center justify-between mb-3">
                     <div class="flex-shrink-0">
-                        <div class="w-14 h-14 bg-gradient-to-br from-teal-400 to-teal-600 rounded-lg flex items-center justify-center shadow-md">
+                        <div class="w-14 h-14 bg-gradient-to-br from-teal-400 to-teal-600 rounded-lg flex items-center justify-center shadow-md icon-container">
                             <i class="fas fa-user-tie text-white text-2xl"></i>
                         </div>
                     </div>
                     <div class="text-right">
-                        <p class="text-3xl font-bold text-gray-800 dark:text-white">{{ secretaires_count|default:"0" }}</p>
+                        <p class="text-3xl font-bold text-gray-800 dark:text-white counter" data-target="{{ secretaires_count|default:'0' }}">0</p>
                     </div>
                 </div>
                 <div>
@@ -188,7 +183,7 @@
                     <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">Personnel administratif</p>
                 </div>
             </div>
-            <div class="bg-teal-50 dark:bg-teal-900/20 px-5 py-2 rounded-b-xl">
+            <div class="bg-teal-50 dark:bg-teal-900/20 px-5 py-2 rounded-b-xl footer-container">
                 <p class="text-xs text-teal-700 dark:text-teal-400 font-medium">
                     <i class="fas fa-briefcase mr-1"></i> En service
                 </p>
@@ -196,16 +191,16 @@
         </div>
 
         <!-- Card 8: Directeur -->
-        <div class="bg-white dark:bg-gray-800 rounded-xl shadow-lg hover:shadow-xl transform hover:-translate-y-1 transition-all duration-300">
+        <div class="stat-card bg-white dark:bg-gray-800 rounded-xl shadow-lg transform transition-all duration-500 animate-float" data-color="indigo" style="animation-delay: 0.7s;">
             <div class="p-5">
                 <div class="flex items-center justify-between mb-3">
                     <div class="flex-shrink-0">
-                        <div class="w-14 h-14 bg-gradient-to-br from-indigo-400 to-indigo-600 rounded-lg flex items-center justify-center shadow-md">
+                        <div class="w-14 h-14 bg-gradient-to-br from-indigo-400 to-indigo-600 rounded-lg flex items-center justify-center shadow-md icon-container">
                             <i class="fas fa-user-shield text-white text-2xl"></i>
                         </div>
                     </div>
                     <div class="text-right">
-                        <p class="text-3xl font-bold text-gray-800 dark:text-white">{{ directeurs_count|default:"0" }}</p>
+                        <p class="text-3xl font-bold text-gray-800 dark:text-white counter" data-target="{{ directeurs_count|default:'0' }}">0</p>
                     </div>
                 </div>
                 <div>
@@ -213,7 +208,7 @@
                     <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">Direction</p>
                 </div>
             </div>
-            <div class="bg-indigo-50 dark:bg-indigo-900/20 px-5 py-2 rounded-b-xl">
+            <div class="bg-indigo-50 dark:bg-indigo-900/20 px-5 py-2 rounded-b-xl footer-container">
                 <p class="text-xs text-indigo-700 dark:text-indigo-400 font-medium">
                     <i class="fas fa-crown mr-1"></i> Administration
                 </p>
@@ -221,16 +216,16 @@
         </div>
 
         <!-- Card 9: Archives -->
-        <div class="bg-white dark:bg-gray-800 rounded-xl shadow-lg hover:shadow-xl transform hover:-translate-y-1 transition-all duration-300">
+        <div class="stat-card bg-white dark:bg-gray-800 rounded-xl shadow-lg transform transition-all duration-500 animate-float" data-color="gray" style="animation-delay: 0.8s;">
             <div class="p-5">
                 <div class="flex items-center justify-between mb-3">
                     <div class="flex-shrink-0">
-                        <div class="w-14 h-14 bg-gradient-to-br from-gray-400 to-gray-600 rounded-lg flex items-center justify-center shadow-md">
+                        <div class="w-14 h-14 bg-gradient-to-br from-gray-400 to-gray-600 rounded-lg flex items-center justify-center shadow-md icon-container">
                             <i class="fas fa-archive text-white text-2xl"></i>
                         </div>
                     </div>
                     <div class="text-right">
-                        <p class="text-3xl font-bold text-gray-800 dark:text-white">{{ archives_count|default:"0" }}</p>
+                        <p class="text-3xl font-bold text-gray-800 dark:text-white counter" data-target="{{ archives_count|default:'0' }}">0</p>
                     </div>
                 </div>
                 <div>
@@ -238,7 +233,7 @@
                     <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">Dossiers archivés</p>
                 </div>
             </div>
-            <div class="bg-gray-100 dark:bg-gray-700/50 px-5 py-2 rounded-b-xl">
+            <div class="bg-gray-100 dark:bg-gray-700/50 px-5 py-2 rounded-b-xl footer-container">
                 <p class="text-xs text-gray-700 dark:text-gray-400 font-medium">
                     <i class="fas fa-folder mr-1"></i> Stockés
                 </p>
@@ -246,16 +241,16 @@
         </div>
 
         <!-- Card 10: Utilisateurs -->
-        <div class="bg-white dark:bg-gray-800 rounded-xl shadow-lg hover:shadow-xl transform hover:-translate-y-1 transition-all duration-300">
+        <div class="stat-card bg-white dark:bg-gray-800 rounded-xl shadow-lg transform transition-all duration-500 animate-float" data-color="red" style="animation-delay: 0.9s;">
             <div class="p-5">
                 <div class="flex items-center justify-between mb-3">
                     <div class="flex-shrink-0">
-                        <div class="w-14 h-14 bg-gradient-to-br from-red-400 to-red-600 rounded-lg flex items-center justify-center shadow-md">
+                        <div class="w-14 h-14 bg-gradient-to-br from-red-400 to-red-600 rounded-lg flex items-center justify-center shadow-md icon-container">
                             <i class="fas fa-user-cog text-white text-2xl"></i>
                         </div>
                     </div>
                     <div class="text-right">
-                        <p class="text-3xl font-bold text-gray-800 dark:text-white">{{ users_count|default:"0" }}</p>
+                        <p class="text-3xl font-bold text-gray-800 dark:text-white counter" data-target="{{ users_count|default:'0' }}">0</p>
                     </div>
                 </div>
                 <div>
@@ -263,7 +258,7 @@
                     <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">Comptes utilisateurs</p>
                 </div>
             </div>
-            <div class="bg-red-50 dark:bg-red-900/20 px-5 py-2 rounded-b-xl">
+            <div class="bg-red-50 dark:bg-red-900/20 px-5 py-2 rounded-b-xl footer-container">
                 <p class="text-xs text-red-700 dark:text-red-400 font-medium">
                     <i class="fas fa-circle text-green-500 mr-1"></i> En ligne
                 </p>
@@ -272,29 +267,470 @@
 
     </div>
 
+    {% elif request.user.role == 'secretaire' or request.user.role == 'archives' %}
+    <!-- Statistics Cards pou sekretè ak achiv (estatistik jeneral sèlman) -->
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 md:gap-5" id="statsGrid">
+        
+        <!-- Card 1: Inscriptions -->
+        <div class="stat-card bg-white dark:bg-gray-800 rounded-xl shadow-lg transform transition-all duration-500 animate-float" data-color="yellow">
+            <div class="p-5">
+                <div class="flex items-center justify-between mb-3">
+                    <div class="flex-shrink-0">
+                        <div class="w-14 h-14 bg-gradient-to-br from-yellow-400 to-yellow-600 rounded-lg flex items-center justify-center shadow-md icon-container">
+                            <i class="fas fa-user-plus text-white text-2xl"></i>
+                        </div>
+                    </div>
+                    <div class="text-right">
+                        <p class="text-3xl font-bold text-gray-800 dark:text-white counter" data-target="{{ inscriptions_count|default:'0' }}">0</p>
+                    </div>
+                </div>
+                <div>
+                    <p class="text-sm font-semibold text-gray-700 dark:text-gray-300">Inscriptions</p>
+                    <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">Nouvelles inscriptions</p>
+                </div>
+            </div>
+            <div class="bg-yellow-50 dark:bg-yellow-900/20 px-5 py-2 rounded-b-xl footer-container">
+                <p class="text-xs text-yellow-700 dark:text-yellow-400 font-medium">
+                    <i class="fas fa-arrow-up mr-1"></i> +12% ce mois
+                </p>
+            </div>
+        </div>
+
+        <!-- Card 2: Élèves -->
+        <div class="stat-card bg-white dark:bg-gray-800 rounded-xl shadow-lg transform transition-all duration-500 animate-float" data-color="blue" style="animation-delay: 0.1s;">
+            <div class="p-5">
+                <div class="flex items-center justify-between mb-3">
+                    <div class="flex-shrink-0">
+                        <div class="w-14 h-14 bg-gradient-to-br from-blue-400 to-blue-600 rounded-lg flex items-center justify-center shadow-md icon-container">
+                            <i class="fas fa-user-graduate text-white text-2xl"></i>
+                        </div>
+                    </div>
+                    <div class="text-right">
+                        <p class="text-3xl font-bold text-gray-800 dark:text-white counter" data-target="{{ eleves_count|default:'0' }}">0</p>
+                    </div>
+                </div>
+                <div>
+                    <p class="text-sm font-semibold text-gray-700 dark:text-gray-300">Élèves</p>
+                    <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">Total des élèves</p>
+                </div>
+            </div>
+            <div class="bg-blue-50 dark:bg-blue-900/20 px-5 py-2 rounded-b-xl footer-container">
+                <p class="text-xs text-blue-700 dark:text-blue-400 font-medium">
+                    <i class="fas fa-users mr-1"></i> Actifs aujourd'hui
+                </p>
+            </div>
+        </div>
+
+        <!-- Card 3: Enseignants -->
+        <div class="stat-card bg-white dark:bg-gray-800 rounded-xl shadow-lg transform transition-all duration-500 animate-float" data-color="green" style="animation-delay: 0.2s;">
+            <div class="p-5">
+                <div class="flex items-center justify-between mb-3">
+                    <div class="flex-shrink-0">
+                        <div class="w-14 h-14 bg-gradient-to-br from-green-400 to-green-600 rounded-lg flex items-center justify-center shadow-md icon-container">
+                            <i class="fas fa-chalkboard-teacher text-white text-2xl"></i>
+                        </div>
+                    </div>
+                    <div class="text-right">
+                        <p class="text-3xl font-bold text-gray-800 dark:text-white counter" data-target="{{ enseignants_count|default:'0' }}">0</p>
+                    </div>
+                </div>
+                <div>
+                    <p class="text-sm font-semibold text-gray-700 dark:text-gray-300">Enseignants</p>
+                    <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">Personnel enseignant</p>
+                </div>
+            </div>
+            <div class="bg-green-50 dark:bg-green-900/20 px-5 py-2 rounded-b-xl footer-container">
+                <p class="text-xs text-green-700 dark:text-green-400 font-medium">
+                    <i class="fas fa-check-circle mr-1"></i> Tous présents
+                </p>
+            </div>
+        </div>
+
+        <!-- Card 4: Classes -->
+        <div class="stat-card bg-white dark:bg-gray-800 rounded-xl shadow-lg transform transition-all duration-500 animate-float" data-color="purple" style="animation-delay: 0.3s;">
+            <div class="p-5">
+                <div class="flex items-center justify-between mb-3">
+                    <div class="flex-shrink-0">
+                        <div class="w-14 h-14 bg-gradient-to-br from-purple-400 to-purple-600 rounded-lg flex items-center justify-center shadow-md icon-container">
+                            <i class="fas fa-door-open text-white text-2xl"></i>
+                        </div>
+                    </div>
+                    <div class="text-right">
+                        <p class="text-3xl font-bold text-gray-800 dark:text-white counter" data-target="{{ classes_count|default:'0' }}">0</p>
+                    </div>
+                </div>
+                <div>
+                    <p class="text-sm font-semibold text-gray-700 dark:text-gray-300">Classes</p>
+                    <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">Salles de classe</p>
+                </div>
+            </div>
+            <div class="bg-purple-50 dark:bg-purple-900/20 px-5 py-2 rounded-b-xl footer-container">
+                <p class="text-xs text-purple-700 dark:text-purple-400 font-medium">
+                    <i class="fas fa-calendar mr-1"></i> En cours
+                </p>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- Dezyèm ranje pou sekretè ak achiv -->
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-2 xl:grid-cols-2 gap-4 md:gap-5" id="statsGrid2">
+
+        <!-- Card 5: Matières -->
+        <div class="stat-card bg-white dark:bg-gray-800 rounded-xl shadow-lg transform transition-all duration-500 animate-float" data-color="pink" style="animation-delay: 0.4s;">
+            <div class="p-5">
+                <div class="flex items-center justify-between mb-3">
+                    <div class="flex-shrink-0">
+                        <div class="w-14 h-14 bg-gradient-to-br from-pink-400 to-pink-600 rounded-lg flex items-center justify-center shadow-md icon-container">
+                            <i class="fas fa-book text-white text-2xl"></i>
+                        </div>
+                    </div>
+                    <div class="text-right">
+                        <p class="text-3xl font-bold text-gray-800 dark:text-white counter" data-target="{{ matieres_count|default:'0' }}">0</p>
+                    </div>
+                </div>
+                <div>
+                    <p class="text-sm font-semibold text-gray-700 dark:text-gray-300">Matières</p>
+                    <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">Matières enseignées</p>
+                </div>
+            </div>
+            <div class="bg-pink-50 dark:bg-pink-900/20 px-5 py-2 rounded-b-xl footer-container">
+                <p class="text-xs text-pink-700 dark:text-pink-400 font-medium">
+                    <i class="fas fa-graduation-cap mr-1"></i> Programme complet
+                </p>
+            </div>
+        </div>
+
+        <!-- Card 6: Cours -->
+        <div class="stat-card bg-white dark:bg-gray-800 rounded-xl shadow-lg transform transition-all duration-500 animate-float" data-color="orange" style="animation-delay: 0.5s;">
+            <div class="p-5">
+                <div class="flex items-center justify-between mb-3">
+                    <div class="flex-shrink-0">
+                        <div class="w-14 h-14 bg-gradient-to-br from-orange-400 to-orange-600 rounded-lg flex items-center justify-center shadow-md icon-container">
+                            <i class="fas fa-calendar-alt text-white text-2xl"></i>
+                        </div>
+                    </div>
+                    <div class="text-right">
+                        <p class="text-3xl font-bold text-gray-800 dark:text-white counter" data-target="{{ cours_count|default:'0' }}">0</p>
+                    </div>
+                </div>
+                <div>
+                    <p class="text-sm font-semibold text-gray-700 dark:text-gray-300">Cours</p>
+                    <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">Programme de cours</p>
+                </div>
+            </div>
+            <div class="bg-orange-50 dark:bg-orange-900/20 px-5 py-2 rounded-b-xl footer-container">
+                <p class="text-xs text-orange-700 dark:text-orange-400 font-medium">
+                    <i class="fas fa-clock mr-1"></i> Planifiés
+                </p>
+            </div>
+        </div>
+
+    </div>
+
+    {% elif request.user.role == 'directeur' %}
+    <!-- Statistics Cards pou direktè (9 estatistik san "Utilisateurs") -->
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-4 md:gap-5" id="statsGrid">
+        
+        <!-- Card 1: Inscriptions -->
+        <div class="stat-card bg-white dark:bg-gray-800 rounded-xl shadow-lg transform transition-all duration-500 animate-float" data-color="yellow">
+            <div class="p-5">
+                <div class="flex items-center justify-between mb-3">
+                    <div class="flex-shrink-0">
+                        <div class="w-14 h-14 bg-gradient-to-br from-yellow-400 to-yellow-600 rounded-lg flex items-center justify-center shadow-md icon-container">
+                            <i class="fas fa-user-plus text-white text-2xl"></i>
+                        </div>
+                    </div>
+                    <div class="text-right">
+                        <p class="text-3xl font-bold text-gray-800 dark:text-white counter" data-target="{{ inscriptions_count|default:'0' }}">0</p>
+                    </div>
+                </div>
+                <div>
+                    <p class="text-sm font-semibold text-gray-700 dark:text-gray-300">Inscriptions</p>
+                    <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">Nouvelles inscriptions</p>
+                </div>
+            </div>
+            <div class="bg-yellow-50 dark:bg-yellow-900/20 px-5 py-2 rounded-b-xl footer-container">
+                <p class="text-xs text-yellow-700 dark:text-yellow-400 font-medium">
+                    <i class="fas fa-arrow-up mr-1"></i> +12% ce mois
+                </p>
+            </div>
+        </div>
+
+        <!-- Card 2: Élèves -->
+        <div class="stat-card bg-white dark:bg-gray-800 rounded-xl shadow-lg transform transition-all duration-500 animate-float" data-color="blue" style="animation-delay: 0.1s;">
+            <div class="p-5">
+                <div class="flex items-center justify-between mb-3">
+                    <div class="flex-shrink-0">
+                        <div class="w-14 h-14 bg-gradient-to-br from-blue-400 to-blue-600 rounded-lg flex items-center justify-center shadow-md icon-container">
+                            <i class="fas fa-user-graduate text-white text-2xl"></i>
+                        </div>
+                    </div>
+                    <div class="text-right">
+                        <p class="text-3xl font-bold text-gray-800 dark:text-white counter" data-target="{{ eleves_count|default:'0' }}">0</p>
+                    </div>
+                </div>
+                <div>
+                    <p class="text-sm font-semibold text-gray-700 dark:text-gray-300">Élèves</p>
+                    <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">Total des élèves</p>
+                </div>
+            </div>
+            <div class="bg-blue-50 dark:bg-blue-900/20 px-5 py-2 rounded-b-xl footer-container">
+                <p class="text-xs text-blue-700 dark:text-blue-400 font-medium">
+                    <i class="fas fa-users mr-1"></i> Actifs aujourd'hui
+                </p>
+            </div>
+        </div>
+
+        <!-- Card 3: Enseignants -->
+        <div class="stat-card bg-white dark:bg-gray-800 rounded-xl shadow-lg transform transition-all duration-500 animate-float" data-color="green" style="animation-delay: 0.2s;">
+            <div class="p-5">
+                <div class="flex items-center justify-between mb-3">
+                    <div class="flex-shrink-0">
+                        <div class="w-14 h-14 bg-gradient-to-br from-green-400 to-green-600 rounded-lg flex items-center justify-center shadow-md icon-container">
+                            <i class="fas fa-chalkboard-teacher text-white text-2xl"></i>
+                        </div>
+                    </div>
+                    <div class="text-right">
+                        <p class="text-3xl font-bold text-gray-800 dark:text-white counter" data-target="{{ enseignants_count|default:'0' }}">0</p>
+                    </div>
+                </div>
+                <div>
+                    <p class="text-sm font-semibold text-gray-700 dark:text-gray-300">Enseignants</p>
+                    <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">Personnel enseignant</p>
+                </div>
+            </div>
+            <div class="bg-green-50 dark:bg-green-900/20 px-5 py-2 rounded-b-xl footer-container">
+                <p class="text-xs text-green-700 dark:text-green-400 font-medium">
+                    <i class="fas fa-check-circle mr-1"></i> Tous présents
+                </p>
+            </div>
+        </div>
+
+        <!-- Card 4: Classes -->
+        <div class="stat-card bg-white dark:bg-gray-800 rounded-xl shadow-lg transform transition-all duration-500 animate-float" data-color="purple" style="animation-delay: 0.3s;">
+            <div class="p-5">
+                <div class="flex items-center justify-between mb-3">
+                    <div class="flex-shrink-0">
+                        <div class="w-14 h-14 bg-gradient-to-br from-purple-400 to-purple-600 rounded-lg flex items-center justify-center shadow-md icon-container">
+                            <i class="fas fa-door-open text-white text-2xl"></i>
+                        </div>
+                    </div>
+                    <div class="text-right">
+                        <p class="text-3xl font-bold text-gray-800 dark:text-white counter" data-target="{{ classes_count|default:'0' }}">0</p>
+                    </div>
+                </div>
+                <div>
+                    <p class="text-sm font-semibold text-gray-700 dark:text-gray-300">Classes</p>
+                    <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">Salles de classe</p>
+                </div>
+            </div>
+            <div class="bg-purple-50 dark:bg-purple-900/20 px-5 py-2 rounded-b-xl footer-container">
+                <p class="text-xs text-purple-700 dark:text-purple-400 font-medium">
+                    <i class="fas fa-calendar mr-1"></i> En cours
+                </p>
+            </div>
+        </div>
+
+        <!-- Card 5: Matières -->
+        <div class="stat-card bg-white dark:bg-gray-800 rounded-xl shadow-lg transform transition-all duration-500 animate-float" data-color="pink" style="animation-delay: 0.4s;">
+            <div class="p-5">
+                <div class="flex items-center justify-between mb-3">
+                    <div class="flex-shrink-0">
+                        <div class="w-14 h-14 bg-gradient-to-br from-pink-400 to-pink-600 rounded-lg flex items-center justify-center shadow-md icon-container">
+                            <i class="fas fa-book text-white text-2xl"></i>
+                        </div>
+                    </div>
+                    <div class="text-right">
+                        <p class="text-3xl font-bold text-gray-800 dark:text-white counter" data-target="{{ matieres_count|default:'0' }}">0</p>
+                    </div>
+                </div>
+                <div>
+                    <p class="text-sm font-semibold text-gray-700 dark:text-gray-300">Matières</p>
+                    <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">Matières enseignées</p>
+                </div>
+            </div>
+            <div class="bg-pink-50 dark:bg-pink-900/20 px-5 py-2 rounded-b-xl footer-container">
+                <p class="text-xs text-pink-700 dark:text-pink-400 font-medium">
+                    <i class="fas fa-graduation-cap mr-1"></i> Programme complet
+                </p>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- Deuxième rangée pou direktè (4 estatistik) -->
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 xl:grid-cols-4 gap-4 md:gap-5" id="statsGrid2">
+
+        <!-- Card 6: Cours -->
+        <div class="stat-card bg-white dark:bg-gray-800 rounded-xl shadow-lg transform transition-all duration-500 animate-float" data-color="orange" style="animation-delay: 0.5s;">
+            <div class="p-5">
+                <div class="flex items-center justify-between mb-3">
+                    <div class="flex-shrink-0">
+                        <div class="w-14 h-14 bg-gradient-to-br from-orange-400 to-orange-600 rounded-lg flex items-center justify-center shadow-md icon-container">
+                            <i class="fas fa-calendar-alt text-white text-2xl"></i>
+                        </div>
+                    </div>
+                    <div class="text-right">
+                        <p class="text-3xl font-bold text-gray-800 dark:text-white counter" data-target="{{ cours_count|default:'0' }}">0</p>
+                    </div>
+                </div>
+                <div>
+                    <p class="text-sm font-semibold text-gray-700 dark:text-gray-300">Cours</p>
+                    <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">Programme de cours</p>
+                </div>
+            </div>
+            <div class="bg-orange-50 dark:bg-orange-900/20 px-5 py-2 rounded-b-xl footer-container">
+                <p class="text-xs text-orange-700 dark:text-orange-400 font-medium">
+                    <i class="fas fa-clock mr-1"></i> Planifiés
+                </p>
+            </div>
+        </div>
+
+        <!-- Card 7: Secrétaire -->
+        <div class="stat-card bg-white dark:bg-gray-800 rounded-xl shadow-lg transform transition-all duration-500 animate-float" data-color="teal" style="animation-delay: 0.6s;">
+            <div class="p-5">
+                <div class="flex items-center justify-between mb-3">
+                    <div class="flex-shrink-0">
+                        <div class="w-14 h-14 bg-gradient-to-br from-teal-400 to-teal-600 rounded-lg flex items-center justify-center shadow-md icon-container">
+                            <i class="fas fa-user-tie text-white text-2xl"></i>
+                        </div>
+                    </div>
+                    <div class="text-right">
+                        <p class="text-3xl font-bold text-gray-800 dark:text-white counter" data-target="{{ secretaires_count|default:'0' }}">0</p>
+                    </div>
+                </div>
+                <div>
+                    <p class="text-sm font-semibold text-gray-700 dark:text-gray-300">Secrétaires</p>
+                    <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">Personnel administratif</p>
+                </div>
+            </div>
+            <div class="bg-teal-50 dark:bg-teal-900/20 px-5 py-2 rounded-b-xl footer-container">
+                <p class="text-xs text-teal-700 dark:text-teal-400 font-medium">
+                    <i class="fas fa-briefcase mr-1"></i> En service
+                </p>
+            </div>
+        </div>
+
+        <!-- Card 8: Directeur -->
+        <div class="stat-card bg-white dark:bg-gray-800 rounded-xl shadow-lg transform transition-all duration-500 animate-float" data-color="indigo" style="animation-delay: 0.7s;">
+            <div class="p-5">
+                <div class="flex items-center justify-between mb-3">
+                    <div class="flex-shrink-0">
+                        <div class="w-14 h-14 bg-gradient-to-br from-indigo-400 to-indigo-600 rounded-lg flex items-center justify-center shadow-md icon-container">
+                            <i class="fas fa-user-shield text-white text-2xl"></i>
+                        </div>
+                    </div>
+                    <div class="text-right">
+                        <p class="text-3xl font-bold text-gray-800 dark:text-white counter" data-target="{{ directeurs_count|default:'0' }}">0</p>
+                    </div>
+                </div>
+                <div>
+                    <p class="text-sm font-semibold text-gray-700 dark:text-gray-300">Directeurs</p>
+                    <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">Direction</p>
+                </div>
+            </div>
+            <div class="bg-indigo-50 dark:bg-indigo-900/20 px-5 py-2 rounded-b-xl footer-container">
+                <p class="text-xs text-indigo-700 dark:text-indigo-400 font-medium">
+                    <i class="fas fa-crown mr-1"></i> Administration
+                </p>
+            </div>
+        </div>
+
+        <!-- Card 9: Archives -->
+        <div class="stat-card bg-white dark:bg-gray-800 rounded-xl shadow-lg transform transition-all duration-500 animate-float" data-color="gray" style="animation-delay: 0.8s;">
+            <div class="p-5">
+                <div class="flex items-center justify-between mb-3">
+                    <div class="flex-shrink-0">
+                        <div class="w-14 h-14 bg-gradient-to-br from-gray-400 to-gray-600 rounded-lg flex items-center justify-center shadow-md icon-container">
+                            <i class="fas fa-archive text-white text-2xl"></i>
+                        </div>
+                    </div>
+                    <div class="text-right">
+                        <p class="text-3xl font-bold text-gray-800 dark:text-white counter" data-target="{{ archives_count|default:'0' }}">0</p>
+                    </div>
+                </div>
+                <div>
+                    <p class="text-sm font-semibold text-gray-700 dark:text-gray-300">Archives</p>
+                    <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">Dossiers archivés</p>
+                </div>
+            </div>
+            <div class="bg-gray-100 dark:bg-gray-700/50 px-5 py-2 rounded-b-xl footer-container">
+                <p class="text-xs text-gray-700 dark:text-gray-400 font-medium">
+                    <i class="fas fa-folder mr-1"></i> Stockés
+                </p>
+            </div>
+        </div>
+
+    </div>
+
+    {% else %}
+    <!-- Contenu pour les autres rôles (utilisateurs) -->
+    <div class="bg-white dark:bg-gray-800 rounded-xl shadow-lg p-6 md:p-8 animate-pulse-slow">
+        <div class="text-center">
+            <div class="w-20 h-20 md:w-24 md:h-24 bg-gradient-to-br from-blue-400 to-blue-600 rounded-full flex items-center justify-center mx-auto mb-4 shadow-lg animate-bounce-slow">
+                <i class="fas fa-user-tie text-white text-2xl md:text-3xl"></i>
+            </div>
+            <h2 class="text-xl md:text-2xl font-bold text-gray-800 dark:text-white mb-2">
+                Bienvenue, {{ request.user.get_full_name|default:request.user.username }}
+            </h2>
+            <p class="text-gray-600 dark:text-gray-400 mb-6 max-w-md mx-auto">
+                Vous avez accès aux fonctionnalités de base du système.
+            </p>
+            
+            <!-- Quick Actions basées sur le rôle -->
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 mt-8">
+                <a href="#" class="bg-blue-50 dark:bg-blue-900/20 hover:bg-blue-100 dark:hover:bg-blue-900/30 p-4 rounded-lg transition-all duration-200 group transform hover:scale-105">
+                    <div class="w-12 h-12 bg-blue-500 rounded-lg flex items-center justify-center mx-auto mb-2 group-hover:scale-110 transition-transform animate-pulse">
+                        <i class="fas fa-user text-white"></i>
+                    </div>
+                    <p class="font-semibold text-blue-700 dark:text-blue-400">Mon Profil</p>
+                </a>
+
+                <a href="#" class="bg-green-50 dark:bg-green-900/20 hover:bg-green-100 dark:hover:bg-green-900/30 p-4 rounded-lg transition-all duration-200 group transform hover:scale-105">
+                    <div class="w-12 h-12 bg-green-500 rounded-lg flex items-center justify-center mx-auto mb-2 group-hover:scale-110 transition-transform animate-pulse" style="animation-delay: 0.2s;">
+                        <i class="fas fa-calendar text-white"></i>
+                    </div>
+                    <p class="font-semibold text-green-700 dark:text-green-400">Planning</p>
+                </a>
+
+                <a href="#" class="bg-purple-50 dark:bg-purple-900/20 hover:bg-purple-100 dark:hover:bg-purple-900/30 p-4 rounded-lg transition-all duration-200 group transform hover:scale-105">
+                    <div class="w-12 h-12 bg-purple-500 rounded-lg flex items-center justify-center mx-auto mb-2 group-hover:scale-110 transition-transform animate-pulse" style="animation-delay: 0.4s;">
+                        <i class="fas fa-cog text-white"></i>
+                    </div>
+                    <p class="font-semibold text-purple-700 dark:text-purple-400">Paramètres</p>
+                </a>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+
     <!-- Recent Activities & Quick Stats Section -->
+    {% if request.user.role == 'admin' or request.user.role == 'secretaire' or request.user.role == 'archives' or request.user.role == 'directeur' %}
     <div class="grid grid-cols-1 lg:grid-cols-2 gap-4 md:gap-6 mt-6 md:mt-8">
         
         <!-- Recent Inscriptions -->
-        <div class="bg-white dark:bg-gray-800 rounded-xl shadow-lg overflow-hidden">
+        <div class="bg-white dark:bg-gray-800 rounded-xl shadow-lg overflow-hidden animate-slide-in-left">
             <div class="bg-gradient-to-r from-yellow-500 to-yellow-600 px-6 py-4">
                 <div class="flex items-center justify-between">
                     <h3 class="text-lg font-bold text-white flex items-center">
-                        <i class="fas fa-user-plus mr-2"></i>
+                        <i class="fas fa-user-plus mr-2 animate-pulse"></i>
                         Inscriptions Récentes
                     </h3>
-                    <a href="{% url 'inscriptions:inscription_list' %}" class="text-white hover:text-yellow-200 text-sm font-medium transition">
+                    {% if request.user.role != 'archives' %}
+                    <a href="{% url 'inscriptions:inscription_list' %}" class="text-white hover:text-yellow-200 text-sm font-medium transition transform hover:scale-105">
                         Voir tout <i class="fas fa-arrow-right ml-1"></i>
                     </a>
+                    {% endif %}
                 </div>
             </div>
             <div class="p-4 md:p-6">
                 <div class="space-y-3">
                     {% if recent_inscriptions %}
                         {% for inscription in recent_inscriptions %}
-                        <div class="flex items-center justify-between p-3 md:p-4 bg-gray-50 dark:bg-gray-700/50 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-all duration-200 cursor-pointer">
+                        <div class="flex items-center justify-between p-3 md:p-4 bg-gray-50 dark:bg-gray-700/50 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-all duration-300 cursor-pointer transform hover:scale-[1.02] animate-fade-in" style="animation-delay: {{ forloop.counter0|add:0.1 }}s">
                             <div class="flex items-center space-x-3">
-                                <div class="w-10 h-10 md:w-12 md:h-12 bg-gradient-to-br from-yellow-400 to-yellow-600 rounded-full flex items-center justify-center flex-shrink-0 shadow-md">
+                                <div class="w-10 h-10 md:w-12 md:h-12 bg-gradient-to-br from-yellow-400 to-yellow-600 rounded-full flex items-center justify-center flex-shrink-0 shadow-md animate-pulse-slow">
                                     <i class="fas fa-user text-white text-sm md:text-base"></i>
                                 </div>
                                 <div class="min-w-0">
@@ -307,14 +743,14 @@
                                     </p>
                                 </div>
                             </div>
-                            <span class="text-xs bg-yellow-100 dark:bg-yellow-900/50 text-yellow-700 dark:text-yellow-400 px-2 md:px-3 py-1 rounded-full font-medium flex-shrink-0 ml-2">
+                            <span class="text-xs bg-yellow-100 dark:bg-yellow-900/50 text-yellow-700 dark:text-yellow-400 px-2 md:px-3 py-1 rounded-full font-medium flex-shrink-0 ml-2 animate-bounce">
                                 Nouveau
                             </span>
                         </div>
                         {% endfor %}
                     {% else %}
                         <div class="text-center py-8 md:py-12">
-                            <i class="fas fa-inbox text-gray-300 dark:text-gray-600 text-4xl md:text-5xl mb-3"></i>
+                            <i class="fas fa-inbox text-gray-300 dark:text-gray-600 text-4xl md:text-5xl mb-3 animate-pulse"></i>
                             <p class="text-gray-500 dark:text-gray-400">Aucune inscription récente</p>
                         </div>
                     {% endif %}
@@ -323,10 +759,10 @@
         </div>
 
         <!-- Quick Stats with Progress Bars -->
-        <div class="bg-white dark:bg-gray-800 rounded-xl shadow-lg overflow-hidden">
+        <div class="bg-white dark:bg-gray-800 rounded-xl shadow-lg overflow-hidden animate-slide-in-right">
             <div class="bg-gradient-to-r from-blue-500 to-blue-600 px-6 py-4">
                 <h3 class="text-lg font-bold text-white flex items-center">
-                    <i class="fas fa-chart-line mr-2"></i>
+                    <i class="fas fa-chart-line mr-2 animate-spin-slow"></i>
                     Statistiques Rapides
                 </h3>
             </div>
@@ -337,15 +773,15 @@
                     <div class="space-y-2">
                         <div class="flex items-center justify-between">
                             <div class="flex items-center space-x-2">
-                                <div class="w-8 h-8 bg-green-100 dark:bg-green-900/30 rounded-lg flex items-center justify-center">
+                                <div class="w-8 h-8 bg-green-100 dark:bg-green-900/30 rounded-lg flex items-center justify-center animate-pulse">
                                     <i class="fas fa-check text-green-600 dark:text-green-400 text-sm"></i>
                                 </div>
                                 <span class="text-sm font-medium text-gray-700 dark:text-gray-300">Taux de présence</span>
                             </div>
-                            <span class="text-lg font-bold text-gray-800 dark:text-white">85%</span>
+                            <span class="text-lg font-bold text-gray-800 dark:text-white counter" data-target="85">0</span>
                         </div>
                         <div class="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-3 overflow-hidden">
-                            <div class="bg-gradient-to-r from-green-400 to-green-600 h-3 rounded-full transition-all duration-1000 shadow-sm" style="width: 85%"></div>
+                            <div class="bg-gradient-to-r from-green-400 to-green-600 h-3 rounded-full transition-all duration-1000 shadow-sm progress-bar" style="width: 0%"></div>
                         </div>
                     </div>
 
@@ -353,15 +789,15 @@
                     <div class="space-y-2">
                         <div class="flex items-center justify-between">
                             <div class="flex items-center space-x-2">
-                                <div class="w-8 h-8 bg-blue-100 dark:bg-blue-900/30 rounded-lg flex items-center justify-center">
+                                <div class="w-8 h-8 bg-blue-100 dark:bg-blue-900/30 rounded-lg flex items-center justify-center animate-pulse" style="animation-delay: 0.2s;">
                                     <i class="fas fa-door-open text-blue-600 dark:text-blue-400 text-sm"></i>
                                 </div>
                                 <span class="text-sm font-medium text-gray-700 dark:text-gray-300">Classes actives</span>
                             </div>
-                            <span class="text-lg font-bold text-gray-800 dark:text-white">92%</span>
+                            <span class="text-lg font-bold text-gray-800 dark:text-white counter" data-target="92">0</span>
                         </div>
                         <div class="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-3 overflow-hidden">
-                            <div class="bg-gradient-to-r from-blue-400 to-blue-600 h-3 rounded-full transition-all duration-1000 shadow-sm" style="width: 92%"></div>
+                            <div class="bg-gradient-to-r from-blue-400 to-blue-600 h-3 rounded-full transition-all duration-1000 shadow-sm progress-bar" style="width: 0%"></div>
                         </div>
                     </div>
 
@@ -369,15 +805,15 @@
                     <div class="space-y-2">
                         <div class="flex items-center justify-between">
                             <div class="flex items-center space-x-2">
-                                <div class="w-8 h-8 bg-yellow-100 dark:bg-yellow-900/30 rounded-lg flex items-center justify-center">
+                                <div class="w-8 h-8 bg-yellow-100 dark:bg-yellow-900/30 rounded-lg flex items-center justify-center animate-pulse" style="animation-delay: 0.4s;">
                                     <i class="fas fa-smile text-yellow-600 dark:text-yellow-400 text-sm"></i>
                                 </div>
                                 <span class="text-sm font-medium text-gray-700 dark:text-gray-300">Satisfaction</span>
                             </div>
-                            <span class="text-lg font-bold text-gray-800 dark:text-white">78%</span>
+                            <span class="text-lg font-bold text-gray-800 dark:text-white counter" data-target="78">0</span>
                         </div>
                         <div class="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-3 overflow-hidden">
-                            <div class="bg-gradient-to-r from-yellow-400 to-yellow-600 h-3 rounded-full transition-all duration-1000 shadow-sm" style="width: 78%"></div>
+                            <div class="bg-gradient-to-r from-yellow-400 to-yellow-600 h-3 rounded-full transition-all duration-1000 shadow-sm progress-bar" style="width: 0%"></div>
                         </div>
                     </div>
 
@@ -385,15 +821,15 @@
                     <div class="space-y-2">
                         <div class="flex items-center justify-between">
                             <div class="flex items-center space-x-2">
-                                <div class="w-8 h-8 bg-purple-100 dark:bg-purple-900/30 rounded-lg flex items-center justify-center">
+                                <div class="w-8 h-8 bg-purple-100 dark:bg-purple-900/30 rounded-lg flex items-center justify-center animate-pulse" style="animation-delay: 0.6s;">
                                     <i class="fas fa-graduation-cap text-purple-600 dark:text-purple-400 text-sm"></i>
                                 </div>
                                 <span class="text-sm font-medium text-gray-700 dark:text-gray-300">Performance académique</span>
                             </div>
-                            <span class="text-lg font-bold text-gray-800 dark:text-white">88%</span>
+                            <span class="text-lg font-bold text-gray-800 dark:text-white counter" data-target="88">0</span>
                         </div>
                         <div class="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-3 overflow-hidden">
-                            <div class="bg-gradient-to-r from-purple-400 to-purple-600 h-3 rounded-full transition-all duration-1000 shadow-sm" style="width: 88%"></div>
+                            <div class="bg-gradient-to-r from-purple-400 to-purple-600 h-3 rounded-full transition-all duration-1000 shadow-sm progress-bar" style="width: 0%"></div>
                         </div>
                     </div>
 
@@ -402,6 +838,362 @@
         </div>
 
     </div>
+    {% endif %}
 </div>
 
+<!-- Styles CSS pour les animations -->
+<style>
+@keyframes float {
+    0%, 100% { transform: translateY(0px); }
+    50% { transform: translateY(-10px); }
+}
+
+@keyframes pulse-slow {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.8; }
+}
+
+@keyframes bounce-slow {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-10px); }
+}
+
+@keyframes slide-in-left {
+    from { transform: translateX(-50px); opacity: 0; }
+    to { transform: translateX(0); opacity: 1; }
+}
+
+@keyframes slide-in-right {
+    from { transform: translateX(50px); opacity: 0; }
+    to { transform: translateX(0); opacity: 1; }
+}
+
+@keyframes fade-in {
+    from { opacity: 0; transform: scale(0.9); }
+    to { opacity: 1; transform: scale(1); }
+}
+
+@keyframes spin-slow {
+    from { transform: rotate(0deg); }
+    to { transform: rotate(360deg); }
+}
+
+@keyframes color-cycle {
+    0% { background: linear-gradient(135deg, #f59e0b, #d97706); }
+    16% { background: linear-gradient(135deg, #3b82f6, #1d4ed8); }
+    32% { background: linear-gradient(135deg, #10b981, #047857); }
+    48% { background: linear-gradient(135deg, #8b5cf6, #7c3aed); }
+    64% { background: linear-gradient(135deg, #ec4899, #db2777); }
+    80% { background: linear-gradient(135deg, #f97316, #ea580c); }
+    100% { background: linear-gradient(135deg, #f59e0b, #d97706); }
+}
+
+@keyframes shine {
+    0% { transform: translateX(-100%) translateY(-100%) rotate(45deg); opacity: 0; }
+    50% { opacity: 1; }
+    100% { transform: translateX(100%) translateY(100%) rotate(45deg); opacity: 0; }
+}
+
+@keyframes gradient-shift {
+    0% { background-position: 0% 50%; }
+    50% { background-position: 100% 50%; }
+    100% { background-position: 0% 50%; }
+}
+
+.animate-float {
+    animation: float 3s ease-in-out infinite;
+}
+
+.animate-pulse-slow {
+    animation: pulse-slow 2s ease-in-out infinite;
+}
+
+.animate-bounce-slow {
+    animation: bounce-slow 2s ease-in-out infinite;
+}
+
+.animate-slide-in-left {
+    animation: slide-in-left 0.8s ease-out;
+}
+
+.animate-slide-in-right {
+    animation: slide-in-right 0.8s ease-out;
+}
+
+.animate-fade-in {
+    animation: fade-in 0.6s ease-out;
+}
+
+.animate-spin-slow {
+    animation: spin-slow 3s linear infinite;
+}
+
+.animate-color-cycle {
+    animation: color-cycle 6s ease-in-out infinite;
+}
+
+/* Effet de brillance sur les cartes */
+.stat-card {
+    position: relative;
+    overflow: hidden;
+    transition: all 0.3s ease;
+}
+
+.stat-card::before {
+    content: '';
+    position: absolute;
+    top: -50%;
+    left: -50%;
+    width: 200%;
+    height: 200%;
+    background: linear-gradient(45deg, transparent, rgba(255,255,255,0.1), transparent);
+    transform: rotate(45deg);
+    transition: all 0.6s ease;
+    opacity: 0;
+}
+
+.stat-card:hover::before {
+    animation: shine 1.5s ease-in-out;
+}
+
+/* Effet de gradient animé pour les icônes */
+.icon-container {
+    position: relative;
+    transition: all 0.3s ease;
+}
+
+.icon-container::after {
+    content: '';
+    position: absolute;
+    top: -2px;
+    left: -2px;
+    right: -2px;
+    bottom: -2px;
+    border-radius: 16px;
+    background: linear-gradient(45deg, #ff0000, #ff7300, #fffb00, #48ff00, #00ffd5, #002bff, #7a00ff, #ff00c8, #ff0000);
+    background-size: 400%;
+    z-index: -1;
+    filter: blur(8px);
+    opacity: 0;
+    transition: opacity 0.3s ease;
+}
+
+.stat-card:hover .icon-container::after {
+    opacity: 1;
+    animation: gradient-shift 3s linear infinite;
+}
+
+/* Transition pour les changements de couleur */
+.color-transition {
+    transition: all 0.5s ease-in-out;
+}
+
+/* Animation des barres de progression */
+.progress-bar {
+    transition: width 1.5s ease-in-out;
+}
+</style>
+
+<!-- JavaScript pour les animations dynamiques -->
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Animation des compteurs principaux
+    const counters = document.querySelectorAll('.counter');
+    counters.forEach(counter => {
+        const target = parseInt(counter.getAttribute('data-target')) || 0;
+        const duration = 2500;
+        const step = target / (duration / 16);
+        let current = 0;
+        
+        const updateCounter = () => {
+            current += step;
+            if (current < target) {
+                counter.textContent = Math.floor(current).toLocaleString();
+                requestAnimationFrame(updateCounter);
+            } else {
+                counter.textContent = target.toLocaleString();
+            }
+        };
+        
+        setTimeout(updateCounter, 800);
+    });
+
+    // Animation des compteurs de pourcentage
+    const percentCounters = document.querySelectorAll('.counter-percent');
+    percentCounters.forEach(counter => {
+        const target = parseInt(counter.getAttribute('data-target')) || 0;
+        const duration = 2000;
+        const step = target / (duration / 16);
+        let current = 0;
+        
+        const updatePercentCounter = () => {
+            current += step;
+            if (current < target) {
+                counter.textContent = Math.floor(current) + '%';
+                requestAnimationFrame(updatePercentCounter);
+            } else {
+                counter.textContent = target + '%';
+            }
+        };
+        
+        setTimeout(updatePercentCounter, 1200);
+    });
+
+    // Animation des barres de progression - AVEC VALIDATION
+    const progressBars = document.querySelectorAll('.transbar-gradient-1, .transbar-gradient-2, .transbar-gradient-3, .transbar-gradient-4');
+    progressBars.forEach((bar, index) => {
+        // Valide si bar egziste
+        if (!bar) return;
+        
+        const transbarItem = bar.closest('.transbar-item');
+        // Valide si transbarItem egziste
+        if (!transbarItem) return;
+        
+        const counterPercent = transbarItem.querySelector('.counter-percent');
+        // Valide si counterPercent egziste epi si li gen atribi data-target
+        if (!counterPercent || !counterPercent.hasAttribute('data-target')) return;
+        
+        const targetWidth = counterPercent.getAttribute('data-target') + '%';
+        setTimeout(() => {
+            // Valide ankò avan modifye style
+            if (bar && bar.style) {
+                bar.style.width = targetWidth;
+            }
+        }, 1500 + (index * 300));
+    });
+
+    // Rotation automatique des indicateurs - AVEC VALIDATION
+    const indicators = document.querySelectorAll('.rotation-indicator');
+    let currentSlide = 0;
+    
+    function rotateIndicators() {
+        indicators.forEach(indicator => {
+            if (indicator) indicator.classList.remove('active');
+        });
+        
+        if (indicators[currentSlide]) {
+            indicators[currentSlide].classList.add('active');
+        }
+        
+        currentSlide = (currentSlide + 1) % (indicators.length || 1);
+    }
+    
+    // Démarrer la rotation seulement si gen indicateurs
+    if (indicators.length > 0) {
+        setInterval(rotateIndicators, 3000);
+        // Initialiser le premier indicateur
+        if (indicators[0]) {
+            indicators[0].classList.add('active');
+        }
+    }
+
+    // Effet de parallaxe au survol - AVEC VALIDATION
+    const statCards = document.querySelectorAll('.stat-card');
+    statCards.forEach(card => {
+        if (!card) return;
+        
+        card.addEventListener('mousemove', (e) => {
+            const rect = card.getBoundingClientRect();
+            const x = e.clientX - rect.left;
+            const y = e.clientY - rect.top;
+            
+            const centerX = rect.width / 2;
+            const centerY = rect.height / 2;
+            
+            const rotateY = (x - centerX) / 25;
+            const rotateX = (centerY - y) / 25;
+            
+            card.style.transform = `perspective(1000px) rotateX(${rotateX}deg) rotateY(${rotateY}deg) scale3d(1.05, 1.05, 1.05)`;
+        });
+        
+        card.addEventListener('mouseleave', () => {
+            card.style.transform = 'perspective(1000px) rotateX(0) rotateY(0) scale3d(1, 1, 1)';
+        });
+    });
+
+    // Animation de pulsation pour les cartes - AVEC VALIDATION
+    function pulseCards() {
+        statCards.forEach((card, index) => {
+            if (!card) return;
+            
+            setTimeout(() => {
+                if (card.style) {
+                    card.style.boxShadow = '0 25px 50px -12px rgba(59, 130, 246, 0.5)';
+                    setTimeout(() => {
+                        if (card.style) {
+                            card.style.boxShadow = '0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04)';
+                        }
+                    }, 600);
+                }
+            }, index * 400);
+        });
+    }
+    
+    // Démarrer l'effet de pulsation seulement si gen kart
+    if (statCards.length > 0) {
+        setInterval(pulseCards, 8000);
+        // Premier effet après 2 secondes
+        setTimeout(pulseCards, 2000);
+    }
+
+    // Changement de couleur dynamique pour les transbars - AVEC VALIDATION
+    function cycleTransbarColors() {
+        const transbars = document.querySelectorAll('[class*="transbar-gradient-"]');
+        transbars.forEach(bar => {
+            if (!bar || !bar.style) return;
+            
+            const hue = Math.floor(Math.random() * 360);
+            bar.style.background = `linear-gradient(90deg, hsl(${hue}, 70%, 50%), hsl(${hue + 30}, 80%, 60%), hsl(${hue}, 70%, 50%), hsl(${hue + 30}, 80%, 60%))`;
+        });
+    }
+    
+    // Changer les couleurs seulement si gen transbars
+    const transbars = document.querySelectorAll('[class*="transbar-gradient-"]');
+    if (transbars.length > 0) {
+        setInterval(cycleTransbarColors, 5000);
+    }
+
+    // Fonction de validation globale pou evite erè
+    function safeQuerySelector(selector) {
+        try {
+            return document.querySelector(selector);
+        } catch (e) {
+            console.warn('Selector error:', selector, e);
+            return null;
+        }
+    }
+
+    function safeQuerySelectorAll(selector) {
+        try {
+            return document.querySelectorAll(selector);
+        } catch (e) {
+            console.warn('Selector error:', selector, e);
+            return [];
+        }
+    }
+
+    // Animation additionnelle pou asire ke tout bagay fonksyonen byen
+    function initializeAllAnimations() {
+        console.log('Initializing dashboard animations...');
+        
+        // Verifie si tout eleman esansyèl yo egziste
+        const essentialElements = [
+            '.stat-card',
+            '.counter', 
+            '.counter-percent',
+            '.transbar-item',
+            '[class*="transbar-gradient-"]',
+            '.rotation-indicator'
+        ];
+        
+        essentialElements.forEach(selector => {
+            const elements = document.querySelectorAll(selector);
+            console.log(`${selector}: ${elements.length} elements found`);
+        });
+    }
+
+    // Eseye inisyalize tout animasyon yo
+    setTimeout(initializeAllAnimations, 1000);
+});
+</script>
 {% endblock %}

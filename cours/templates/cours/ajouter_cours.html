@@ -4,143 +4,177 @@
 {% block title %}Ajouter un Cours - SYGEE{% endblock %}
 
 {% block content %}
-<div class="min-h-screen bg-gray-100 overflow-hidden">
-
-    <!-- 🔸 En-tête -->
-    <div class="bg-gradient-to-r from-gray-800 via-gray-700 to-yellow-600 shadow-md py-4">
-        <div class="max-w-5xl mx-auto px-4 flex justify-between items-center">
-            <h1 class="text-2xl font-bold text-white flex items-center">
-                <svg class="w-7 h-7 mr-2 text-yellow-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                        d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"/>
-                </svg>
-                Ajouter un Cours
-            </h1>
-            <a href="{% url 'cours:cours' %}" 
-               class="flex items-center bg-gray-200 hover:bg-gray-300 text-gray-900 font-semibold px-4 py-2 rounded-lg shadow-md transition">
-                <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
-                </svg>
-                Retour
+<div class="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100">
+    <!-- En-tête réduit -->
+    <div class="bg-gradient-to-r from-gray-800 via-gray-700 to-yellow-600 shadow-lg">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 flex flex-col md:flex-row md:items-center md:justify-between">
+            <div>
+                <h1 class="text-2xl font-bold text-white flex items-center">
+                    <svg class="w-6 h-6 mr-2 text-yellow-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v12m6-6H6" />
+                    </svg>
+                    Ajouter un Cours
+                </h1>
+                <p class="text-gray-200 text-sm">Créez un nouveau cours dans le système</p>
+            </div>
+            <a href="{% url 'cours:cours' %}"
+               class="mt-2 md:mt-0 inline-flex items-center justify-center bg-gray-200 hover:bg-gray-300 text-gray-900 font-medium px-4 py-2 rounded-lg shadow transform hover:scale-105 transition duration-200 text-sm">
+                <i class="fas fa-arrow-left mr-2"></i> Retour
             </a>
         </div>
     </div>
 
-    <!-- 🔸 Messages -->
-    <div class="max-w-4xl mx-auto px-4 py-5">
-        {% if messages %}
-        <div class="space-y-3">
-            {% for message in messages %}
-            <div 
-                class="flex items-center p-4 rounded-lg shadow-lg transition transform hover:scale-[1.01]
-                {% if message.tags == 'success' %}
-                    bg-green-50 border-l-4 border-green-500 text-green-800
-                {% elif message.tags == 'error' %}
-                    bg-red-50 border-l-4 border-red-500 text-red-800 animate-pulse
-                {% else %}
-                    bg-yellow-50 border-l-4 border-yellow-500 text-yellow-800
-                {% endif %}">
-                
-                <svg class="w-6 h-6 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    {% if message.tags == 'success' %}
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
-                    {% elif message.tags == 'error' %}
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
-                    {% else %}
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m0-4h.01M12 17h.01" />
-                    {% endif %}
-                </svg>
-                <span class="font-medium text-base">{{ message }}</span>
-            </div>
-            {% endfor %}
-        </div>
-        {% endif %}
-    </div>
-
-    <!-- 🔸 Formulaire -->
-    <div class="max-w-4xl mx-auto px-4 py-8">
-        <div class="bg-white rounded-xl shadow-lg p-6">
-            <h2 class="text-xl font-semibold text-gray-800 mb-4 flex items-center">
-                <svg class="w-6 h-6 mr-2 text-yellow-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                        d="M12 4v16m8-8H4"/>
-                </svg>
-                Informations du cours
+    <!-- Formulaire plus compact et horizontal -->
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
+        <div class="bg-white rounded-xl shadow-lg p-4 sm:p-6">
+            <h2 class="text-lg font-bold text-gray-800 mb-4 flex items-center">
+                <i class="fas fa-book-open text-yellow-500 mr-2"></i> Informations du cours
             </h2>
 
-            <form method="post" class="space-y-5">
+            <form method="POST" class="space-y-4">
                 {% csrf_token %}
 
-                <!-- Matière -->
-                <div>
-                    <label class="block font-medium text-gray-700 mb-1">Matière</label>
-                    {{ form.matiere }}
-                    {% if form.matiere.errors %}
-                        <p class="text-red-600 text-sm mt-1">{{ form.matiere.errors.0 }}</p>
-                    {% endif %}
-                </div>
-
-                <!-- Classe -->
-                <div>
-                    <label class="block font-medium text-gray-700 mb-1">Classe</label>
-                    {{ form.classe }}
-                    {% if form.classe.errors %}
-                        <p class="text-red-600 text-sm mt-1">{{ form.classe.errors.0 }}</p>
-                    {% endif %}
-                </div>
-
-                <!-- Enseignant -->
-                <div>
-                    <label class="block font-medium text-gray-700 mb-1">Enseignant</label>
-                    {{ form.enseignant }}
-                    {% if form.enseignant.errors %}
-                        <p class="text-red-600 text-sm mt-1">{{ form.enseignant.errors.0 }}</p>
-                    {% endif %}
-                </div>
-
-                <!-- Horaire -->
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
-                    <div>
-                        <label class="block font-medium text-gray-700 mb-1">Jour</label>
-                        {{ form.jour }}
-                        {% if form.jour.errors %}
-                            <p class="text-red-600 text-sm mt-1">{{ form.jour.errors.0 }}</p>
-                        {% endif %}
+                <!-- LIGNE 1 - Plus compacte -->
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
+                    <!-- Matière -->
+                    <div class="form-group">
+                        <label class="block font-medium text-gray-700 mb-1 text-sm flex items-center">
+                            <i class="fas fa-book text-yellow-500 mr-1 text-xs"></i> Matière
+                        </label>
+                        <select name="matiere" required class="form-field-compact">
+                            <option value="">--- Choisir ---</option>
+                            {% for matiere in matieres %}
+                                <option value="{{ matiere.id }}">{{ matiere.nom_matiere }}</option>
+                            {% endfor %}
+                        </select>
                     </div>
-                    <div>
-                        <label class="block font-medium text-gray-700 mb-1">Heure de début</label>
-                        {{ form.heure_debut }}
+
+                    <!-- Classe -->
+                    <div class="form-group">
+                        <label class="block font-medium text-gray-700 mb-1 text-sm flex items-center">
+                            <i class="fas fa-users text-yellow-500 mr-1 text-xs"></i> Classe
+                        </label>
+                        <select name="classe" required class="form-field-compact">
+                            <option value="">--- Choisir ---</option>
+                            {% for classe in classes %}
+                                <option value="{{ classe.id }}">{{ classe.nom_classe }}</option>
+                            {% endfor %}
+                        </select>
                     </div>
-                    <div>
-                        <label class="block font-medium text-gray-700 mb-1">Heure de fin</label>
-                        {{ form.heure_fin }}
-                    </div>
-                    <div>
-                        <label class="block font-medium text-gray-700 mb-1">Salle</label>
-                        {{ form.salle }}
+
+                    <!-- Enseignant -->
+                    <div class="form-group">
+                        <label class="block font-medium text-gray-700 mb-1 text-sm flex items-center">
+                            <i class="fas fa-chalkboard-teacher text-yellow-500 mr-1 text-xs"></i> Enseignant
+                        </label>
+                        <select name="enseignant" required class="form-field-compact">
+                            <option value="">--- Choisir ---</option>
+                            {% for enseignant in enseignants %}
+                                <option value="{{ enseignant.id }}">{{ enseignant.prenom }} {{ enseignant.nom }}</option>
+                            {% endfor %}
+                        </select>
                     </div>
                 </div>
 
-                <!-- Code du cours auto -->
-                <div class="pt-4">
-                    <label class="block text-gray-600 font-medium mb-1">Code du cours (auto)</label>
-                    <input type="text" value="{{ form.instance.code_cours|default:'Auto-généré à l\'enregistrement' }}" 
-                        disabled class="w-full bg-gray-100 border border-gray-300 rounded-lg px-3 py-2 text-gray-500 cursor-not-allowed">
+                <!-- LIGNE 2 - Plus compacte -->
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
+                    <!-- Jour -->
+                    <div class="form-group">
+                        <label class="block font-medium text-gray-700 mb-1 text-sm flex items-center">
+                            <i class="fas fa-calendar-day text-yellow-500 mr-1 text-xs"></i> Jour
+                        </label>
+                        <select name="jour" required class="form-field-compact">
+                            {% for key, value in jours %}
+                                <option value="{{ key }}">{{ value }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+
+                    <!-- Heure début -->
+                    <div class="form-group">
+                        <label class="block font-medium text-gray-700 mb-1 text-sm flex items-center">
+                            <i class="fas fa-clock text-yellow-500 mr-1 text-xs"></i> Heure début
+                        </label>
+                        <input type="time" name="heure_debut" required class="form-field-compact">
+                    </div>
+
+                    <!-- Heure fin -->
+                    <div class="form-group">
+                        <label class="block font-medium text-gray-700 mb-1 text-sm flex items-center">
+                            <i class="fas fa-clock text-yellow-500 mr-1 text-xs"></i> Heure fin
+                        </label>
+                        <input type="time" name="heure_fin" required class="form-field-compact">
+                    </div>
                 </div>
 
-                <!-- Statut -->
-                <div>
-                    <label class="block font-medium text-gray-700 mb-1">Statut</label>
-                    {{ form.statut }}
+                <!-- LIGNE 3 - Plus compacte -->
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
+                    <!-- Salle -->
+                    <div class="form-group">
+                        <label class="block font-medium text-gray-700 mb-1 text-sm flex items-center">
+                            <i class="fas fa-door-open text-yellow-500 mr-1 text-xs"></i> Salle
+                        </label>
+                        <input type="text" name="salle" placeholder="Salle B3" class="form-field-compact">
+                    </div>
+
+                    <!-- Année scolaire -->
+                    <div class="form-group">
+                        <label class="block font-medium text-gray-700 mb-1 text-sm flex items-center">
+                            <i class="fas fa-calendar-alt text-yellow-500 mr-1 text-xs"></i> Année scolaire
+                        </label>
+                        <select name="annee_scolaire" required class="form-field-compact">
+                            {% for key, value in annees %}
+                                <option value="{{ key }}">{{ value }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+
+                    <!-- Semestre -->
+                    <div class="form-group">
+                        <label class="block font-medium text-gray-700 mb-1 text-sm flex items-center">
+                            <i class="fas fa-calendar-week text-yellow-500 mr-1 text-xs"></i> Semestre
+                        </label>
+                        <input type="text" name="semestre" placeholder="1er semestre" class="form-field-compact">
+                    </div>
                 </div>
 
-                <!-- Boutons -->
-                <div class="flex justify-end pt-5 space-x-3">
-                    <a href="{% url 'cours:cours' %}" class="px-5 py-2 bg-gray-300 hover:bg-gray-400 text-gray-800 font-medium rounded-lg shadow transition flex items-center">
-                        ⬅ Annuler
-                    </a>
-                    <button type="submit" class="px-6 py-2 bg-gradient-to-r from-yellow-500 to-yellow-600 hover:from-yellow-600 hover:to-yellow-700 text-gray-900 font-semibold rounded-lg shadow transition flex items-center">
-                        💾 Enregistrer
+                <!-- LIGNE 4 - Plus compacte -->
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+                    <!-- Statut -->
+                    <div class="form-group">
+                        <label class="block font-medium text-gray-700 mb-1 text-sm flex items-center">
+                            <i class="fas fa-info-circle text-yellow-500 mr-1 text-xs"></i> Statut
+                        </label>
+                        <select name="statut" required class="form-field-compact">
+                            {% for key, value in statuts %}
+                                <option value="{{ key }}">{{ value }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+
+                    <!-- Nombre d'heures total -->
+                    <div class="form-group">
+                        <label class="block font-medium text-gray-700 mb-1 text-sm flex items-center">
+                            <i class="fas fa-hourglass-half text-yellow-500 mr-1 text-xs"></i> Heures totales
+                        </label>
+                        <input type="number" name="nb_heures_total" min="0" class="form-field-compact" placeholder="30">
+                    </div>
+                </div>
+
+                <!-- LIGNE 5 : Code du cours -->
+                <div class="form-group">
+                    <label class="block font-medium text-gray-700 mb-1 text-sm flex items-center">
+                        <i class="fas fa-code text-yellow-500 mr-1 text-xs"></i> Code du cours (optionnel)
+                    </label>
+                    <input type="text" name="code_cours" class="form-field-compact" placeholder="CRS-2025-MATH01">
+                </div>
+
+                <!-- BOUTONS compacts -->
+                <div class="flex flex-col sm:flex-row justify-end pt-4 space-y-2 sm:space-y-0 sm:space-x-3">
+                    <a href="{% url 'cours:cours' %}" 
+                       class="btn-gray-compact text-center"><i class="fas fa-times mr-1"></i> Annuler</a>
+                    <button type="submit" class="btn-yellow-compact text-center">
+                        <i class="fas fa-save mr-1"></i> Enregistrer
                     </button>
                 </div>
             </form>
@@ -148,15 +182,82 @@
     </div>
 </div>
 
-<!-- 🔹 Script pour fade-out des messages après 2 secondes -->
-<script>
-    setTimeout(() => {
-        const alerts = document.querySelectorAll('.animate-pulse, .bg-green-50, .bg-yellow-50, .bg-red-50');
-        alerts.forEach(alert => {
-            alert.style.transition = 'opacity 0.8s ease';
-            alert.style.opacity = '0';
-            setTimeout(() => alert.remove(), 800);
-        });
-    }, 2000);
-</script>
+<!-- STYLES COMPACTS -->
+<style>
+.form-group {
+    display: flex;
+    flex-direction: column;
+}
+.form-field-compact {
+    width: 100%;
+    padding: 0.5rem 0.75rem;
+    border: 1.5px solid #D1D5DB;
+    border-radius: 0.5rem;
+    outline: none;
+    transition: all 0.2s;
+    font-size: 0.875rem;
+    background-color: white;
+    height: 2.5rem;
+}
+.form-field-compact:focus {
+    border-color: #F59E0B;
+    box-shadow: 0 0 0 3px rgba(245, 158, 11, 0.15);
+}
+.btn-yellow-compact {
+    background: linear-gradient(to right, #F59E0B, #D97706);
+    color: white;
+    font-weight: 600;
+    padding: 0.5rem 1rem;
+    border-radius: 0.5rem;
+    transition: all 0.2s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: none;
+    cursor: pointer;
+    text-decoration: none;
+    font-size: 0.875rem;
+    height: 2.5rem;
+}
+.btn-yellow-compact:hover { 
+    transform: scale(1.02); 
+    background: linear-gradient(to right, #D97706, #B45309); 
+    box-shadow: 0 2px 8px rgba(245, 158, 11, 0.3);
+}
+.btn-gray-compact {
+    background-color: #9CA3AF;
+    color: white;
+    font-weight: 600;
+    padding: 0.5rem 1rem;
+    border-radius: 0.5rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s;
+    text-decoration: none;
+    border: none;
+    cursor: pointer;
+    font-size: 0.875rem;
+    height: 2.5rem;
+}
+.btn-gray-compact:hover { 
+    background-color: #6B7280; 
+    transform: scale(1.02); 
+    box-shadow: 0 2px 8px rgba(156, 163, 175, 0.3);
+}
+
+/* Responsive adjustments pour version compacte */
+@media (max-width: 640px) {
+    .form-field-compact {
+        padding: 0.4rem 0.6rem;
+        font-size: 0.8rem;
+        height: 2.25rem;
+    }
+    .btn-yellow-compact, .btn-gray-compact {
+        padding: 0.4rem 0.8rem;
+        font-size: 0.8rem;
+        height: 2.25rem;
+    }
+}
+</style>
 {% endblock %}

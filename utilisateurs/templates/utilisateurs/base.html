@@ -13,8 +13,8 @@
         .sidebar-transition { transition: all 0.3s ease-in-out; }
         .sidebar-collapsed { width: 80px; }
         .sidebar-expanded { width: 256px; }
-        .menu-text, .submenu-container, .chevron-icon { transition: opacity 0.2s ease-in-out, width 0.2s ease-in-out; }
-        .sidebar-collapsed .menu-text, .sidebar-collapsed .submenu-container, .sidebar-collapsed .chevron-icon { opacity:0;width:0;overflow:hidden;display:none; }
+        .menu-text, .submenu-container, .chevron-icon, .user-info-text { transition: opacity 0.2s ease-in-out, width 0.2s ease-in-out; }
+        .sidebar-collapsed .menu-text, .sidebar-collapsed .submenu-container, .sidebar-collapsed .chevron-icon, .sidebar-collapsed .user-info-text { opacity:0;width:0;overflow:hidden;display:none; }
         .content-shift { transition: margin-left 0.3s ease-in-out; }
         .content-collapsed { margin-left: 80px; }
         .content-expanded { margin-left: 256px; }
@@ -22,7 +22,7 @@
         /* Light Mode - Transparent & Gold */
         body.light-mode { 
             background: linear-gradient(135deg, #f3f4f6 0%, #e5e7eb 100%);
-            color: #1f2937; 
+            color: #0f011d; 
         }
         body.light-mode .sidebar-light { 
             background: rgba(255, 255, 255, 0.7);
@@ -125,6 +125,14 @@
             box-shadow: 0 2px 8px rgba(245, 158, 11, 0.3);
         }
 
+        /* Sidebar User Profile */
+        .sidebar-user-profile {
+            transition: all 0.3s ease;
+        }
+        .sidebar-collapsed .sidebar-user-profile {
+            padding: 0.75rem 0.5rem;
+        }
+
         /* Modal */
         .modal-bg { 
             background-color: rgba(0,0,0,0.6);
@@ -167,12 +175,60 @@
             background: #d97706;
         }
 
-        /* Save dark mode preference */
-        body.dark-mode .dark-mode-icon::before {
-            content: '\f186'; /* sun icon */
+        /* Responsive design pour mobile */
+        @media (max-width: 768px) {
+            .sidebar-expanded {
+                width: 100%;
+                z-index: 50;
+            }
+            .content-expanded {
+                margin-left: 0;
+            }
+            .sidebar-collapsed {
+                width: 0;
+                transform: translateX(-100%);
+            }
+            .content-collapsed {
+                margin-left: 0;
+            }
+            .mobile-overlay {
+                display: none;
+            }
+            .sidebar-expanded ~ .mobile-overlay {
+                display: block;
+                position: fixed;
+                top: 0;
+                left: 0;
+                right: 0;
+                bottom: 0;
+                background: rgba(0,0,0,0.5);
+                z-index: 40;
+            }
         }
-        body.light-mode .dark-mode-icon::before {
-            content: '\f186'; /* moon icon */
+
+        @media (max-width: 640px) {
+            .avatar-circle {
+                width: 36px;
+                height: 36px;
+            }
+            .header-user-name {
+                display: none;
+            }
+        }
+
+        /* Style pour le bouton Home */
+        .home-btn {
+            font-size: 1.1rem;
+            font-weight: 600;
+        }
+
+        /* Style pour la section profil sidebar */
+        .sidebar-profile-container {
+            padding: 1.5rem 1rem 1rem 1rem;
+            border-bottom: 1px solid rgba(217, 119, 6, 0.2);
+        }
+        body.dark-mode .sidebar-profile-container {
+            border-bottom: 1px solid rgba(251, 191, 36, 0.2);
         }
     </style>
 </head>
@@ -193,7 +249,7 @@
             <!-- Avatar avec rôle -->
             <div class="relative">
                 <div class="flex items-center gap-3 cursor-pointer" id="avatarBtn">
-                    <div class="text-right hidden md:block">
+                    <div class="text-right hidden sm:block header-user-name">
                         <p class="text-sm font-bold text-gray-800 dark:text-gray-200">{{ request.user.get_full_name|default:request.user.username }}</p>
                         <p class="text-xs text-yellow-600 dark:text-yellow-500 font-semibold">
                             <i class="fas fa-shield-alt mr-1"></i>{{ request.user.role|default:"Utilisateur" }}
@@ -264,70 +320,125 @@
         </div>
     </header>
 
+    <!-- Mobile Overlay -->
+    <div class="mobile-overlay" id="mobileOverlay"></div>
+
     <!-- Sidebar -->
     <aside id="sidebar" class="sidebar-light fixed left-0 top-0 h-full pt-16 z-30 sidebar-transition sidebar-expanded overflow-y-auto">
-        <nav class="px-3 py-6 h-full flex flex-col">
-            <ul class="space-y-2 flex-1">
-                <li>
-                    <a href="{% url 'utilisateurs:dash_admin' %}" class="menu-item-light flex items-center gap-3 px-4 py-3 rounded-lg transition">
-                        <i class="fas fa-home text-xl menu-icon-light"></i>
-                        <span class="menu-text">Accueil</span>
-                    </a>
-                </li>
-                <li>
-                    <a href="{% url 'inscriptions:inscription_list' %}" class="menu-item-light flex items-center gap-3 px-4 py-3 rounded-lg transition">
-                        <i class="fas fa-user-plus text-xl menu-icon-light"></i>
-                        <span class="menu-text">Inscriptions</span>
-                    </a>
-                </li>
-                <li>
-                    <a href="{% url 'eleves:eleve_list' %}" class="menu-item-light flex items-center gap-3 px-4 py-3 rounded-lg transition">
-                        <i class="fas fa-user-graduate text-xl menu-icon-light"></i>
-                        <span class="menu-text">Élèves</span>
-                    </a>
-                </li>
-                <li>
-                    <a href="{% url 'enseignants:enseignants' %}" class="menu-item-light flex items-center gap-3 px-4 py-3 rounded-lg transition">
-                        <i class="fas fa-chalkboard-teacher text-xl menu-icon-light"></i>
-                        <span class="menu-text">Enseignants</span>
-                    </a>
-                </li>
-                <li>
-                    <a href="{% url 'matieres:matieres' %}" class="menu-item-light flex items-center gap-3 px-4 py-3 rounded-lg transition">
-                        <i class="fas fa-book text-xl menu-icon-light"></i>
-                        <span class="menu-text">Matières</span>
-                    </a>
-                </li>
-                <li>
-                    <a href="{% url 'classes:classe_list' %}" class="menu-item-light flex items-center gap-3 px-4 py-3 rounded-lg transition">
-                        <i class="fas fa-school text-xl menu-icon-light"></i>
-                        <span class="menu-text">Classes</span>
-                    </a>
-                </li>
-                <li>
-                    <a href="{% url 'cours:cours' %}" class="menu-item-light flex items-center gap-3 px-4 py-3 rounded-lg transition">
-                        <i class="fas fa-calendar-alt text-xl menu-icon-light"></i>
-                        <span class="menu-text">Cours</span>
-                    </a>
-                </li>
-                <li>
-                    <a href="{% url 'utilisateurs:list_users' %}" class="menu-item-light flex items-center gap-3 px-4 py-3 rounded-lg transition">
-                        <i class="fas fa-users text-xl menu-icon-light"></i>
-                        <span class="menu-text">Utilisateurs</span>
-                    </a>
-                </li>
-                
-                <!-- Séparateur -->
-                <li class="menu-separator"></li>
-                
-                <!-- Paramètre séparé -->
-                <li>
-                    <a href="#" class="menu-item-light flex items-center gap-3 px-4 py-3 rounded-lg transition">
-                        <i class="fas fa-cog text-xl menu-icon-light"></i>
-                        <span class="menu-text">Paramètres</span>
-                    </a>
-                </li>
-            </ul>
+        <nav class="h-full flex flex-col">
+            <!-- User Profile Section in Sidebar - Cachée pour admin -->
+            {% if request.user.role != 'admin' %}
+            <div class="sidebar-profile-container">
+                <div class="flex flex-col items-center justify-center gap-3">
+                    <div class="avatar-circle bg-gradient-to-br from-yellow-400 to-yellow-600 text-white w-20 h-20 border-3 border-yellow-500">
+                        {% if request.user.photo %}
+                            <img src="{{ request.user.photo.url }}" alt="Avatar" class="w-full h-full object-cover rounded-full">
+                        {% else %}
+                            <span class="text-2xl">{{ request.user.first_name.0|default:"U" }}</span>
+                        {% endif %}
+                    </div>
+                    <div class="user-info-text text-center">
+                        <p class="font-bold text-gray-800 dark:text-gray-200 text-lg">{{ request.user.get_full_name|default:request.user.username }}</p>
+                        <p class="text-sm text-yellow-600 dark:text-yellow-400 font-semibold">
+                            {{ request.user.role|default:"Utilisateur" }}
+                        </p>
+                    </div>
+                </div>
+            </div>
+            {% endif %}
+
+            <div class="flex-1 px-3 py-6 {% if request.user.role == 'admin' %}pt-8{% endif %}">
+                <ul class="space-y-2">
+                    <!-- Accueil - Accessible par TOUS -->
+                    <li>
+                        <a href="{% url 'utilisateurs:dash_admin' %}" class="menu-item-light flex items-center gap-3 px-4 py-3 rounded-lg transition home-btn">
+                            <i class="fas fa-home text-xl menu-icon-light"></i>
+                            <span class="menu-text">Accueil</span>
+                        </a>
+                    </li>
+
+                    <!-- Inscriptions - ADMIN, DIRECTEUR, SECRETAIRE -->
+                    {% if request.user.role in 'admin,directeur,secretaire' %}
+                    <li>
+                        <a href="{% url 'inscriptions:inscription_list' %}" class="menu-item-light flex items-center gap-3 px-4 py-3 rounded-lg transition">
+                            <i class="fas fa-user-plus text-xl menu-icon-light"></i>
+                            <span class="menu-text">Inscriptions</span>
+                        </a>
+                    </li>
+                    {% endif %}
+
+                    <!-- Élèves - ADMIN, DIRECTEUR, SECRETAIRE, ARCHIVE -->
+                    {% if request.user.role in 'admin,directeur,secretaire,archives' %}
+                    <li>
+                        <a href="{% url 'eleves:eleve_list' %}" class="menu-item-light flex items-center gap-3 px-4 py-3 rounded-lg transition">
+                            <i class="fas fa-user-graduate text-xl menu-icon-light"></i>
+                            <span class="menu-text">Élèves</span>
+                        </a>
+                    </li>
+                    {% endif %}
+
+                    <!-- Enseignants - ADMIN, DIRECTEUR -->
+                    {% if request.user.role in 'admin,directeur,archives,secretaire' %}
+                    <li>
+                        <a href="{% url 'enseignants:enseignants' %}" class="menu-item-light flex items-center gap-3 px-4 py-3 rounded-lg transition">
+                            <i class="fas fa-chalkboard-teacher text-xl menu-icon-light"></i>
+                            <span class="menu-text">Enseignants</span>
+                        </a>
+                    </li>
+                    {% endif %}
+
+                    <!-- Matières - ADMIN, DIRECTEUR -->
+                  {% if request.user.role in 'admin,directeur,secretaire,archives' %}
+                    <li>
+                        <a href="{% url 'matieres:matieres' %}" class="menu-item-light flex items-center gap-3 px-4 py-3 rounded-lg transition">
+                            <i class="fas fa-book text-xl menu-icon-light"></i>
+                            <span class="menu-text">Matières</span>
+                        </a>
+                    </li>
+                    {% endif %}
+
+                    <!-- Classes - ADMIN, DIRECTEUR, SECRETAIRE -->
+                  {% if request.user.role in 'admin,directeur,secretaire,archives' %}
+                    <li>
+                        <a href="{% url 'classes:classe_list' %}" class="menu-item-light flex items-center gap-3 px-4 py-3 rounded-lg transition">
+                            <i class="fas fa-school text-xl menu-icon-light"></i>
+                            <span class="menu-text">Classes</span>
+                        </a>
+                    </li>
+                    {% endif %}
+
+                    <!-- Cours - ADMIN, DIRECTEUR -->
+                  {% if request.user.role in 'admin,directeur,secretaire,archives' %}
+                    <li>
+                        <a href="{% url 'cours:cours' %}" class="menu-item-light flex items-center gap-3 px-4 py-3 rounded-lg transition">
+                            <i class="fas fa-calendar-alt text-xl menu-icon-light"></i>
+                            <span class="menu-text">Cours</span>
+                        </a>
+                    </li>
+                    {% endif %}
+
+                    <!-- Utilisateurs - ADMIN seulement -->
+                    {% if request.user.role == 'admin' %}
+                    <li class="menu-separator"></li>
+                    <li>
+                        <a href="{% url 'utilisateurs:list_users' %}" class="menu-item-light flex items-center gap-3 px-4 py-3 rounded-lg transition">
+                            <i class="fas fa-users text-xl menu-icon-light"></i>
+                            <span class="menu-text">Utilisateurs</span>
+                        </a>
+                    </li>
+                    {% endif %}
+                    
+                    <!-- Paramètres - ADMIN seulement -->
+                    {% if request.user.role == 'admin' %}
+                    <li>
+                        <a href="#" class="menu-item-light flex items-center gap-3 px-4 py-3 rounded-lg transition">
+                            <i class="fas fa-cog text-xl menu-icon-light"></i>
+                            <span class="menu-text">Paramètres</span>
+                        </a>
+                    </li>
+                    {% endif %}
+                </ul>
+            </div>
         </nav>
     </aside>
 
@@ -386,21 +497,24 @@
                 </div>
                 <h2 class="text-xl font-bold">Changer Photo de Profil</h2>
             </div>
-            <form method="POST" action="{% url 'utilisateurs:change_photo' %}" enctype="multipart/form-data" class="space-y-6">
+            <form method="POST" action="{% url 'utilisateurs:change_photo' %}" enctype="multipart/form-data" class="space-y-6" id="photoForm">
                 {% csrf_token %}
                 
                 <!-- Image preview -->
                 <div class="flex justify-center">
                     <div class="w-32 h-32 rounded-full overflow-hidden border-4 border-yellow-500 shadow-xl">
-                        <img id="previewPhoto" src="{% if request.user.photo %}{{ request.user.photo.url }}{% else %}https://via.placeholder.com/150{% endif %}" alt="Preview" class="w-full h-full object-cover">
+                        <img id="previewPhoto" src="{% if request.user.photo %}{{ request.user.photo.url }}{% else %}{% static 'images/default-avatar.png' %}{% endif %}" alt="Preview" class="w-full h-full object-cover">
                     </div>
                 </div>
 
                 <!-- File input with icon -->
-                <label for="photoInput" class="flex items-center justify-center gap-3 cursor-pointer bg-gradient-to-r from-yellow-500 to-yellow-600 text-white px-6 py-3 rounded-lg hover:from-yellow-600 hover:to-yellow-700 transition shadow-lg font-semibold">
-                    <i class="fas fa-upload text-lg"></i> Choisir une photo
-                </label>
-                <input type="file" name="photo" id="photoInput" accept="image/*" class="hidden" required>
+                <div class="text-center">
+                    <label for="photoInput" class="inline-flex items-center justify-center gap-3 cursor-pointer bg-gradient-to-r from-yellow-500 to-yellow-600 text-white px-6 py-3 rounded-lg hover:from-yellow-600 hover:to-yellow-700 transition shadow-lg font-semibold">
+                        <i class="fas fa-upload text-lg"></i> Choisir une photo
+                    </label>
+                    <input type="file" name="photo" id="photoInput" accept="image/*" class="hidden">
+                    <p class="text-xs text-gray-500 mt-2">Formats acceptés: JPG, PNG, JPEG (max 5MB)</p>
+                </div>
 
                 <div class="flex gap-3">
                     <button type="submit" class="flex-1 bg-gradient-to-r from-green-500 to-green-600 text-white px-6 py-3 rounded-lg hover:from-green-600 hover:to-green-700 transition shadow-lg font-semibold">
@@ -461,6 +575,7 @@
         const body = document.body;
         const sidebar = document.getElementById('sidebar');
         const modeText = document.getElementById('modeText');
+        const mobileOverlay = document.getElementById('mobileOverlay');
 
         // Charger la préférence au chargement
         function loadDarkModePreference() {
@@ -525,14 +640,34 @@
         // Charger au démarrage
         loadDarkModePreference();
 
-        // Sidebar toggle
+        // Sidebar toggle avec support mobile
         const sidebarToggle = document.getElementById('sidebarToggle');
         const mainContent = document.getElementById('mainContent');
-        sidebarToggle.addEventListener('click', ()=>{
-            sidebar.classList.toggle('sidebar-collapsed');
-            sidebar.classList.toggle('sidebar-expanded');
-            mainContent.classList.toggle('content-collapsed');
-            mainContent.classList.toggle('content-expanded');
+        
+        function toggleSidebar() {
+            const isMobile = window.innerWidth < 768;
+            
+            if (isMobile) {
+                sidebar.classList.toggle('sidebar-expanded');
+                sidebar.classList.toggle('sidebar-collapsed');
+                mobileOverlay.classList.toggle('hidden');
+            } else {
+                sidebar.classList.toggle('sidebar-collapsed');
+                sidebar.classList.toggle('sidebar-expanded');
+                mainContent.classList.toggle('content-collapsed');
+                mainContent.classList.toggle('content-expanded');
+            }
+        }
+
+        sidebarToggle.addEventListener('click', toggleSidebar);
+        
+        // Fermer sidebar sur mobile quand on clique sur l'overlay
+        mobileOverlay.addEventListener('click', () => {
+            if (window.innerWidth < 768) {
+                sidebar.classList.remove('sidebar-expanded');
+                sidebar.classList.add('sidebar-collapsed');
+                mobileOverlay.classList.add('hidden');
+            }
         });
 
         // Avatar dropdown
@@ -570,6 +705,21 @@
         photoInput.addEventListener('change', (event) => {
             const file = event.target.files[0];
             if (file) {
+                // Vérifier la taille du fichier (max 5MB)
+                if (file.size > 5 * 1024 * 1024) {
+                    alert('Le fichier est trop volumineux. Taille maximale: 5MB');
+                    photoInput.value = '';
+                    return;
+                }
+                
+                // Vérifier le type de fichier
+                const validTypes = ['image/jpeg', 'image/jpg', 'image/png'];
+                if (!validTypes.includes(file.type)) {
+                    alert('Format de fichier non supporté. Utilisez JPG, JPEG ou PNG.');
+                    photoInput.value = '';
+                    return;
+                }
+                
                 const reader = new FileReader();
                 reader.onload = (e) => {
                     previewPhoto.src = e.target.result;
@@ -611,25 +761,51 @@
         });
 
         // Greeting avec heure
-        const greetingEl = document.getElementById('greeting');
-        const hour = new Date().getHours();
-        let greetingText = '';
-        
-        if (hour >= 5 && hour < 12) {
-            greetingText = "☀️ Bon matin";
-        } else if (hour >= 12 && hour < 18) {
-            greetingText = "🌤️ Bon après-midi";
-        } else {
-            greetingText = "🌙 Bonsoir";
+        function getGreeting() {
+            const hour = new Date().getHours();
+            let greetingText = '';
+            
+            if (hour >= 5 && hour < 12) {
+                greetingText = "☀️ Bon matin";
+            } else if (hour >= 12 && hour < 18) {
+                greetingText = "🌤️ Bon après-midi";
+            } else {
+                greetingText = "🌙 Bonsoir";
+            }
+            
+            return `${greetingText}, <strong>{{ request.user.first_name|default:request.user.username }}</strong>!`;
         }
-        
-        greetingEl.innerHTML = `${greetingText}, <strong>{{ request.user.first_name|default:request.user.username }}</strong>!`;
+
+        // Appliquer le greeting
+        document.getElementById('greeting').innerHTML = getGreeting();
 
         // Highlight active menu
         const currentPath = window.location.pathname;
         document.querySelectorAll('aside a').forEach(link => {
             if (link.getAttribute('href') === currentPath) {
                 link.classList.add('active');
+            }
+        });
+
+        // Fermer sidebar quand on clique sur un lien (mobile)
+        document.querySelectorAll('aside a').forEach(link => {
+            link.addEventListener('click', () => {
+                if (window.innerWidth < 768) {
+                    sidebar.classList.remove('sidebar-expanded');
+                    sidebar.classList.add('sidebar-collapsed');
+                    mobileOverlay.classList.add('hidden');
+                }
+            });
+        });
+
+        // Validation du formulaire photo
+        const photoForm = document.getElementById('photoForm');
+        photoForm.addEventListener('submit', function(e) {
+            const fileInput = document.getElementById('photoInput');
+            if (!fileInput.files || fileInput.files.length === 0) {
+                e.preventDefault();
+                alert('Veuillez sélectionner une photo.');
+                return false;
             }
         });
     </script>

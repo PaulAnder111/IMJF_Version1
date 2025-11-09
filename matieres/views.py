@@ -2,16 +2,15 @@
 from django.contrib import messages
 from django.shortcuts import render, get_object_or_404, redirect
 from django.contrib.auth.decorators import login_required
+from utilisateurs.decorators import role_required
 from .models import Matiere
 from django.db.models import Q, Sum
 from .forms import MatiereForm
 
-# def is_secretaire_or_directeur(user):
-#     return user.role in ['secretaire', 'directeur']
 
 @login_required
 def matiere_list(request):
-    # 🔍 Rechèch
+    #  Rechèch
     search = request.GET.get('search')
     matieres = Matiere.objects.all()
 
@@ -35,7 +34,10 @@ def matiere_list(request):
         'total_heures': total_heures,
     })
 
-@login_required
+# --------------------------------CREATE MATIERE------------------------------- ---
+#---------------------------------              ----------------------------------
+
+@role_required(['admin', 'directeur'])
 def matiere_create(request):
     if request.method == 'POST':
         form = MatiereForm(request.POST)
@@ -52,7 +54,10 @@ def matiere_create(request):
         form = MatiereForm()
     return render(request, 'matieres/ajouter_matiere.html', {'form': form, 'titre': "Ajouter une matière"})
 
-@login_required
+# --------------------------------UPDATE MATIERE------------------------------- ---
+#---------------------------------              ----------------------------------
+
+@role_required(['admin', 'directeur', 'secretaire'])
 def matiere_update(request, pk):
     matiere = get_object_or_404(Matiere, pk=pk)
     if request.method == 'POST':
@@ -64,7 +69,10 @@ def matiere_update(request, pk):
         form = MatiereForm(instance=matiere)
     return render(request, 'matieres/modifier_matiere.html', {'form': form, 'titre': "Modifier une matière"})
 
-@login_required
+# --------------------------------DELETE MATIERE------------------------------- ---
+#---------------------------------              ----------------------------------
+
+@role_required(['admin', 'directeur'])
 def matiere_delete(request, pk):
     matiere = get_object_or_404(Matiere, pk=pk)
     if request.method == 'POST':

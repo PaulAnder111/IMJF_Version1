@@ -9,6 +9,7 @@ from enseignants.models import Enseignant
 from django.core.exceptions import ValidationError
 from django.shortcuts import render
 from django.contrib.auth.decorators import login_required
+from utilisateurs.decorators import role_required
 from django.http import HttpResponse
 from .models import Cours
 from django.template.loader import get_template
@@ -33,7 +34,20 @@ def cours_list(request):
         'classes': classes,
     })
 
-@login_required
+#==================CREATE COURS==================#
+#==============================================#
+
+from django.shortcuts import render, redirect
+from django.contrib import messages
+from django.core.exceptions import ValidationError
+from utilisateurs.decorators import role_required
+from .models import Cours, HistoriqueCours
+from matieres.models import Matiere
+from classes.models import Classe
+from enseignants.models import Enseignant
+
+
+@role_required(['admin', 'directeur'])
 def cours_create(request):
     if request.method == 'POST':
         try:
@@ -44,7 +58,8 @@ def cours_create(request):
             heure_debut = request.POST.get('heure_debut')
             heure_fin = request.POST.get('heure_fin')
             salle = request.POST.get('salle', '')
-            statut = 'actif' if request.POST.get('statut') == 'actif' else 'inactif'
+            statut = request.POST.get('statut') or 'planifie'
+            annee_scolaire = request.POST.get('annee_scolaire', '2024-2025')
 
             cours = Cours(
                 matiere_id=matiere_id,
@@ -55,12 +70,13 @@ def cours_create(request):
                 heure_fin=heure_fin,
                 salle=salle,
                 statut=statut,
+                annee_scolaire=annee_scolaire,
                 cree_par=request.user
             )
 
             cours.save()
 
-            # 🔹 Enregistrement de l'historique
+            # 🔹 Enregistrement dans l’historique
             HistoriqueCours.objects.create(
                 cours=cours,
                 action="Création",
@@ -78,17 +94,29 @@ def cours_create(request):
         except Exception as e:
             messages.error(request, f"❌ Erreur inattendue : {str(e)}")
 
+    # 🔹 Récupérer les données nécessaires pour les listes déroulantes
     matieres = Matiere.objects.all()
     classes = Classe.objects.all()
     enseignants = Enseignant.objects.all()
+
+    # 🔹 Récupérer les options depuis le modèle
+    jours = Cours.JOURS
+    statuts = Cours.STATUTS_COURS
+    annees = Cours.ANNEES_SCOLAIRES
+
     return render(request, 'cours/ajouter_cours.html', {
         'matieres': matieres,
         'classes': classes,
-        'enseignants': enseignants
+        'enseignants': enseignants,
+        'jours': jours,
+        'statuts': statuts,
+        'annees': annees
     })
 
+#==================UPDATE COURS==================#
+#==============================================#
 
-@login_required
+@role_required(['admin', 'directeur'])
 def cours_update(request, pk):
     cours = get_object_or_404(Cours, pk=pk)
     matieres = Matiere.objects.all()
@@ -146,9 +174,10 @@ def cours_update(request, pk):
         'enseignants': enseignants,
         'jours': JOURS,
     })
+#==================DELETE COURS==================#
+#==============================================#
 
-
-@login_required
+@role_required(['admin', 'directeur'])
 def cours_delete(request, pk):
     cours = get_object_or_404(Cours, pk=pk)
     if request.method == 'POST':

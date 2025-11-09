@@ -1,27 +1,30 @@
+from datetime import datetime
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib import messages
-from django.contrib.auth.decorators import login_required, permission_required
+from django.contrib.auth.decorators import login_required
 from django.db.models import Q
+from django.core.paginator import Paginator
+from utilisateurs.decorators import role_required
 from .forms import EleveForm
 from .models import Eleve, HistoriqueEleve
-from inscriptions.models import HistoriqueClasses
 from classes.models import Classe
-from django.core.paginator import Paginator
 
-# --- LIST ELEVE ---
+
+# -------------------- LISTE --------------------
+@login_required
 def eleves_list(request):
+    """Liste des élèves avec recherche, filtres et pagination"""
     search_query = request.GET.get('search', '')
     statut_filter = request.GET.get('statut', '')
     classe_filter = request.GET.get('classe', '')
 
     eleves = Eleve.objects.select_related('classe_actuelle').all()
 
+    # --- Filtres dynamiques ---
     if search_query:
-        eleves = eleves.filter(nom__icontains=search_query) | eleves.filter(prenom__icontains=search_query)
-
+        eleves = eleves.filter(Q(nom__icontains=search_query) | Q(prenom__icontains=search_query))
     if statut_filter:
         eleves = eleves.filter(statut=statut_filter)
-
     if classe_filter:
         eleves = eleves.filter(classe_actuelle__id=classe_filter)
 
@@ -34,45 +37,88 @@ def eleves_list(request):
     eleves_suspendus = Eleve.objects.filter(statut='suspendu').count()
     eleves_radies = Eleve.objects.filter(statut='radié').count()
 
-    context = {
+    return render(request, 'eleve_list.html', {
         'eleves': page_obj,
         'classes': Classe.objects.all(),
         'total_eleves': total_eleves,
         'eleves_actifs': eleves_actifs,
         'eleves_suspendus': eleves_suspendus,
         'eleves_radies': eleves_radies,
-    }
-    return render(request, 'eleve_list.html', context)
-
-
-
-# --- DETAIL ELEVE ---
-@login_required
-def eleve_detail(request, pk):
-    eleve = get_object_or_404(Eleve, pk=pk)
-
-    # Récupère l'historique des actions pour cet élève
-    historique = HistoriqueEleve.objects.filter(eleve=eleve).order_by('-date_action')
-
-    return render(request, 'eleves_detail.html', {
-        'eleve': eleve,
-        'historique_classes': historique  
+        'search_query': search_query,
+        'statut_filter': statut_filter,
+        'classe_filter': classe_filter,
     })
 
-# --- MODIFIER ELEVE ---
 
+# -------------------- DETAIL --------------------
 @login_required
-def eleve_update(request, pk):
+def eleve_detail(request, pk):
+    """Afficher les détails d’un élève"""
     eleve = get_object_or_404(Eleve, pk=pk)
-    classes = Classe.objects.all()
-    ancienne_classe = eleve.classe_actuelle  # ← Nou kenbe ansyen klas la
+    historique = HistoriqueEleve.objects.filter(eleve=eleve).order_by('-date_action')
+    return render(request, 'eleve_detail.html', {'eleve': eleve, 'historique': historique})
+
+
+# -------------------- AJOUTER --------------------
+@role_required(['admin', 'directeur', 'secretaire'])
+def ajouter_eleve(request):
+    """Ajout manuel d’un élève"""
+    classes = Classe.objects.filter(statut='actif').order_by('nom_classe')
+    
+    if request.method == 'POST':
+        form = EleveForm(request.POST, request.FILES)
+        if form.is_valid():
+            try:
+                eleve = form.save(commit=False)
+                # --- Génération automatique du matricule ---
+                annee_courante = datetime.now().year
+                dernier_eleve = Eleve.objects.filter(
+                    matricule__startswith=f"ELEVE{annee_courante}"
+                ).order_by('-matricule').first()
+
+                if dernier_eleve:
+                    dernier_numero = int(dernier_eleve.matricule[-4:])
+                    nouveau_numero = dernier_numero + 1
+                else:
+                    nouveau_numero = 1
+
+                eleve.matricule = f"ELEVE{annee_courante}{nouveau_numero:04d}"
+                eleve.save()
+
+                # --- Historique : nouvelle inscription ---
+                HistoriqueEleve.objects.create(
+                    eleve=eleve,
+                    action='inscription',
+                    description=f"Nouvelle inscription dans la classe {eleve.classe_actuelle}",
+                    effectue_par=request.user
+                )
+
+                messages.success(request, f"L'élève {eleve.nom} {eleve.prenom} a été ajouté avec succès.")
+                return redirect('eleves:eleve_list')
+
+            except Exception as e:
+                messages.error(request, f" Erreur lors de l'ajout : {str(e)}")
+        else:
+            messages.error(request, " Veuillez corriger les erreurs dans le formulaire.")
+    else:
+        form = EleveForm()
+
+    return render(request, 'add_eleves.html', {'form': form, 'classes': classes})
+
+
+# -------------------- MODIFIER --------------------
+@role_required(['admin', 'directeur', 'secretaire'])
+def eleve_update(request, pk):
+    """Modifier les informations d’un élève"""
+    eleve = get_object_or_404(Eleve, pk=pk)
+    ancienne_classe = eleve.classe_actuelle
 
     if request.method == 'POST':
         form = EleveForm(request.POST, request.FILES, instance=eleve)
         if form.is_valid():
             eleve_modifie = form.save(commit=False)
-            
-            # --- Vérifie si la classe a changé ---
+
+            # --- Historique en cas de changement de classe ---
             if ancienne_classe != eleve_modifie.classe_actuelle:
                 HistoriqueEleve.objects.create(
                     eleve=eleve,
@@ -81,65 +127,56 @@ def eleve_update(request, pk):
                     effectue_par=request.user
                 )
 
-            # --- Enregistre les changements ---
             eleve_modifie.save()
-            messages.success(request, "Les informations de l'élève ont été mises à jour avec succès.")
+            messages.success(request, "✅ Les informations de l’élève ont été mises à jour.")
             return redirect('eleves:eleve_detail', pk=eleve.pk)
+        else:
+            messages.error(request, "Erreurs dans le formulaire.")
     else:
         form = EleveForm(instance=eleve)
 
-    return render(request, 'eleve_update.html', {
-        'form': form,
-        'eleve': eleve,
-        'classes': classes,
-    })
+    return render(request, 'eleve_update.html', {'form': form, 'eleve': eleve})
 
 
-# --- ARCHIVER / RESTAURER / DELETE ---
-@login_required
-@permission_required('eleves.change_eleve', raise_exception=True)
+# -------------------- ARCHIVER --------------------
+@role_required(['admin', 'directeur', 'secretaire'])
 def eleve_archiver(request, pk):
+    """Archiver un élève"""
     eleve = get_object_or_404(Eleve, pk=pk)
-    if eleve.statut != 'actif':
-        messages.warning(request, "Seuls les élèves actifs peuvent être archivés.")
-        return redirect('eleves:eleve_list')
-    eleve.statut = 'archive'
-    eleve.save()
-    messages.success(request, f"L'élève {eleve.nom} {eleve.prenom} a été archivé avec succès.")
+    if eleve.statut == 'archive':
+        messages.warning(request, " Cet élève est déjà archivé.")
+    else:
+        eleve.statut = 'archive'
+        eleve.save()
+        messages.success(request, f" L’élève {eleve.nom} {eleve.prenom} a été archivé.")
     return redirect('eleves:eleve_list')
 
 
-@login_required
-@permission_required('eleves.change_eleve', raise_exception=True)
+# -------------------- RESTAURER --------------------
+@role_required(['admin', 'directeur'])
 def eleve_restaurer(request, pk):
+    """Restaurer un élève archivé"""
     eleve = get_object_or_404(Eleve, pk=pk)
-    if eleve.statut not in ['archive', 'suspendu']:
-        messages.warning(request, "Seuls les élèves archivés ou suspendus peuvent être restaurés.")
-        return redirect('eleves:eleve_list')
-    eleve.statut = 'actif'
-    eleve.save()
-    messages.success(request, f"L'élève {eleve.nom} {eleve.prenom} a été restauré avec succès.")
+    if eleve.statut == 'archive':
+        eleve.statut = 'actif'
+        eleve.save()
+        messages.success(request, f"✅ L’élève {eleve.nom} {eleve.prenom} a été restauré.")
     return redirect('eleves:eleve_list')
 
 
+# -------------------- ARCHIVES --------------------
 @login_required
 def eleve_archives(request):
+    """Liste des élèves archivés"""
     eleves_archives = Eleve.objects.filter(statut='archive')
     return render(request, 'eleve_archiver.html', {'eleves': eleves_archives})
 
 
-@login_required
+# -------------------- SUPPRIMER --------------------
+@role_required(['admin', 'directeur'])
 def eleve_delete(request, pk):
-    messages.error(request, "Suppression interdite ! Un élève ne peut être qu’archivé.")
-    return redirect('eleves:eleve_list')
-
-
-# --- HISTORIQUE DES CLASSES POUR UN ELEVE ---
-@login_required
-def eleve_historique(request, pk):
+    """Suppression définitive d’un élève"""
     eleve = get_object_or_404(Eleve, pk=pk)
-    historique = HistoriqueClasses.objects.filter(eleve=eleve).order_by('-date_change')
-    return render(request, 'eleve_historique.html', {
-        'eleve': eleve,
-        'historique_classes': historique
-    })
+    eleve.delete()
+    messages.success(request, f" L’élève {eleve.nom} {eleve.prenom} a été supprimé définitivement.")
+    return redirect('eleves:eleve_list')

@@ -1,16 +1,20 @@
-# enseignants/views.py
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib import messages
 from django.core.paginator import Paginator 
-from django.contrib.auth.decorators import login_required, permission_required
+from django.contrib.auth.decorators import login_required
 from django.db.models import Q
+
+from utilisateurs.decorators import role_required
 from .forms import EnseignantForm
 from .models import Enseignant
 
-# -------------------- LIST --------------------
+
+# ======================================================
+# 🔹 LISTE
+# ======================================================
 @login_required
 def enseignant_list(request):
-    """Liste tous les enseignants actifs avec recherche, filtres et pagination"""
+    """Liste des enseignants actifs avec recherche et pagination"""
     enseignants = Enseignant.objects.exclude(statut='archive')
 
     # Recherche
@@ -23,12 +27,12 @@ def enseignant_list(request):
             Q(specialite__icontains=search)
         )
 
-    # Filtre statut
+    # Filtrage par statut
     statut = request.GET.get('statut')
     if statut:
         enseignants = enseignants.filter(statut=statut)
 
-    # Pagination - 5 par page
+    # Pagination
     paginator = Paginator(enseignants.order_by('nom'), 5)
     page_number = request.GET.get('page')
     page_obj = paginator.get_page(page_number)
@@ -50,112 +54,130 @@ def enseignant_list(request):
     })
 
 
-# -------------------- CREATE --------------------
-@login_required
+# ======================================================
+# 🔹 CREATE
+# ======================================================
+@role_required(['admin', 'directeur'])
 def create_enseignant(request):
-    """Créer un nouvel enseignant avec trasabilité"""
+    """Créer un nouvel enseignant"""
     if request.method == 'POST':
         form = EnseignantForm(request.POST, request.FILES)
         if form.is_valid():
-            try:
-                enseignant = form.save(commit=False)
-                enseignant.cree_par = request.user
-                enseignant.statut = 'actif'
-                enseignant.save()
-                
-                # Sove ManyToMany après avoir sauvegardé l'instance
-                form.save_m2m()
-                
-                messages.success(request, f"L'enseignant {enseignant.nom} {enseignant.prenom} ajouté avec succès.")
-                return redirect('enseignants:enseignants')
-            except Exception as e:
-                messages.error(request, f"Erreur lors de l'enregistrement: {str(e)}")
+            enseignant = form.save(commit=False)
+            enseignant.cree_par = request.user
+            enseignant.statut = 'actif'
+            enseignant.save()
+            form.save_m2m()
+            messages.success(request, f"L'enseignant {enseignant.nom} {enseignant.prenom} a été ajouté avec succès.")
+            return redirect('enseignants:enseignants')
         else:
-            # Affiche les erreurs du formulaire
             for field, errors in form.errors.items():
                 for error in errors:
                     messages.error(request, f"{field}: {error}")
     else:
         form = EnseignantForm()
-    
+
     return render(request, 'enseignants/ajouter_enseignant.html', {'form': form})
 
 
-# -------------------- DETAIL --------------------
+# ======================================================
+# 🔹 DETAIL
+# ======================================================
 @login_required
 def enseignant_detail(request, pk):
     enseignant = get_object_or_404(Enseignant, pk=pk)
     return render(request, 'enseignants/enseignant_detail.html', {'enseignant': enseignant})
 
 
-# -------------------- UPDATE --------------------
-@login_required
+# ======================================================
+# 🔹 UPDATE
+# ======================================================
+@role_required(['admin', 'directeur', 'secretaire'])
 def enseignant_update(request, pk):
     enseignant = get_object_or_404(Enseignant, pk=pk)
+
+    # Bloquer Archives
+    if request.user.role == 'archives':
+        messages.error(request, "⛔ Vous n’avez pas la permission de modifier un enseignant.")
+        return redirect('enseignants:enseignants')
+
     if request.method == 'POST':
         form = EnseignantForm(request.POST, request.FILES, instance=enseignant)
         if form.is_valid():
-            try:
-                enseignant = form.save(commit=False)
-                enseignant.modifier_par = request.user
-                enseignant.save()
-                
-                # Sove ManyToMany après avoir sauvegardé l'instance
-                form.save_m2m()
-                
-                messages.success(request, "Informations mises à jour avec succès !")
-                return redirect('enseignants:enseignants', pk=enseignant.pk)
-            except Exception as e:
-                messages.error(request, f"Erreur lors de la mise à jour: {str(e)}")
+            enseignant = form.save(commit=False)
+            enseignant.modifier_par = request.user
+            enseignant.save()
+            form.save_m2m()
+            messages.success(request, "✅ Informations mises à jour avec succès !")
+            return redirect('enseignants:enseignants')
         else:
-            messages.error(request, "Veuillez corriger les erreurs ci-dessous.")
+            messages.error(request, "⚠️ Veuillez corriger les erreurs ci-dessous.")
     else:
         form = EnseignantForm(instance=enseignant)
-    return render(request, 'enseignants/modifier_enseignant.html', {'form': form, 'enseignant': enseignant})
+
+    return render(request, 'enseignants/modifier_enseignant.html', {
+        'form': form,
+        'enseignant': enseignant
+    })
 
 
-# -------------------- ARCHIVE --------------------
-@login_required
-@permission_required('enseignants.change_enseignant', raise_exception=True)
+# ======================================================
+# 🔹 ARCHIVER
+# ======================================================
+@role_required(['admin', 'directeur', 'secretaire'])
 def enseignant_archiver(request, pk):
+    """Archive un enseignant sans suppression réelle"""
     enseignant = get_object_or_404(Enseignant, pk=pk)
+
+    if request.user.role == 'ARCHIVES':
+        messages.error(request, "⛔ Vous n’avez pas la permission d’archiver un enseignant.")
+        return redirect('enseignants:enseignants')
+
     if enseignant.statut != 'archive':
         enseignant.statut = 'archive'
         enseignant.modifier_par = request.user
         enseignant.save()
-        messages.success(request, f"L'enseignant {enseignant.nom} {enseignant.prenom} archivé.")
+        messages.success(request, f"📦 L'enseignant {enseignant.nom} {enseignant.prenom} a été archivé avec succès.")
+
     return redirect('enseignants:enseignants')
 
 
-# -------------------- RESTAURE --------------------
-@login_required
-@permission_required('enseignants.change_enseignant', raise_exception=True)
+# ======================================================
+# 🔹 RESTAURER
+# ======================================================
+@role_required(['admin', 'directeur'])
 def enseignant_restaurer(request, pk):
     enseignant = get_object_or_404(Enseignant, pk=pk)
     if enseignant.statut == 'archive':
         enseignant.statut = 'actif'
         enseignant.modifier_par = request.user
         enseignant.save()
-        messages.success(request, f"L'enseignant {enseignant.nom} {enseignant.prenom} restauré.")
+        messages.success(request, f"♻️ L'enseignant {enseignant.nom} {enseignant.prenom} a été restauré.")
     return redirect('enseignants:enseignant_archives')
 
 
-# -------------------- LIST ARCHIVES --------------------
+# ======================================================
+# 🔹 LISTE DES ARCHIVES
+# ======================================================
 @login_required
 def enseignant_archives(request):
     enseignants_archives = Enseignant.objects.filter(statut='archive')
     return render(request, 'enseignants/enseignant_archives.html', {'enseignants': enseignants_archives})
 
 
-# -------------------- DELETE (JS) --------------------
-@login_required
-@permission_required('enseignants.change_enseignant', raise_exception=True)
+# ======================================================
+# 🔹 DELETE (Admin / Directeur uniquement)
+# ======================================================
+@role_required(['admin', 'directeur'])
 def enseignant_delete(request, pk):
-    """Ne supprime pas mais archive avec confirmation JS"""
+    """Supprime définitivement un enseignant (réservé Admin/Directeur)"""
     enseignant = get_object_or_404(Enseignant, pk=pk)
-    if enseignant.statut != 'archive':
-        enseignant.statut = 'archive'
-        enseignant.modifier_par = request.user
-        enseignant.save()
-        messages.success(request, f"L'enseignant {enseignant.nom} {enseignant.prenom} archivé via bouton Delete.")
+
+    # Bloque Secrétaire et Archives
+    if request.user.role in ['archives', 'secretaire']:
+        messages.error(request, "🚫 Vous n’avez pas la permission de supprimer cet enseignant.")
+        return redirect('enseignants:enseignants')
+
+    enseignant.delete()
+    messages.success(request, f"🗑️ L'enseignant {enseignant.nom} {enseignant.prenom} a été supprimé définitivement.")
     return redirect('enseignants:enseignants')

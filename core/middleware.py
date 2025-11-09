@@ -16,7 +16,7 @@ class DatabaseCheckMiddleware:
         try:
             c = db_conn.cursor()
         except OperationalError:
-            return render(request, 'db_error.html', status=503)
+            return render(request, 'utilisateurs/db_error.html', status=503)
 
         response = self.get_response(request)
         return response

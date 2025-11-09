@@ -2,7 +2,7 @@ from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.http import Http404
-
+from utilisateurs.decorators import role_required
 from django.contrib.auth.models import User
 from enseignants.models import Enseignant
 from matieres.models import Matiere
@@ -61,10 +61,12 @@ def generer_matricule():
 # --- Fonksyon pou verifye wòl ---
 def check_access(user):
     """Retounen True si user gen aksè CRUD sou enskripsyon."""
-    return user.is_authenticated and (user.role in ['admin', 'directeur', 'secretaire'])
+    return user.is_authenticated and (user.role in ['admin', 'directeur', 'secretaire', 'archives'])
+    
 
 # --- CREATE ---
-@login_required
+#------------------------------
+@role_required(['admin', 'directeur', 'secretaire'])
 def inscription_create(request):
     if not check_access(request.user):
         raise Http404("Page non trouvée.")
@@ -115,7 +117,7 @@ def inscription_detail(request, pk):
     return render(request, 'inscriptions/afficher_inscription.html', {'inscription': inscription})
 
 # --- UPDATE ---
-@login_required
+@role_required(['admin', 'directeur', 'secretaire'])
 def inscription_update(request, pk):
     inscription = get_object_or_404(Inscription, pk=pk)
     if not check_access(request.user):
@@ -179,7 +181,7 @@ def inscription_update(request, pk):
     })
 
 # --- DELETE ---
-@login_required
+@role_required(['admin', 'directeur'])
 def inscription_delete(request, pk):
     inscription = get_object_or_404(Inscription, pk=pk)
     if not check_access(request.user):
@@ -193,7 +195,7 @@ def inscription_delete(request, pk):
     return redirect('inscriptions:afficher_inscription', pk=pk)
 
 # --- VALIDER ---
-@login_required
+@role_required(['admin', 'directeur'])
 def inscription_valider(request, pk):
     if not check_access(request.user):
         raise Http404("Page non trouvée.")

@@ -80,7 +80,7 @@ class Inscription(BaseModel):
 
     # === Logique métier principale ===
     def save(self, *args, **kwargs):
-        from inscriptions.models import HistoriqueClasse  # evite circular import
+        from inscriptions.models import HistoriqueClasses  # evite circular import
 
         # Empêcher double inscription d'un élève dans la même année
         if Inscription.objects.filter(
@@ -97,14 +97,14 @@ class Inscription(BaseModel):
         # Si l'élève existe, gérer l'historique automatiquement
         if self.eleve:
             # Fermer les anciens historiques pour la même année
-            HistoriqueClasse.objects.filter(
+            HistoriqueClasses.objects.filter(
                 eleve=self.eleve,
                 annee_scolaire=self.annee_scolaire,
                 date_fin__isnull=True
             ).update(date_fin=timezone.now().date())
 
             # Créer un nouvel historique si inexistant
-            HistoriqueClasse.objects.get_or_create(
+            HistoriqueClasses.objects.get_or_create(
                 eleve=self.eleve,
                 classe=self.classe,
                 annee_scolaire=self.annee_scolaire,

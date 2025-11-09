@@ -11,6 +11,15 @@ from django.conf import settings
 from .forms import CustomUserCreationForm
 from .models import CustomUser, AuditLog
 from .decorators import admin_required
+from django.utils import timezone
+from datetime import timedelta
+from django.db.models import Count, Q
+from inscriptions.models import Inscription
+from eleves.models import Eleve
+from enseignants.models import Enseignant
+from classes.models import Classe
+from matieres.models import Matiere
+from cours.models import Cours
 
 User = get_user_model()
 
@@ -71,27 +80,54 @@ def logout_view(request):
     messages.info(request, "Vous avez été déconnecté avec succès.")
     return redirect('utilisateurs:login')
 
+# def db_error(request):
+#     return render(request, 'utilisateurs/db_error.html')
+
+
+#==================================================
+#unauthorized
+#====================================
+
+
+def unauthorized(request):
+    return render(request, 'utilisateurs/unauthorized.html')
+
+
 # ==========================================================
 # DASHBOARD
 # ==========================================================
 @login_required
 def dashboard(request):
-    users_count = CustomUser.objects.count()
-    modules = [
-        {"nom": "Inscriptions", "icon": "fa-clipboard-user"},
-        {"nom": "Élèves", "icon": "fa-user-graduate"},
-        {"nom": "Enseignants", "icon": "fa-chalkboard-teacher"},
-        {"nom": "Classes", "icon": "fa-school"},
-        {"nom": "Matières", "icon": "fa-book-open"},
-        {"nom": "Cours", "icon": "fa-chalkboard"},
-        {"nom": "Utilisateurs", "icon": "fa-users-cog"},
-    ]
+    today = timezone.now().date()
+    last_7_days = today - timedelta(days=7)
+    
+    # Kalkile tout estatistik yo
     context = {
-        'users_count': users_count,
-        'modules': modules,
-        'role': request.user.role
+        # Estatistik fondamantal
+        'inscriptions_count': Inscription.objects.count(),
+        'eleves_count': Eleve.objects.count(),
+        'enseignants_count': Enseignant.objects.count(),
+        'classes_count': Classe.objects.count(),
+        'matieres_count': Matiere.objects.count(),
+        'cours_count': Cours.objects.count(),
+        
+        # Estatistik itilizatè
+        'secretaires_count': get_user_model().objects.filter(role='secretaire').count(),
+        'directeurs_count': get_user_model().objects.filter(role='directeur').count(),
+        'archives_count': get_user_model().objects.filter(role='archives').count(),
+        'users_count': get_user_model().objects.count(),
+        
+      
+        # Estatistik pou bar progresyon
+        'taux_presence': 85,
+        'classes_actives': 92,
+        'satisfaction': 78,
+        'performance_academique': 88,
+        
+       
     }
-    return render(request, "utilisateurs/dash_admin.html", context)
+    
+    return render(request, 'utilisateurs/dash_admin.html', context)
 
 # ==========================================================
 # UTILISATEURS CRUD (admin)
@@ -315,3 +351,7 @@ def reset_password(request):
             return redirect('utilisateurs:login')
 
     return render(request, 'utilisateurs/password_reset_new.html', {'email': email})
+
+
+
+   

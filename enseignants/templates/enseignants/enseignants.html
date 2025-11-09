@@ -4,7 +4,7 @@
 {% block title %}Liste des Enseignants - IMJF{% endblock %}
 
 {% block content %}
-<div class="min-h-screen">
+<div class="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100">
     <!-- HEADER -->
     <div class="bg-gradient-to-r from-yellow-500 via-yellow-600 to-amber-600 shadow-xl rounded-2xl mb-6 overflow-hidden">
         <div class="px-6 py-6 flex flex-col md:flex-row justify-between items-center">
@@ -15,10 +15,14 @@
                 </h1>
                 <p class="text-yellow-100 mt-2 text-base">Gérez tous les enseignants de l'établissement</p>
             </div>
+            
+            <!-- Bouton Ajouter - Cache pour SECRETAIRE et ARCHIVE -->
+            {% if request.user.role == 'admin' or request.user.role == 'directeur' %}
             <a href="{% url 'enseignants:ajouter_enseignant' %}"
                class="inline-flex items-center justify-center bg-white hover:bg-gray-100 text-yellow-600 font-bold px-6 py-3 rounded-xl shadow-lg transform hover:scale-105 transition duration-300">
                 <i class="fas fa-plus-circle mr-2 text-xl"></i> Ajouter un Enseignant
             </a>
+            {% endif %}
         </div>
     </div>
 
@@ -246,25 +250,31 @@
                         </td>
                         <td class="px-6 py-4 whitespace-nowrap text-center">
                             <div class="flex justify-center gap-2">
-                                <!-- Détails -->
+                                <!-- Détails - Visible pour tous -->
                                 <a href="{% url 'enseignants:enseignant_detail' enseignant.id %}"
                                    class="inline-flex items-center justify-center w-9 h-9 text-gray-600 hover:text-white bg-gray-100 hover:bg-gray-700 rounded-lg transition-all duration-200 shadow-md hover:shadow-lg transform hover:scale-110"
                                    title="Voir Détails">
                                     <i class="fas fa-eye"></i>
                                 </a>
-                                <!-- Modifier -->
+                                
+                                <!-- Modifier - Cache pour ARCHIVE -->
+                                {% if request.user.role != 'archives' %}
                                 <a href="{% url 'enseignants:modifier_enseignant' enseignant.id %}"
                                    class="inline-flex items-center justify-center w-9 h-9 text-blue-600 hover:text-white bg-blue-100 hover:bg-blue-600 rounded-lg transition-all duration-200 shadow-md hover:shadow-lg transform hover:scale-110"
                                    title="Modifier">
                                     <i class="fas fa-edit"></i>
                                 </a>
-                                <!-- Archiver -->
+                                {% endif %}
+                                
+                                <!-- Archiver - Cache pour SECRETAIRE et ARCHIVE -->
+                                {% if request.user.role == 'admin' or request.user.role == 'directeur' %}
                                 <a href="{% url 'enseignants:enseignant_archives' enseignant.id %}"
                                    onclick="return confirm('Voulez-vous vraiment archiver cet enseignant?')"
                                    class="inline-flex items-center justify-center w-9 h-9 text-red-600 hover:text-white bg-red-100 hover:bg-red-600 rounded-lg transition-all duration-200 shadow-md hover:shadow-lg transform hover:scale-110"
                                    title="Archiver">
                                     <i class="fas fa-archive"></i>
                                 </a>
+                                {% endif %}
                             </div>
                         </td>
                     </tr>
@@ -341,13 +351,144 @@
                 Commencez par ajouter votre premier enseignant.
             {% endif %}
         </p>
+        
+        <!-- Bouton Ajouter dans état vide - Cache pour SECRETAIRE et ARCHIVE -->
+        {% if request.user.role == 'admin' or request.user.role == 'directeur' %}
         <a href="{% url 'enseignants:ajouter_enseignant' %}" 
            class="inline-flex items-center justify-center bg-gradient-to-r from-yellow-500 to-yellow-600 hover:from-yellow-600 hover:to-yellow-700 text-white font-bold px-8 py-4 rounded-xl shadow-lg transform hover:scale-105 transition duration-300">
             <i class="fas fa-plus-circle mr-2 text-xl"></i> Ajouter un enseignant
         </a>
+        {% endif %}
     </div>
     {% endif %}
 </div>
+
+<!-- Style pour assurer la compatibilité avec la sidebar -->
+<style>
+@media (min-width: 1024px) {
+    .min-h-screen {
+        min-height: calc(100vh - 4rem);
+    }
+}
+
+/* Responsive pour mobile */
+@media (max-width: 768px) {
+    .px-6 {
+        padding-left: 1rem;
+        padding-right: 1rem;
+    }
+    
+    .py-6 {
+        padding-top: 1.5rem;
+        padding-bottom: 1.5rem;
+    }
+    
+    .grid-cols-5 {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+    
+    .text-3xl {
+        font-size: 1.5rem;
+    }
+    
+    .text-4xl {
+        font-size: 2rem;
+    }
+    
+    /* Ajustements pour les cartes statistiques sur mobile */
+    .p-5 {
+        padding: 1rem;
+    }
+    
+    .w-14.h-14 {
+        width: 3rem;
+        height: 3rem;
+    }
+    
+    .text-2xl {
+        font-size: 1.5rem;
+    }
+    
+    /* Ajustements pour le tableau sur mobile */
+    .overflow-x-auto {
+        font-size: 0.75rem;
+    }
+    
+    .px-6.py-4 {
+        padding-left: 0.5rem;
+        padding-right: 0.5rem;
+        padding-top: 1rem;
+        padding-bottom: 1rem;
+    }
+    
+    .w-9.h-9 {
+        width: 2rem;
+        height: 2rem;
+    }
+    
+    /* Ajustements pour la pagination sur mobile */
+    .flex-col.sm\:flex-row {
+        flex-direction: column;
+        gap: 1rem;
+    }
+    
+    .gap-2 {
+        gap: 0.5rem;
+    }
+}
+
+/* Ajustements pour très petits écrans */
+@media (max-width: 640px) {
+    .grid-cols-2 {
+        grid-template-columns: repeat(1, minmax(0, 1fr));
+    }
+    
+    .p-12 {
+        padding: 2rem 1rem;
+    }
+    
+    .text-2xl {
+        font-size: 1.25rem;
+    }
+    
+    /* Réduire l'espacement dans l'en-tête */
+    .px-6.py-6 {
+        padding-left: 1rem;
+        padding-right: 1rem;
+        padding-top: 1.5rem;
+        padding-bottom: 1.5rem;
+    }
+    
+    /* Ajuster les boutons d'action */
+    .flex.justify-center.gap-2 {
+        gap: 0.25rem;
+    }
+    
+    .w-9.h-9 {
+        width: 1.75rem;
+        height: 1.75rem;
+    }
+    
+    /* Ajuster la recherche */
+    .flex-col.md\:flex-row {
+        flex-direction: column;
+    }
+    
+    .gap-4 {
+        gap: 1rem;
+    }
+    
+    .w-full.md\:w-64 {
+        width: 100%;
+    }
+}
+
+/* Assurer que le contenu ne chevauche pas la sidebar */
+.min-h-screen {
+    position: relative;
+    z-index: 1;
+}
+</style>
 
 <!-- JavaScript pour recherche automatique -->
 <script>
@@ -356,17 +497,21 @@
     const searchInput = document.getElementById('searchInput');
     const statutSelect = document.getElementById('statutSelect');
 
-    searchInput.addEventListener('input', function() {
-        clearTimeout(searchTimeout);
-        searchTimeout = setTimeout(() => {
-            this.form.submit();
-        }, 500); // Attendre 500ms après que l'utilisateur arrête de taper
-    });
+    if (searchInput) {
+        searchInput.addEventListener('input', function() {
+            clearTimeout(searchTimeout);
+            searchTimeout = setTimeout(() => {
+                this.form.submit();
+            }, 500); // Attendre 500ms après que l'utilisateur arrête de taper
+        });
+    }
 
-    // Soumettre automatiquement quand le statut change
-    statutSelect.addEventListener('change', function() {
-        this.form.submit();
-    });
+    if (statutSelect) {
+        // Soumettre automatiquement quand le statut change
+        statutSelect.addEventListener('change', function() {
+            this.form.submit();
+        });
+    }
 
     // Animation des cartes statistiques au scroll
     const observerOptions = {

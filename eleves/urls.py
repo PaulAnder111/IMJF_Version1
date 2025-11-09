@@ -8,7 +8,7 @@ urlpatterns = [
     path('<int:pk>/eleve_detail/', views.eleve_detail, name='eleve_detail'),
     path('<int:pk>/eleve_update/', views.eleve_update, name='eleve_update'),
     path('<int:pk>/eleve_delete/', views.eleve_delete, name='eleve_delete'),
-    
+    path('add_eleves/',views.ajouter_eleve,name='add_eleves'),
     path('archives/', views.eleve_archives, name='eleve_archives'),  # liste archivés
     
     path('archive/<int:pk>/', views.eleve_archiver, name='eleve_archiver'),  # archive un élève

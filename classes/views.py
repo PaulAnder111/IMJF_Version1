@@ -3,6 +3,8 @@ from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from eleves.models import Eleve
+
+from utilisateurs.decorators import role_required
 from .models import Classe
 from django.db.models import Avg
 from .forms import ClasseForm
@@ -44,7 +46,7 @@ def classe_list(request):
     }
     return render(request, 'classes/classe_list.html', context)
 
-@login_required
+@role_required(['admin', 'directeur'])
 def classe_create(request):
     if request.method == 'POST':
         form = ClasseForm(request.POST)
@@ -58,7 +60,7 @@ def classe_create(request):
         form = ClasseForm()
     return render(request, 'classes/ajouter_classes.html', {'form': form})
 
-@login_required
+@role_required(['admin', 'directeur', 'secretaire'])
 def classe_update(request, pk):
     classe = get_object_or_404(Classe, pk=pk)
     if request.method == 'POST':
@@ -73,7 +75,7 @@ def classe_update(request, pk):
         form = ClasseForm(instance=classe)
     return render(request, 'classes/modifier_classes.html', {'form': form, 'classe': classe})
 
-@login_required
+@role_required(['admin', 'directeur'])
 def classe_delete(request, pk):
     classe = get_object_or_404(Classe, pk=pk)
     if request.method == 'POST':

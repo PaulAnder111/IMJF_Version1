@@ -12,6 +12,11 @@ urlpatterns = [
     # ------------------ Dashboard ------------------
     path('dash_admin/', views.dashboard, name='dash_admin'),
 
+    #------------------unauthorized------------------
+    path('unauthorized/', views.unauthorized, name='unauthorized'),
+
+    # path('db_error/',views.db_error,name='db_error'),
+
     # ------------------ Gestion Utilisateurs ------------------
     path('create_user/', views.create_user, name='create_user'),
     path('<int:user_id>/update_user/', views.update_user, name='update_user'),

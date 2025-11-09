@@ -7,7 +7,7 @@ class EleveForm(forms.ModelForm):
         model = Eleve
         fields = [
             'nom', 'prenom', 'date_naissance', 'lieu_naissance', 'sexe', 'adresse', 'niveau',
-            'classe_actuelle', 'statut', 'photo'
+            'classe_actuelle', 'statut', 'photo','statut'
         ]
         widgets = {
             'date_naissance': forms.DateInput(attrs={'type': 'date', 'class': 'form-control'}),

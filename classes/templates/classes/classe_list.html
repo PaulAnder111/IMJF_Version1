@@ -17,10 +17,14 @@
                 </h1>
                 <p class="text-gray-200 mt-1 text-sm">Visualisez et gérez toutes les classes</p>
             </div>
+            
+            <!-- Bouton Ajouter - Cache pour SECRETAIRE et ARCHIVE -->
+            {% if request.user.role == 'admin' or request.user.role == 'directeur' %}
             <a href="{% url 'classes:ajouter_classes' %}"
                class="inline-flex items-center justify-center bg-yellow-500 hover:bg-yellow-400 text-gray-900 font-medium px-4 py-2 rounded-lg shadow-md transform hover:scale-105 transition duration-300 text-sm">
                 ➕ Ajouter une Classe
             </a>
+            {% endif %}
         </div>
     </div>
 
@@ -277,6 +281,7 @@
                             </td>
                             <td class="px-4 py-3">
                                 <div class="flex justify-center gap-2">
+                                    <!-- Bouton Voir - Visible pour tous -->
                                     <a href="{% url 'classes:classe_list' %}?id={{ classe.id }}"
                                        class="text-yellow-600 hover:text-yellow-700 bg-yellow-50 hover:bg-yellow-100 px-2 py-1.5 rounded-lg transition text-sm font-medium"
                                        title="Voir">
@@ -285,6 +290,9 @@
                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/>
                                         </svg>
                                     </a>
+                                    
+                                    <!-- Bouton Modifier - Cache pour ARCHIVE -->
+                                    {% if request.user.role != 'archives' %}
                                     <a href="{% url 'classes:modifier_classes' classe.id %}"
                                        class="text-blue-600 hover:text-blue-700 bg-blue-50 hover:bg-blue-100 px-2 py-1.5 rounded-lg transition text-sm font-medium"
                                        title="Modifier">
@@ -292,6 +300,10 @@
                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/>
                                         </svg>
                                     </a>
+                                    {% endif %}
+                                    
+                                    <!-- Bouton Supprimer - Cache pour SECRETAIRE et ARCHIVE -->
+                                    {% if request.user.role == 'admin' or request.user.role == 'directeur' %}
                                     <button onclick="confirmDelete('{{ classe.id }}', '{{ classe.nom_classe }}')"
                                             class="text-red-600 hover:text-red-700 bg-red-50 hover:bg-red-100 px-2 py-1.5 rounded-lg transition text-sm font-medium"
                                             title="Supprimer">
@@ -299,6 +311,7 @@
                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
                                         </svg>
                                     </button>
+                                    {% endif %}
                                 </div>
                             </td>
                         </tr>
@@ -310,7 +323,7 @@
 
         <!-- Pagination -->
         {% if classes.has_other_pages %}
-        <div class="mt-6 flex justify-center items-center gap-4">
+        <div class="mt-6 flex flex-col sm:flex-row justify-center items-center gap-4">
             {% if classes.has_previous %}
                 <a href="?page={{ classes.previous_page_number }}{% if request.GET.search %}&search={{ request.GET.search }}{% endif %}{% if request.GET.niveau %}&niveau={{ request.GET.niveau }}{% endif %}{% if request.GET.statut %}&statut={{ request.GET.statut }}{% endif %}" 
                    class="inline-flex items-center px-6 py-3 bg-gray-700 hover:bg-gray-800 text-white font-medium rounded-lg shadow-md transform hover:scale-105 transition duration-300">
@@ -361,13 +374,21 @@
             </svg>
             <h3 class="text-2xl font-bold text-gray-700 mb-2">Aucune classe trouvée</h3>
             <p class="text-gray-500 mb-6">Commencez par ajouter votre première classe</p>
-        
+            
+            <!-- Bouton Ajouter dans état vide - Cache pour SECRETAIRE et ARCHIVE -->
+            {% if request.user.role == 'ADMIN' or request.user.role == 'DIRECTEUR' %}
+            <a href="{% url 'classes:ajouter_classes' %}"
+               class="inline-flex items-center justify-center bg-yellow-500 hover:bg-yellow-400 text-gray-900 font-bold px-6 py-3 rounded-lg shadow-md transform hover:scale-105 transition duration-300">
+                ➕ Ajouter une Classe
+            </a>
+            {% endif %}
         </div>
         {% endif %}
     </div>
 </div>
 
-<!-- Modal de suppression -->
+<!-- Modal de suppression - Cache pour SECRETAIRE et ARCHIVE -->
+{% if request.user.role == 'ADMIN' or request.user.role == 'DIRECTEUR' %}
 <div id="deleteModal" class="hidden fixed inset-0 bg-black bg-opacity-60 overflow-y-auto h-full w-full z-50 flex items-center justify-center p-4">
     <div class="relative bg-white rounded-2xl shadow-2xl max-w-md w-full mx-auto">
         <div class="p-6">
@@ -396,6 +417,7 @@
         </div>
     </div>
 </div>
+{% endif %}
 
 <script>
 function confirmDelete(classeId, classeName) {
@@ -423,4 +445,41 @@ document.getElementById('deleteModal')?.addEventListener('click', function(e) {
     if (e.target === this) closeDeleteModal();
 });
 </script>
+
+<!-- Style pour assurer la compatibilité avec la sidebar -->
+<style>
+@media (min-width: 1024px) {
+    .max-w-7xl {
+        max-width: 80rem;
+        margin-left: auto;
+        margin-right: auto;
+    }
+}
+
+/* Assurer que le contenu ne dépasse pas sous la sidebar */
+.min-h-screen {
+    min-height: calc(100vh - 4rem);
+}
+
+/* Responsive pour mobile */
+@media (max-width: 768px) {
+    .px-4 {
+        padding-left: 1rem;
+        padding-right: 1rem;
+    }
+    
+    .py-6 {
+        padding-top: 1.5rem;
+        padding-bottom: 1.5rem;
+    }
+    
+    .gap-3 {
+        gap: 0.75rem;
+    }
+    
+    .text-2xl {
+        font-size: 1.5rem;
+    }
+}
+</style>
 {% endblock %}
