@@ -82,6 +82,20 @@ class Enseignant(models.Model):
         if self.date_recrutement and self.date_recrutement > date.today():
             raise ValidationError("La date de recrutement ne peut pas être dans le futur.")
 
+        # Prevent a person already registered as an Eleve from being an Enseignant
+        try:
+            # Import here to avoid circular imports at module import time
+            from eleves.models import Eleve
+            if self.date_naissance and Eleve.objects.filter(
+                nom__iexact=self.nom.strip(),
+                prenom__iexact=self.prenom.strip(),
+                date_naissance=self.date_naissance
+            ).exists():
+                raise ValidationError("Une personne avec ces informations est déjà enregistrée comme élève.")
+        except Exception:
+            # If eleves app or model not available, skip this check
+            pass
+
     def save(self, *args, **kwargs):
         self.full_clean()  # Valide avant de sauvegarder
         super().save(*args, **kwargs)

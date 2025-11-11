@@ -11,6 +11,8 @@ urlpatterns = [
 
     # ------------------ Dashboard ------------------
     path('dash_admin/', views.dashboard, name='dash_admin'),
+    path('active-users/', views.active_users_list, name='active_users_list'),
+    path('api/active-users/', views.get_active_users_json, name='get_active_users_json'),
 
     #------------------unauthorized------------------
     path('unauthorized/', views.unauthorized, name='unauthorized'),
@@ -31,4 +33,7 @@ urlpatterns = [
     path('password-reset/', views.request_reset_code, name='request_reset_code'),
     path('password-reset/verify-code/', views.verify_reset_code, name='verify_reset_code'),
     path('password-reset/new-password/', views.reset_password, name='reset_password'),
+    path('get-notifications/', views.get_notifications, name='get_notifications'),
+    path('notifications/<int:notification_id>/mark-read/', views.mark_notification_read, name='mark_notification_read'),
+    path('notifications/mark-all-read/', views.mark_all_notifications_read, name='mark_all_notifications_read'),
 ]

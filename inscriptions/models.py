@@ -10,12 +10,14 @@ class HistoriqueClasses(models.Model):
     eleve = models.ForeignKey('eleves.Eleve', on_delete=models.CASCADE, related_name='historique_classes')
     classe = models.ForeignKey('classes.Classe', on_delete=models.SET_NULL, null=True)
     annee_scolaire = models.CharField(max_length=9)
-    date_inscription = models.DateField(auto_now_add=True)
+    # When the history period starts and ends
+    date_debut = models.DateField(default=timezone.now)
+    date_fin = models.DateField(null=True, blank=True)
 
     class Meta:
         verbose_name = "Historique de Classe"
         verbose_name_plural = "Historiques de Classes"
-        ordering = ['-date_inscription']
+        ordering = ['-date_debut']
 
     def __str__(self):
         return f"{self.eleve.nom} {self.eleve.prenom} → {self.classe.nom_classe} ({self.annee_scolaire})"

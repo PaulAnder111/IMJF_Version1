@@ -1,0 +1,8 @@
+username,email,first_name,last_name,role,password
+admin001,admin001@imjf.local,Admin,One,admin,SecurePass123!@#
+directeur001,directeur001@imjf.local,Joseph,Pierre,directeur,DirecteurPass123!@#
+directeur002,directeur002@imjf.local,Marie,Dupont,directeur,DirecteurPass123!@#
+secretaire001,secretaire001@imjf.local,Anne,Martin,secretaire,SecretPass123!@#
+secretaire002,secretaire002@imjf.local,Sylvie,Bourgeois,secretaire,SecretPass123!@#
+archives001,archives001@imjf.local,Jacques,Leduc,archives,ArchivesPass123!@#
+archives002,archives002@imjf.local,Michel,Leclerc,archives,ArchivesPass123!@#

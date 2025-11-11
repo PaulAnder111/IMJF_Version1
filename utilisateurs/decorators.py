@@ -33,14 +33,14 @@ def role_required(roles):
 
 # --- Dekoratè senp pou chak wòl ---
 def admin_required(view_func):
-    return role_required(['ADMIN'])(view_func)
+    return role_required(['admin'])(view_func)
 
 def directeur_required(view_func):
-    return role_required(['DIRECTEUR', 'ADMIN'])(view_func)
+    return role_required(['directeur', 'admin'])(view_func)
 
 def secretaire_required(view_func):
-    return role_required(['SECRETAIRE', 'DIRECTEUR', 'ADMIN'])(view_func)
+    return role_required(['secretaire', 'directeur', 'admin'])(view_func)
 
 def archive_required(view_func):
-    return role_required(['ARCHIVE', 'ADMIN', 'DIRECTEUR','SECRETAIRE'])(view_func)
+    return role_required(['archives', 'admin', 'directeur','secretaire'])(view_func)
 

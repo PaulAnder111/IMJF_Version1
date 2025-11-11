@@ -11,7 +11,7 @@
     <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-4 md:gap-5" id="statsGrid">
         
         <!-- Card 1: Inscriptions -->
-        <div class="stat-card bg-white dark:bg-gray-800 rounded-xl shadow-lg transform transition-all duration-500 animate-float" data-color="yellow">
+        <div class="stat-card bg-white dark:bg-gray-800 rounded-xl shadow-lg transform transition-all duration-500 animate-float border-l-4 border-yellow-500" data-color="yellow">
             <div class="p-5">
                 <div class="flex items-center justify-between mb-3">
                     <div class="flex-shrink-0">
@@ -36,7 +36,7 @@
         </div>
 
         <!-- Card 2: Élèves -->
-        <div class="stat-card bg-white dark:bg-gray-800 rounded-xl shadow-lg transform transition-all duration-500 animate-float" data-color="blue" style="animation-delay: 0.1s;">
+        <div class="stat-card bg-white dark:bg-gray-800 rounded-xl shadow-lg transform transition-all duration-500 animate-float border-l-4 border-blue-500" data-color="blue" style="animation-delay: 0.1s;">
             <div class="p-5">
                 <div class="flex items-center justify-between mb-3">
                     <div class="flex-shrink-0">
@@ -241,7 +241,7 @@
         </div>
 
         <!-- Card 10: Utilisateurs -->
-        <div class="stat-card bg-white dark:bg-gray-800 rounded-xl shadow-lg transform transition-all duration-500 animate-float" data-color="red" style="animation-delay: 0.9s;">
+        <div class="stat-card bg-white dark:bg-gray-800 rounded-xl shadow-lg transform transition-all duration-500 animate-float border-l-4 border-red-500" data-color="red" style="animation-delay: 0.9s;">
             <div class="p-5">
                 <div class="flex items-center justify-between mb-3">
                     <div class="flex-shrink-0">
@@ -264,6 +264,31 @@
                 </p>
             </div>
         </div>
+
+        <!-- Card 11: Utilisateurs En Ligne -->
+        <a href="{% url 'utilisateurs:active_users_list' %}" class="stat-card bg-white dark:bg-gray-800 rounded-xl shadow-lg transform transition-all duration-500 animate-float border-l-4 border-green-500 hover:shadow-xl hover:scale-105 cursor-pointer" data-color="green" style="animation-delay: 1.0s;">
+            <div class="p-5">
+                <div class="flex items-center justify-between mb-3">
+                    <div class="flex-shrink-0">
+                        <div class="w-14 h-14 bg-gradient-to-br from-green-400 to-green-600 rounded-lg flex items-center justify-center shadow-md icon-container">
+                            <i class="fas fa-wifi text-white text-2xl"></i>
+                        </div>
+                    </div>
+                    <div class="text-right">
+                        <p class="text-3xl font-bold text-gray-800 dark:text-white counter" data-target="{{ users_online|default:'0' }}">0</p>
+                    </div>
+                </div>
+                <div>
+                    <p class="text-sm font-semibold text-gray-700 dark:text-gray-300">En Ligne</p>
+                    <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">Utilisateurs connectés</p>
+                </div>
+            </div>
+            <div class="bg-green-50 dark:bg-green-900/20 px-5 py-2 rounded-b-xl footer-container">
+                <p class="text-xs text-green-700 dark:text-green-400 font-medium">
+                    <i class="fas fa-circle text-green-500 mr-1"></i> Actifs maintenant - <i class="fas fa-arrow-right ml-1"></i>
+                </p>
+            </div>
+        </a>
 
     </div>
 
@@ -711,14 +736,14 @@
         
         <!-- Recent Inscriptions -->
         <div class="bg-white dark:bg-gray-800 rounded-xl shadow-lg overflow-hidden animate-slide-in-left">
-            <div class="bg-gradient-to-r from-yellow-500 to-yellow-600 px-6 py-4">
+            <div class="bg-gradient-to-r from-green-500 to-green-600 px-6 py-4">
                 <div class="flex items-center justify-between">
                     <h3 class="text-lg font-bold text-white flex items-center">
-                        <i class="fas fa-user-plus mr-2 animate-pulse"></i>
-                        Inscriptions Récentes
+                        <i class="fas fa-check-circle mr-2 animate-pulse"></i>
+                        Inscriptions Validées Récentes
                     </h3>
                     {% if request.user.role != 'archives' %}
-                    <a href="{% url 'inscriptions:inscription_list' %}" class="text-white hover:text-yellow-200 text-sm font-medium transition transform hover:scale-105">
+                    <a href="{% url 'inscriptions:inscription_list' %}" class="text-white hover:text-green-200 text-sm font-medium transition transform hover:scale-105">
                         Voir tout <i class="fas fa-arrow-right ml-1"></i>
                     </a>
                     {% endif %}
@@ -726,11 +751,11 @@
             </div>
             <div class="p-4 md:p-6">
                 <div class="space-y-3">
-                    {% if recent_inscriptions %}
-                        {% for inscription in recent_inscriptions %}
+                    {% if inscriptions_recentes %}
+                        {% for inscription in inscriptions_recentes %}
                         <div class="flex items-center justify-between p-3 md:p-4 bg-gray-50 dark:bg-gray-700/50 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-all duration-300 cursor-pointer transform hover:scale-[1.02] animate-fade-in" style="animation-delay: {{ forloop.counter0|add:0.1 }}s">
                             <div class="flex items-center space-x-3">
-                                <div class="w-10 h-10 md:w-12 md:h-12 bg-gradient-to-br from-yellow-400 to-yellow-600 rounded-full flex items-center justify-center flex-shrink-0 shadow-md animate-pulse-slow">
+                                <div class="w-10 h-10 md:w-12 md:h-12 bg-gradient-to-br from-green-400 to-green-600 rounded-full flex items-center justify-center flex-shrink-0 shadow-md animate-pulse-slow">
                                     <i class="fas fa-user text-white text-sm md:text-base"></i>
                                 </div>
                                 <div class="min-w-0">
@@ -739,19 +764,19 @@
                                     </p>
                                     <p class="text-xs text-gray-500 dark:text-gray-400">
                                         <i class="far fa-calendar-alt mr-1"></i>
-                                        {{ inscription.date_inscription|date:"d/m/Y" }}
+                                        {{ inscription.date_created|date:"d/m/Y H:i" }}
                                     </p>
                                 </div>
                             </div>
-                            <span class="text-xs bg-yellow-100 dark:bg-yellow-900/50 text-yellow-700 dark:text-yellow-400 px-2 md:px-3 py-1 rounded-full font-medium flex-shrink-0 ml-2 animate-bounce">
-                                Nouveau
+                            <span class="text-xs bg-green-100 dark:bg-green-900/50 text-green-700 dark:text-green-400 px-2 md:px-3 py-1 rounded-full font-medium flex-shrink-0 ml-2 animate-bounce">
+                                <i class="fas fa-check mr-1"></i> Validé
                             </span>
                         </div>
                         {% endfor %}
                     {% else %}
                         <div class="text-center py-8 md:py-12">
                             <i class="fas fa-inbox text-gray-300 dark:text-gray-600 text-4xl md:text-5xl mb-3 animate-pulse"></i>
-                            <p class="text-gray-500 dark:text-gray-400">Aucune inscription récente</p>
+                            <p class="text-gray-500 dark:text-gray-400">Aucune inscription validée récente</p>
                         </div>
                     {% endif %}
                 </div>
@@ -836,7 +861,6 @@
                 </div>
             </div>
         </div>
-
     </div>
     {% endif %}
 </div>
@@ -937,6 +961,47 @@
     position: relative;
     overflow: hidden;
     transition: all 0.3s ease;
+}
+
+/* Colored left borders for stat cards */
+.stat-card[data-color="yellow"] {
+    border-left: 4px solid #eab308;
+}
+
+.stat-card[data-color="blue"] {
+    border-left: 4px solid #3b82f6;
+}
+
+.stat-card[data-color="green"] {
+    border-left: 4px solid #10b981;
+}
+
+.stat-card[data-color="purple"] {
+    border-left: 4px solid #a855f7;
+}
+
+.stat-card[data-color="pink"] {
+    border-left: 4px solid #ec4899;
+}
+
+.stat-card[data-color="orange"] {
+    border-left: 4px solid #f97316;
+}
+
+.stat-card[data-color="teal"] {
+    border-left: 4px solid #14b8a6;
+}
+
+.stat-card[data-color="indigo"] {
+    border-left: 4px solid #6366f1;
+}
+
+.stat-card[data-color="gray"] {
+    border-left: 4px solid #6b7280;
+}
+
+.stat-card[data-color="red"] {
+    border-left: 4px solid #ef4444;
 }
 
 .stat-card::before {

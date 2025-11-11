@@ -2,6 +2,7 @@
 from django import forms
 from django.contrib.auth.forms import UserCreationForm
 from .models import CustomUser
+from core.validators import validate_phone_prefix, validate_unique_across_models
 
 class CustomUserCreationForm(UserCreationForm):
     class Meta:
@@ -22,4 +23,16 @@ class CustomUserUpdateForm(forms.ModelForm):
         user_id = self.instance.id  # ID itilizatè ou ap modifye a
         if CustomUser.objects.exclude(id=user_id).filter(email=email).exists():
             raise forms.ValidationError("Cet email est déjà utilisé par un autre utilisateur.")
+        # check email uniqueness across other configured models
+        validate_unique_across_models('email', email, instance=self.instance)
         return email
+
+    def clean_telephone(self):
+        telephone = self.cleaned_data.get('telephone')
+        user_id = self.instance.id
+        if telephone:
+            # first ensure the operator prefix is allowed
+            validate_phone_prefix(telephone)
+            # check uniqueness across the system
+            validate_unique_across_models('telephone', telephone, instance=self.instance)
+        return telephone

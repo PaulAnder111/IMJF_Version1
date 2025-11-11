@@ -10,6 +10,8 @@ from .models import Inscription, HistoriqueClasses
 from .forms import InscriptionForm
 from classes.models import Classe
 from eleves.models import Eleve
+from django.urls import reverse
+from utilisateurs.models import Notification
 
 
 @login_required
@@ -88,10 +90,55 @@ def inscription_create(request):
                 messages.error(request, "Cet élève est déjà inscrit pour cette année scolaire.")
                 return redirect('inscriptions:create_inscription')
 
+            # If an Eleve record already exists for this person, ensure they are not
+            # already assigned to a different class for the same school year.
+            try:
+                eleve_qs = Eleve.objects.filter(
+                    nom__iexact=nom.strip(),
+                    prenom__iexact=prenom.strip(),
+                    date_naissance=date_naissance
+                )
+                if eleve_qs.exists():
+                    eleve = eleve_qs.first()
+                    if HistoriqueClasses.objects.filter(eleve=eleve, annee_scolaire=annee_scolaire).exclude(classe=form.cleaned_data.get('classe')).exists():
+                        messages.error(request, "Cet élève est déjà assigné à une autre classe pour cette année scolaire.")
+                        return redirect('inscriptions:create_inscription')
+            except Exception:
+                # if Eleve or HistoriqueClasses not available just continue
+                pass
+
+            # Also ensure the person is not already registered as an Enseignant
+            try:
+                if Enseignant.objects.filter(
+                    nom__iexact=nom.strip(),
+                    prenom__iexact=prenom.strip(),
+                    date_naissance=date_naissance
+                ).exists():
+                    messages.error(request, "Impossible d'enregistrer : cette personne est déjà enregistrée comme enseignant.")
+                    return redirect('inscriptions:create_inscription')
+            except Exception:
+                pass
+
             inscription = form.save(commit=False)
             inscription.cree_par = request.user
             inscription.statut = 'pre-inscrit'
             inscription.save()
+            # Create notifications for admin and directeur so they can validate
+            try:
+                target_url = reverse('inscriptions:afficher_inscription', args=[inscription.pk])
+            except Exception:
+                target_url = '#'
+
+            title = f"Nouvelle inscription: {inscription.prenom} {inscription.nom}"
+            message = f"Inscription pré-enregistrée par {request.user.get_full_name() or request.user.username}."
+            for role in ['admin', 'directeur']:
+                Notification.objects.create(
+                    recipient_role=role,
+                    type='inscription',
+                    title=title,
+                    message=message,
+                    target_url=target_url,
+                )
             messages.success(request, f"Inscription de {inscription.prenom} {inscription.nom} créée avec succès.")
             return redirect('inscriptions:inscription_list')
         else:
@@ -144,6 +191,18 @@ def inscription_update(request, pk):
 
             # Si validé oswa aktif, kreye Eleve otomatikman
             if inscription.statut in ['validé', 'aktif'] and not inscription.eleve:
+                # Before creating Eleve, ensure this person is not registered as an Enseignant
+                try:
+                    if Enseignant.objects.filter(
+                        nom__iexact=inscription.nom.strip(),
+                        prenom__iexact=inscription.prenom.strip(),
+                        date_naissance=inscription.date_naissance
+                    ).exists():
+                        messages.error(request, "Impossible de créer l'élève : cette personne est enregistrée comme enseignant.")
+                        return redirect('inscriptions:updates_inscriptions', pk=inscription.pk)
+                except Exception:
+                    pass
+
                 matricule = generer_matricule()
                 eleve = Eleve.objects.create(
                     matricule=matricule,
@@ -210,6 +269,30 @@ def inscription_valider(request, pk):
     if hasattr(klas, 'capacite_max') and klas.eleves_actuels.count() >= klas.capacite_max:
         messages.error(request, f"La classe {klas} est pleine !")
         return redirect('inscriptions:inscription_list')
+
+    # Before creating Eleve, ensure this person is not registered as an Enseignant
+    try:
+        if Enseignant.objects.filter(
+            nom__iexact=inscription.nom.strip(),
+            prenom__iexact=inscription.prenom.strip(),
+            date_naissance=inscription.date_naissance
+        ).exists():
+            messages.error(request, "Impossible de valider l'inscription : cette personne est enregistrée comme enseignant.")
+            return redirect('inscriptions:inscription_list')
+
+        # Also ensure they are not already assigned to a class this year
+        eleve_qs = Eleve.objects.filter(
+            nom__iexact=inscription.nom.strip(),
+            prenom__iexact=inscription.prenom.strip(),
+            date_naissance=inscription.date_naissance
+        )
+        if eleve_qs.exists():
+            eleve_check = eleve_qs.first()
+            if HistoriqueClasses.objects.filter(eleve=eleve_check, annee_scolaire=inscription.annee_scolaire).exists():
+                messages.error(request, "Cet élève est déjà inscrit pour cette année scolaire.")
+                return redirect('inscriptions:inscription_list')
+    except Exception:
+        pass
 
     matricule = generer_matricule()
     eleve = Eleve.objects.create(

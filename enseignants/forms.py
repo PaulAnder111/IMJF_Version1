@@ -3,6 +3,7 @@
 from django import forms
 from django.core.exceptions import ValidationError
 from .models import Enseignant
+from core.validators import validate_phone_prefix, validate_unique_across_models
 
 class EnseignantForm(forms.ModelForm):
     class Meta:
@@ -104,17 +105,18 @@ class EnseignantForm(forms.ModelForm):
     def clean_email(self):
         email = self.cleaned_data.get('email')
         if email:
-            # Verifye sèlman nan Enseignant
-            if Enseignant.objects.filter(email=email).exclude(pk=self.instance.pk).exists():
-                raise ValidationError("Cet email est déjà utilisé par un enseignant.")
+            # Verify across system (not only Enseignant)
+            # this will raise ValidationError if email exists in any configured model
+            validate_unique_across_models('email', email, instance=self.instance)
         return email
 
     def clean_telephone(self):
         telephone = self.cleaned_data.get('telephone')
         if telephone:
-            # Verifye sèlman nan Enseignant
-            if Enseignant.objects.filter(telephone=telephone).exclude(pk=self.instance.pk).exists():
-                raise ValidationError("Ce numéro est déjà utilisé par un enseignant.")
+            # Validate operator prefix (Digicel / Natcom)
+            validate_phone_prefix(telephone)
+            # Verify uniqueness across configured models
+            validate_unique_across_models('telephone', telephone, instance=self.instance)
         return telephone
 
     def clean_matricule(self):

@@ -7,14 +7,24 @@
     <title>{% block title %}IMJF - Gestion{% endblock %}</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <!-- CSRF Token pour les requêtes AJAX -->
+    <meta name="csrf-token" content="{{ csrf_token }}">
 
     <style>
         /* Sidebar & content transition */
         .sidebar-transition { transition: all 0.3s ease-in-out; }
         .sidebar-collapsed { width: 80px; }
         .sidebar-expanded { width: 256px; }
-        .menu-text, .submenu-container, .chevron-icon, .user-info-text { transition: opacity 0.2s ease-in-out, width 0.2s ease-in-out; }
-        .sidebar-collapsed .menu-text, .sidebar-collapsed .submenu-container, .sidebar-collapsed .chevron-icon, .sidebar-collapsed .user-info-text { opacity:0;width:0;overflow:hidden;display:none; }
+        .menu-text, .submenu-container, .chevron-icon, .user-info-text { 
+            transition: opacity 0.2s ease-in-out, width 0.2s ease-in-out; 
+        }
+        .sidebar-collapsed .menu-text, 
+        .sidebar-collapsed .submenu-container, 
+        .sidebar-collapsed .chevron-icon, 
+        .sidebar-collapsed .user-info-text { 
+            opacity:0; width:0; overflow:hidden; display:none; 
+        }
         .content-shift { transition: margin-left 0.3s ease-in-out; }
         .content-collapsed { margin-left: 80px; }
         .content-expanded { margin-left: 256px; }
@@ -146,7 +156,7 @@
         }
 
         /* Dropdown animation */
-        #avatarDropdown {
+        #avatarDropdown, #notificationDropdown {
             animation: slideDown 0.3s ease-out;
         }
         @keyframes slideDown {
@@ -159,6 +169,44 @@
                 transform: translateY(0);
             }
         }
+
+        /* Notification badge */
+        .notification-badge {
+            position: absolute;
+            top: -6px;
+            right: -6px;
+            background: linear-gradient(135deg, #ef4444, #dc2626);
+            color: white;
+            border-radius: 50%;
+            width: 20px;
+            height: 20px;
+            font-size: 0.75rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            border: 2px solid white;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+        }
+        .dark-mode .notification-badge {
+            border: 2px solid #1f2937;
+        }
+
+        /* Notification item styles */
+        .notification-item {
+            border-left: 3px solid;
+            transition: all 0.3s ease;
+        }
+        .notification-item.unread {
+            background: rgba(59, 130, 246, 0.05);
+        }
+        .notification-item.inscription { border-left-color: #3b82f6; }
+        .notification-item.action_secretaire { border-left-color: #10b981; }
+        .notification-item.action_archives { border-left-color: #8b5cf6; }
+        .notification-item.connexion { border-left-color: #f59e0b; }
+        .notification-item.deconnexion { border-left-color: #f97316; }
+        .notification-item.systeme { border-left-color: #6b7280; }
+        .notification-item.validation { border-left-color: #ef4444; }
 
         /* Custom scrollbar */
         ::-webkit-scrollbar {
@@ -214,6 +262,9 @@
             .header-user-name {
                 display: none;
             }
+            .notification-text {
+                display: none;
+            }
         }
 
         /* Style pour le bouton Home */
@@ -229,6 +280,20 @@
         }
         body.dark-mode .sidebar-profile-container {
             border-bottom: 1px solid rgba(251, 191, 36, 0.2);
+        }
+
+        /* Loading spinner */
+        .loading-spinner {
+            border: 2px solid #f3f3f3;
+            border-top: 2px solid #f59e0b;
+            border-radius: 50%;
+            width: 20px;
+            height: 20px;
+            animation: spin 1s linear infinite;
+        }
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
         }
     </style>
 </head>
@@ -246,75 +311,111 @@
                 </a>
             </div>
 
-            <!-- Avatar avec rôle -->
-            <div class="relative">
-                <div class="flex items-center gap-3 cursor-pointer" id="avatarBtn">
-                    <div class="text-right hidden sm:block header-user-name">
-                        <p class="text-sm font-bold text-gray-800 dark:text-gray-200">{{ request.user.get_full_name|default:request.user.username }}</p>
-                        <p class="text-xs text-yellow-600 dark:text-yellow-500 font-semibold">
-                            <i class="fas fa-shield-alt mr-1"></i>{{ request.user.role|default:"Utilisateur" }}
-                        </p>
-                    </div>
-                    <div class="avatar-circle bg-gradient-to-br from-yellow-400 to-yellow-600 text-white hover:shadow-lg transition">
-                        {% if request.user.photo %}
-                            <img src="{{ request.user.photo.url }}" alt="Avatar" class="w-full h-full object-cover rounded-full">
-                        {% else %}
-                            <span class="text-lg">{{ request.user.first_name.0|default:"U" }}</span>
-                        {% endif %}
-                    </div>
-                </div>
-                
-                <div id="avatarDropdown" class="hidden absolute right-0 mt-3 w-72 bg-white dark:bg-gray-800 text-gray-800 dark:text-white shadow-2xl rounded-xl z-50 border border-yellow-500/20">
-                    <div class="p-5 border-b border-gray-200 dark:border-gray-700">
-                        <div class="flex items-center gap-3 mb-3">
-                            <div class="avatar-circle bg-gradient-to-br from-yellow-400 to-yellow-600 text-white">
-                                {% if request.user.photo %}
-                                    <img src="{{ request.user.photo.url }}" alt="Avatar" class="w-full h-full object-cover rounded-full">
-                                {% else %}
-                                    <span class="text-lg">{{ request.user.first_name.0|default:"U" }}</span>
-                                {% endif %}
-                            </div>
-                            <div>
-                                <p class="font-bold text-base">{{ request.user.get_full_name|default:request.user.username }}</p>
-                                <p class="text-xs text-yellow-600 dark:text-yellow-400 font-semibold">
-                                    <i class="fas fa-shield-alt mr-1"></i>{{ request.user.role|default:"Utilisateur" }}
-                                </p>
+            <!-- Notifications et Avatar -->
+            <div class="flex items-center gap-4">
+                <!-- Notification Bell - Seulement pour Admin et Directeur -->
+             {% if user.role == 'admin' or user.role == 'directeur' %}
+                      <div class="relative">
+                    <button id="notificationBtn" class="relative p-2 text-yellow-600 hover:text-yellow-500 transition transform hover:scale-110">
+                        <i class="fas fa-bell text-xl"></i>
+                        <div id="notificationBadge" class="notification-badge hidden">0</div>
+                    </button>
+                    
+                    <!-- Dropdown Notifications -->
+                    <div id="notificationDropdown" class="hidden absolute right-0 mt-3 w-80 bg-white dark:bg-gray-800 shadow-2xl rounded-xl z-50 border border-yellow-500/20 max-h-96 overflow-y-auto">
+                        <div class="p-4 border-b border-gray-200 dark:border-gray-700">
+                            <div class="flex items-center justify-between">
+                                <h3 class="font-bold text-gray-800 dark:text-white">Notifications</h3>
+                                <span class="text-xs text-yellow-600 dark:text-yellow-400 font-semibold" id="notificationCount">0 nouvelles</span>
                             </div>
                         </div>
-                        <p class="text-sm text-gray-600 dark:text-gray-300" id="greeting"></p>
+                        
+                        <div id="notificationList" class="p-2 space-y-2">
+                            <div class="text-center py-8 text-gray-500 dark:text-gray-400">
+                                <div class="loading-spinner mx-auto mb-2"></div>
+                                <p class="text-sm">Chargement des notifications...</p>
+                            </div>
+                        </div>
+                        
+                        <div class="p-3 border-t border-gray-200 dark:border-gray-700">
+                            <button id="markAllRead" class="w-full text-center text-sm text-yellow-600 dark:text-yellow-400 hover:text-yellow-700 dark:hover:text-yellow-300 font-semibold py-2 disabled:opacity-50" disabled>
+                                Marquer tout comme lu
+                            </button>
+                        </div>
                     </div>
-                    <ul class="py-2">
-                        <li>
-                            <button id="modalProfileBtn" class="w-full text-left px-5 py-3 hover:bg-gray-100 dark:hover:bg-gray-700 flex items-center gap-3 transition">
-                                <i class="fas fa-user text-yellow-600 dark:text-yellow-400 w-5"></i>
-                                <span>Mon Profil</span>
-                            </button>
-                        </li>
-                        <li>
-                            <button id="modalPhotoBtn" class="w-full text-left px-5 py-3 hover:bg-gray-100 dark:hover:bg-gray-700 flex items-center gap-3 transition">
-                                <i class="fas fa-camera text-yellow-600 dark:text-yellow-400 w-5"></i>
-                                <span>Changer Photo</span>
-                            </button>
-                        </li>
-                        <li>
-                            <button id="modalPasswordBtn" class="w-full text-left px-5 py-3 hover:bg-gray-100 dark:hover:bg-gray-700 flex items-center gap-3 transition">
-                                <i class="fas fa-key text-yellow-600 dark:text-yellow-400 w-5"></i>
-                                <span>Changer mot de passe</span>
-                            </button>
-                        </li>
-                        <li>
-                            <button id="darkModeBtn" class="w-full text-left px-5 py-3 hover:bg-gray-100 dark:hover:bg-gray-700 flex items-center gap-3 transition">
-                                <i class="fas fa-adjust text-yellow-600 dark:text-yellow-400 w-5"></i>
-                                <span>Mode <span class="font-semibold" id="modeText">Sombre</span></span>
-                            </button>
-                        </li>
-                        <li class="border-t border-gray-200 dark:border-gray-700 mt-2 pt-2">
-                            <a href="{% url 'utilisateurs:logout' %}" class="w-full text-left px-5 py-3 hover:bg-red-50 dark:hover:bg-red-900/20 flex items-center gap-3 text-red-600 dark:text-red-400 transition font-semibold">
-                                <i class="fas fa-sign-out-alt w-5"></i>
-                                <span>Déconnexion</span>
-                            </a>
-                        </li>
-                    </ul>
+                </div>
+                {% endif %}
+
+                <!-- Avatar avec rôle -->
+                <div class="relative">
+                    <div class="flex items-center gap-3 cursor-pointer" id="avatarBtn">
+                        <div class="text-right hidden sm:block header-user-name">
+                            <p class="text-sm font-bold text-gray-800 dark:text-gray-200">{{ request.user.get_full_name|default:request.user.username }}</p>
+                            <p class="text-xs text-yellow-600 dark:text-yellow-500 font-semibold">
+                                <i class="fas fa-shield-alt mr-1"></i>{{ request.user.role|default:"Utilisateur" }}
+                            </p>
+                        </div>
+                        <div class="avatar-circle bg-gradient-to-br from-yellow-400 to-yellow-600 text-white hover:shadow-lg transition">
+                            {% if request.user.photo %}
+                                <img src="{{ request.user.photo.url }}" alt="Avatar" class="w-full h-full object-cover rounded-full">
+                            {% else %}
+                                <span class="text-lg">{{ request.user.first_name.0|default:"U" }}</span>
+                            {% endif %}
+                        </div>
+                    </div>
+                    
+                    <div id="avatarDropdown" class="hidden absolute right-0 mt-3 w-72 bg-white dark:bg-gray-800 text-gray-800 dark:text-white shadow-2xl rounded-xl z-50 border border-yellow-500/20">
+                        <div class="p-5 border-b border-gray-200 dark:border-gray-700">
+                            <div class="flex items-center gap-3 mb-3">
+                                <div class="avatar-circle bg-gradient-to-br from-yellow-400 to-yellow-600 text-white">
+                                    {% if request.user.photo %}
+                                        <img src="{{ request.user.photo.url }}" alt="Avatar" class="w-full h-full object-cover rounded-full">
+                                    {% else %}
+                                        <span class="text-lg">{{ request.user.first_name.0|default:"U" }}</span>
+                                    {% endif %}
+                                </div>
+                                <div>
+                                    <p class="font-bold text-base">{{ request.user.get_full_name|default:request.user.username }}</p>
+                                    <p class="text-xs text-yellow-600 dark:text-yellow-400 font-semibold">
+                                        <i class="fas fa-shield-alt mr-1"></i>{{ request.user.role|default:"Utilisateur" }}
+                                    </p>
+                                </div>
+                            </div>
+                            <p class="text-sm text-gray-600 dark:text-gray-300" id="greeting"></p>
+                        </div>
+                        <ul class="py-2">
+                            <li>
+                                <button id="modalProfileBtn" class="w-full text-left px-5 py-3 hover:bg-gray-100 dark:hover:bg-gray-700 flex items-center gap-3 transition">
+                                    <i class="fas fa-user text-yellow-600 dark:text-yellow-400 w-5"></i>
+                                    <span>Mon Profil</span>
+                                </button>
+                            </li>
+                            <li>
+                                <button id="modalPhotoBtn" class="w-full text-left px-5 py-3 hover:bg-gray-100 dark:hover:bg-gray-700 flex items-center gap-3 transition">
+                                    <i class="fas fa-camera text-yellow-600 dark:text-yellow-400 w-5"></i>
+                                    <span>Changer Photo</span>
+                                </button>
+                            </li>
+                            <li>
+                                <button id="modalPasswordBtn" class="w-full text-left px-5 py-3 hover:bg-gray-100 dark:hover:bg-gray-700 flex items-center gap-3 transition">
+                                    <i class="fas fa-key text-yellow-600 dark:text-yellow-400 w-5"></i>
+                                    <span>Changer mot de passe</span>
+                                </button>
+                            </li>
+                            <li>
+                                <button id="darkModeBtn" class="w-full text-left px-5 py-3 hover:bg-gray-100 dark:hover:bg-gray-700 flex items-center gap-3 transition">
+                                    <i class="fas fa-adjust text-yellow-600 dark:text-yellow-400 w-5"></i>
+                                    <span>Mode <span class="font-semibold" id="modeText">Sombre</span></span>
+                                </button>
+                            </li>
+                            <li class="border-t border-gray-200 dark:border-gray-700 mt-2 pt-2">
+                                <a href="{% url 'utilisateurs:logout' %}" class="w-full text-left px-5 py-3 hover:bg-red-50 dark:hover:bg-red-900/20 flex items-center gap-3 text-red-600 dark:text-red-400 transition font-semibold">
+                                    <i class="fas fa-sign-out-alt w-5"></i>
+                                    <span>Déconnexion</span>
+                                </a>
+                            </li>
+                        </ul>
+                    </div>
                 </div>
             </div>
         </div>
@@ -358,7 +459,7 @@
                     </li>
 
                     <!-- Inscriptions - ADMIN, DIRECTEUR, SECRETAIRE -->
-                    {% if request.user.role in 'admin,directeur,secretaire' %}
+                    {% if request.user.role == 'admin' or request.user.role == 'directeur' or request.user.role == 'secretaire' %}
                     <li>
                         <a href="{% url 'inscriptions:inscription_list' %}" class="menu-item-light flex items-center gap-3 px-4 py-3 rounded-lg transition">
                             <i class="fas fa-user-plus text-xl menu-icon-light"></i>
@@ -368,7 +469,7 @@
                     {% endif %}
 
                     <!-- Élèves - ADMIN, DIRECTEUR, SECRETAIRE, ARCHIVE -->
-                    {% if request.user.role in 'admin,directeur,secretaire,archives' %}
+                    {% if request.user.role == 'admin' or request.user.role == 'directeur' or request.user.role == 'secretaire' or request.user.role == 'archives' %}
                     <li>
                         <a href="{% url 'eleves:eleve_list' %}" class="menu-item-light flex items-center gap-3 px-4 py-3 rounded-lg transition">
                             <i class="fas fa-user-graduate text-xl menu-icon-light"></i>
@@ -378,7 +479,7 @@
                     {% endif %}
 
                     <!-- Enseignants - ADMIN, DIRECTEUR -->
-                    {% if request.user.role in 'admin,directeur,archives,secretaire' %}
+                    {% if request.user.role == 'admin' or request.user.role == 'directeur' or request.user.role == 'archives' or request.user.role == 'secretaire' %}
                     <li>
                         <a href="{% url 'enseignants:enseignants' %}" class="menu-item-light flex items-center gap-3 px-4 py-3 rounded-lg transition">
                             <i class="fas fa-chalkboard-teacher text-xl menu-icon-light"></i>
@@ -388,7 +489,7 @@
                     {% endif %}
 
                     <!-- Matières - ADMIN, DIRECTEUR -->
-                  {% if request.user.role in 'admin,directeur,secretaire,archives' %}
+                  {% if request.user.role == 'admin' or request.user.role == 'directeur' or request.user.role == 'secretaire' or request.user.role == 'archives' %}
                     <li>
                         <a href="{% url 'matieres:matieres' %}" class="menu-item-light flex items-center gap-3 px-4 py-3 rounded-lg transition">
                             <i class="fas fa-book text-xl menu-icon-light"></i>
@@ -398,7 +499,7 @@
                     {% endif %}
 
                     <!-- Classes - ADMIN, DIRECTEUR, SECRETAIRE -->
-                  {% if request.user.role in 'admin,directeur,secretaire,archives' %}
+                  {% if request.user.role == 'admin' or request.user.role == 'directeur' or request.user.role == 'secretaire' or request.user.role == 'archives' %}
                     <li>
                         <a href="{% url 'classes:classe_list' %}" class="menu-item-light flex items-center gap-3 px-4 py-3 rounded-lg transition">
                             <i class="fas fa-school text-xl menu-icon-light"></i>
@@ -408,7 +509,7 @@
                     {% endif %}
 
                     <!-- Cours - ADMIN, DIRECTEUR -->
-                  {% if request.user.role in 'admin,directeur,secretaire,archives' %}
+                  {% if request.user.role == 'admin' or request.user.role == 'directeur' or request.user.role == 'secretaire' or request.user.role == 'archives' %}
                     <li>
                         <a href="{% url 'cours:cours' %}" class="menu-item-light flex items-center gap-3 px-4 py-3 rounded-lg transition">
                             <i class="fas fa-calendar-alt text-xl menu-icon-light"></i>
@@ -446,6 +547,7 @@
     <main id="mainContent" class="pt-20 content-shift content-expanded min-h-screen">
         <div class="p-4 md:p-6">
             {% block content %}
+            <!-- Le contenu spécifique à chaque page ira ici -->
             {% endblock %}
         </div>
     </main>
@@ -570,14 +672,24 @@
     </div>
 
     <script>
-        // Dark mode persistence avec localStorage
+    // =============================================
+    // CONFIGURATION DE BASE
+    // =============================================
+    const CSRF_TOKEN = document.querySelector('[name=csrf-token]').content;
+    // Template URL for marking a single notification as read. We inject a placeholder id (0)
+    // and replace it dynamically in JS to call the correct named Django URL.
+    const MARK_NOTIFICATION_URL_TEMPLATE = "{% url 'utilisateurs:mark_notification_read' 0 %}";
+        const NOTIFICATION_REFRESH_INTERVAL = 30000; // 30 secondes
+
+        // =============================================
+        // GESTION DU MODE SOMBRE/CLAIR
+        // =============================================
         const darkModeKey = 'imjf_dark_mode';
         const body = document.body;
         const sidebar = document.getElementById('sidebar');
         const modeText = document.getElementById('modeText');
         const mobileOverlay = document.getElementById('mobileOverlay');
 
-        // Charger la préférence au chargement
         function loadDarkModePreference() {
             const isDark = localStorage.getItem(darkModeKey) === 'true';
             if (isDark) {
@@ -637,10 +749,9 @@
             localStorage.setItem(darkModeKey, 'false');
         }
 
-        // Charger au démarrage
-        loadDarkModePreference();
-
-        // Sidebar toggle avec support mobile
+        // =============================================
+        // GESTION DE LA SIDEBAR
+        // =============================================
         const sidebarToggle = document.getElementById('sidebarToggle');
         const mainContent = document.getElementById('mainContent');
         
@@ -661,7 +772,6 @@
 
         sidebarToggle.addEventListener('click', toggleSidebar);
         
-        // Fermer sidebar sur mobile quand on clique sur l'overlay
         mobileOverlay.addEventListener('click', () => {
             if (window.innerWidth < 768) {
                 sidebar.classList.remove('sidebar-expanded');
@@ -670,77 +780,69 @@
             }
         });
 
-        // Avatar dropdown
+        // =============================================
+        // GESTION DES DROPDOWNS
+        // =============================================
         const avatarBtn = document.getElementById('avatarBtn');
         const avatarDropdown = document.getElementById('avatarDropdown');
-        avatarBtn.addEventListener('click', (e)=>{ 
-            e.stopPropagation();
-            avatarDropdown.classList.toggle('hidden'); 
-        });
+        const notificationBtn = document.getElementById('notificationBtn');
+        const notificationDropdown = document.getElementById('notificationDropdown');
 
-        // Fermer dropdown si clic ailleurs
+        // Avatar dropdown
+        if (avatarBtn) {
+            avatarBtn.addEventListener('click', (e)=>{ 
+                e.stopPropagation();
+                avatarDropdown.classList.toggle('hidden'); 
+            });
+        }
+
+        // Notification dropdown
+        if (notificationBtn) {
+            notificationBtn.addEventListener('click', (e)=>{ 
+                e.stopPropagation();
+                notificationDropdown.classList.toggle('hidden'); 
+                if (!notificationDropdown.classList.contains('hidden')) {
+                    loadNotifications();
+                }
+            });
+        }
+
+        // Fermer dropdowns si clic ailleurs
         document.addEventListener('click', (e) => {
-            if (!avatarDropdown.contains(e.target) && !avatarBtn.contains(e.target)) {
+            if (avatarDropdown && !avatarDropdown.contains(e.target) && !avatarBtn.contains(e.target)) {
                 avatarDropdown.classList.add('hidden');
+            }
+            if (notificationDropdown && !notificationDropdown.contains(e.target) && !notificationBtn?.contains(e.target)) {
+                notificationDropdown.classList.add('hidden');
             }
         });
 
-        // Modal profil
+        // =============================================
+        // GESTION DES MODALS
+        // =============================================
         const modalProfile = document.getElementById('modalProfile');
-        document.getElementById('modalProfileBtn').addEventListener('click', ()=>{ 
+        const modalPhoto = document.getElementById('modalPhoto');
+        const modalPassword = document.getElementById('modalPassword');
+
+        document.getElementById('modalProfileBtn')?.addEventListener('click', ()=>{ 
             modalProfile.classList.remove('hidden'); 
             avatarDropdown.classList.add('hidden'); 
         });
 
-        // Modal Photo
-        const modalPhoto = document.getElementById('modalPhoto');
-        document.getElementById('modalPhotoBtn').addEventListener('click', () => {
+        document.getElementById('modalPhotoBtn')?.addEventListener('click', () => {
             modalPhoto.classList.remove('hidden');
             avatarDropdown.classList.add('hidden');
         });
 
-        // File input & preview
-        const photoInput = document.getElementById('photoInput');
-        const previewPhoto = document.getElementById('previewPhoto');
-        photoInput.addEventListener('change', (event) => {
-            const file = event.target.files[0];
-            if (file) {
-                // Vérifier la taille du fichier (max 5MB)
-                if (file.size > 5 * 1024 * 1024) {
-                    alert('Le fichier est trop volumineux. Taille maximale: 5MB');
-                    photoInput.value = '';
-                    return;
-                }
-                
-                // Vérifier le type de fichier
-                const validTypes = ['image/jpeg', 'image/jpg', 'image/png'];
-                if (!validTypes.includes(file.type)) {
-                    alert('Format de fichier non supporté. Utilisez JPG, JPEG ou PNG.');
-                    photoInput.value = '';
-                    return;
-                }
-                
-                const reader = new FileReader();
-                reader.onload = (e) => {
-                    previewPhoto.src = e.target.result;
-                };
-                reader.readAsDataURL(file);
-            }
-        });
-
-        // Modal mot de passe
-        const modalPassword = document.getElementById('modalPassword');
-        document.getElementById('modalPasswordBtn').addEventListener('click', ()=>{ 
+        document.getElementById('modalPasswordBtn')?.addEventListener('click', ()=>{ 
             modalPassword.classList.remove('hidden'); 
             avatarDropdown.classList.add('hidden'); 
         });
 
-        // Fonction pour fermer modals
         function closeModal(id){ 
             document.getElementById(id).classList.add('hidden'); 
         }
 
-        // Fermer modal avec Escape
         document.addEventListener('keydown', (e) => {
             if (e.key === 'Escape') {
                 document.querySelectorAll('.modal-bg').forEach(modal => {
@@ -749,18 +851,52 @@
             }
         });
 
-        // Mode sombre/clair
-        const darkModeBtn = document.getElementById('darkModeBtn');
-        darkModeBtn.addEventListener('click', ()=>{
-            const isDark = body.classList.contains('dark-mode');
-            if (isDark) {
-                enableLightMode();
-            } else {
-                enableDarkMode();
-            }
-        });
+        // =============================================
+        // GESTION DE LA PHOTO DE PROFIL
+        // =============================================
+        const photoInput = document.getElementById('photoInput');
+        const previewPhoto = document.getElementById('previewPhoto');
+        if (photoInput) {
+            photoInput.addEventListener('change', (event) => {
+                const file = event.target.files[0];
+                if (file) {
+                    if (file.size > 5 * 1024 * 1024) {
+                        alert('Le fichier est trop volumineux. Taille maximale: 5MB');
+                        photoInput.value = '';
+                        return;
+                    }
+                    
+                    const validTypes = ['image/jpeg', 'image/jpg', 'image/png'];
+                    if (!validTypes.includes(file.type)) {
+                        alert('Format de fichier non supporté. Utilisez JPG, JPEG ou PNG.');
+                        photoInput.value = '';
+                        return;
+                    }
+                    
+                    const reader = new FileReader();
+                    reader.onload = (e) => {
+                        previewPhoto.src = e.target.result;
+                    };
+                    reader.readAsDataURL(file);
+                }
+            });
+        }
 
-        // Greeting avec heure
+        const photoForm = document.getElementById('photoForm');
+        if (photoForm) {
+            photoForm.addEventListener('submit', function(e) {
+                const fileInput = document.getElementById('photoInput');
+                if (!fileInput.files || fileInput.files.length === 0) {
+                    e.preventDefault();
+                    alert('Veuillez sélectionner une photo.');
+                    return false;
+                }
+            });
+        }
+
+        // =============================================
+        // FONCTIONS UTILITAIRES
+        // =============================================
         function getGreeting() {
             const hour = new Date().getHours();
             let greetingText = '';
@@ -798,14 +934,227 @@
             });
         });
 
-        // Validation du formulaire photo
-        const photoForm = document.getElementById('photoForm');
-        photoForm.addEventListener('submit', function(e) {
-            const fileInput = document.getElementById('photoInput');
-            if (!fileInput.files || fileInput.files.length === 0) {
-                e.preventDefault();
-                alert('Veuillez sélectionner une photo.');
-                return false;
+        // =============================================
+        // SYSTÈME DE NOTIFICATIONS
+        // =============================================
+        async function loadNotifications() {
+            try {
+                const response = await fetch('{% url "utilisateurs:get_notifications" %}');
+                if (!response.ok) throw new Error('Erreur réseau');
+                
+                const data = await response.json();
+                updateNotificationUI(data);
+            } catch (error) {
+                console.error('Erreur lors du chargement des notifications:', error);
+                showNotificationError();
+            }
+        }
+
+        function updateNotificationUI(data) {
+            const notificationList = document.getElementById('notificationList');
+            const notificationBadge = document.getElementById('notificationBadge');
+            const notificationCount = document.getElementById('notificationCount');
+            const markAllReadBtn = document.getElementById('markAllRead');
+            
+            const unreadCount = data.unread_count || 0;
+            const notifications = data.notifications || [];
+            
+            // Mettre à jour le badge
+            if (notificationBadge) {
+                if (unreadCount > 0) {
+                    notificationBadge.textContent = unreadCount > 99 ? '99+' : unreadCount;
+                    notificationBadge.classList.remove('hidden');
+                } else {
+                    notificationBadge.classList.add('hidden');
+                }
+            }
+            
+            // Mettre à jour le compteur
+            if (notificationCount) {
+                notificationCount.textContent = `${unreadCount} nouvelle${unreadCount > 1 ? 's' : ''}`;
+            }
+            
+            // Activer/désactiver le bouton "Marquer tout comme lu"
+            if (markAllReadBtn) {
+                if (unreadCount > 0) {
+                    markAllReadBtn.disabled = false;
+                    markAllReadBtn.classList.remove('disabled:opacity-50');
+                } else {
+                    markAllReadBtn.disabled = true;
+                    markAllReadBtn.classList.add('disabled:opacity-50');
+                }
+            }
+            
+            // Afficher les notifications
+            if (notifications.length === 0) {
+                notificationList.innerHTML = `
+                    <div class="text-center py-8 text-gray-500 dark:text-gray-400">
+                        <i class="fas fa-bell-slash text-3xl mb-2"></i>
+                        <p class="text-sm">Aucune notification</p>
+                    </div>
+                `;
+                return;
+            }
+            
+            notificationList.innerHTML = notifications.map(notification => `
+                <div class="notification-item ${notification.type} ${!notification.read ? 'unread' : ''} p-3 rounded-lg border border-gray-200 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-700/50 cursor-pointer transition" 
+                     onclick="handleNotificationClick('${notification.id}', '${notification.target_url}')" data-id="${notification.id}">
+                    <div class="flex items-start gap-3">
+                        <div class="w-8 h-8 rounded-full flex items-center justify-center ${getNotificationIconClass(notification)} mt-1">
+                            <i class="${getNotificationIcon(notification)} text-sm"></i>
+                        </div>
+                        <div class="flex-1">
+                            <p class="text-sm font-semibold text-gray-800 dark:text-white">${escapeHtml(notification.title)}</p>
+                            <p class="text-xs text-gray-600 dark:text-gray-300 mt-1">${escapeHtml(notification.message)}</p>
+                            <div class="flex items-center justify-between mt-2">
+                                <span class="text-xs text-gray-500 dark:text-gray-400">${formatTime(notification.timestamp)}</span>
+                                ${!notification.read ? '<span class="w-2 h-2 bg-blue-500 rounded-full"></span>' : ''}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function showNotificationError() {
+            const notificationList = document.getElementById('notificationList');
+            notificationList.innerHTML = `
+                <div class="text-center py-8 text-gray-500 dark:text-gray-400">
+                    <i class="fas fa-exclamation-triangle text-3xl mb-2 text-red-500"></i>
+                    <p class="text-sm">Erreur de chargement</p>
+                    <button onclick="loadNotifications()" class="text-yellow-600 text-xs mt-2 hover:underline">
+                        Réessayer
+                    </button>
+                </div>
+            `;
+        }
+
+        async function handleNotificationClick(notificationId, targetUrl) {
+            await markAsRead(notificationId);
+            
+            // Rediriger si c'est une notification cliquable
+            if (targetUrl && targetUrl !== '#' && targetUrl !== 'null') {
+                window.location.href = targetUrl;
+            }
+        }
+
+        async function markAsRead(notificationId) {
+            try {
+                // Build the correct URL from the Django named URL template (contains '/0/' for the id)
+                const url = MARK_NOTIFICATION_URL_TEMPLATE.replace('/0/', `/${notificationId}/`);
+
+                const response = await fetch(url, {
+                    method: 'POST',
+                    headers: {
+                        'X-CSRFToken': CSRF_TOKEN,
+                        'Content-Type': 'application/json',
+                    },
+                });
+
+                const data = await response.json();
+                if (data.success) {
+                    await loadNotifications();
+                }
+            } catch (error) {
+                console.error('Erreur lors du marquage comme lu:', error);
+            }
+        }
+
+        document.getElementById('markAllRead')?.addEventListener('click', async function() {
+            try {
+                const response = await fetch('{% url "utilisateurs:mark_all_notifications_read" %}', {
+                    method: 'POST',
+                    headers: {
+                        'X-CSRFToken': CSRF_TOKEN,
+                        'Content-Type': 'application/json',
+                    },
+                });
+                
+                const data = await response.json();
+                if (data.success) {
+                    await loadNotifications();
+                }
+            } catch (error) {
+                console.error('Erreur lors du marquage de toutes les notifications:', error);
+            }
+        });
+
+        // Fonctions utilitaires pour les notifications
+        function getNotificationIcon(notification) {
+            const icons = {
+                'inscription': 'fas fa-user-plus',
+                'action_secretaire': 'fas fa-user-edit',
+                'action_archives': 'fas fa-archive',
+                'connexion': 'fas fa-sign-in-alt',
+                'deconnexion': 'fas fa-sign-out-alt',
+                'systeme': 'fas fa-cog',
+                'validation': 'fas fa-check-circle'
+            };
+            return icons[notification.type] || 'fas fa-bell';
+        }
+
+        function getNotificationIconClass(notification) {
+            const classes = {
+                'inscription': 'bg-blue-100 text-blue-600 dark:bg-blue-900/30 dark:text-blue-400',
+                'action_secretaire': 'bg-green-100 text-green-600 dark:bg-green-900/30 dark:text-green-400',
+                'action_archives': 'bg-purple-100 text-purple-600 dark:bg-purple-900/30 dark:text-purple-400',
+                'connexion': 'bg-yellow-100 text-yellow-600 dark:bg-yellow-900/30 dark:text-yellow-400',
+                'deconnexion': 'bg-orange-100 text-orange-600 dark:bg-orange-900/30 dark:text-orange-400',
+                'systeme': 'bg-gray-100 text-gray-600 dark:bg-gray-900/30 dark:text-gray-400',
+                'validation': 'bg-red-100 text-red-600 dark:bg-red-900/30 dark:text-red-400'
+            };
+            return classes[notification.type] || 'bg-gray-100 text-gray-600 dark:bg-gray-900/30 dark:text-gray-400';
+        }
+
+        function formatTime(timestamp) {
+            try {
+                const now = new Date();
+                const notificationTime = new Date(timestamp);
+                const diff = now - notificationTime;
+                const minutes = Math.floor(diff / 60000);
+                const hours = Math.floor(diff / 3600000);
+                const days = Math.floor(diff / 86400000);
+
+                if (minutes < 1) return 'À l\'instant';
+                if (minutes < 60) return `Il y a ${minutes} min`;
+                if (hours < 24) return `Il y a ${hours} h`;
+                if (days < 7) return `Il y a ${days} j`;
+                return notificationTime.toLocaleDateString();
+            } catch (e) {
+                return 'Date inconnue';
+            }
+        }
+
+        function escapeHtml(text) {
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+
+        // =============================================
+        // INITIALISATION
+        // =============================================
+        document.addEventListener('DOMContentLoaded', function() {
+            // Charger le mode sombre/clair
+            loadDarkModePreference();
+
+            // Mode sombre/clair
+            document.getElementById('darkModeBtn')?.addEventListener('click', ()=>{
+                const isDark = body.classList.contains('dark-mode');
+                if (isDark) {
+                    enableLightMode();
+                } else {
+                    enableDarkMode();
+                }
+            });
+
+            // Charger les notifications si l'utilisateur est admin ou directeur
+            const userRole = '{{ request.user.role }}';
+            if (userRole === 'admin' || userRole === 'directeur') {
+                loadNotifications();
+                
+                // Recharger périodiquement
+                setInterval(loadNotifications, NOTIFICATION_REFRESH_INTERVAL);
             }
         });
     </script>

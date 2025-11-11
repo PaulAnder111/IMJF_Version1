@@ -4,6 +4,7 @@
 {% block title %}Modifier un Enseignant - SYGEE{% endblock %}
 
 {% block content %}
+{% include "messages_block.html" %}
 <div class="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
 
@@ -57,6 +58,10 @@
                             {{ form.lieu_naissance.label_tag }}
                             {{ form.lieu_naissance }}
                         </div>
+                        <div>
+                            {{ form.date_recrutement.label_tag }}
+                            {{ form.date_recrutement }}
+                        </div>
                     </div>
                 </div>
 
@@ -83,10 +88,6 @@
                         <div>
                             {{ form.diplome.label_tag }}
                             {{ form.diplome }}
-                        </div>
-                        <div>
-                            {{ form.date_recrutement.label_tag }}
-                            {{ form.date_recrutement }}
                         </div>
 
                         <!-- Photo -->

@@ -6,6 +6,7 @@ from django.contrib import messages
 from django.views.decorators.csrf import csrf_protect
 from django.core.mail import send_mail
 from django.contrib.auth import get_user_model
+from django.http import JsonResponse
 from .forms import CustomUserUpdateForm, CustomUserCreationForm
 from django.conf import settings
 from .forms import CustomUserCreationForm
@@ -98,8 +99,13 @@ def unauthorized(request):
 # ==========================================================
 @login_required
 def dashboard(request):
+    from utilisateurs.models import UserSession
+    
     today = timezone.now().date()
     last_7_days = today - timedelta(days=7)
+    
+    # Kalkile utilisateurs enligne (active sessions - real-time)
+    users_online = UserSession.objects.filter(is_active=True).count()
     
     # Kalkile tout estatistik yo
     context = {
@@ -112,11 +118,14 @@ def dashboard(request):
         'cours_count': Cours.objects.count(),
         
         # Estatistik itilizatè
-        'secretaires_count': get_user_model().objects.filter(role='secretaire').count(),
-        'directeurs_count': get_user_model().objects.filter(role='directeur').count(),
-        'archives_count': get_user_model().objects.filter(role='archives').count(),
-        'users_count': get_user_model().objects.count(),
+        # 'secretaires_count': get_user_model().objects.filter(role='secretaire').count(),
+        # 'directeurs_count': get_user_model().objects.filter(role='directeur').count(),
+        # 'archives_count': get_user_model().objects.filter(role='archives').count(),
+        # 'users_count': get_user_model().objects.count(),
+        # 'users_online': users_online,
         
+        # Inscriptions recentes validees
+        'inscriptions_recentes': Inscription.objects.filter(statut='aktif').order_by('-date_created')[:5],
       
         # Estatistik pou bar progresyon
         'taux_presence': 85,
@@ -353,5 +362,125 @@ def reset_password(request):
     return render(request, 'utilisateurs/password_reset_new.html', {'email': email})
 
 
+from django.http import JsonResponse
+from django.contrib.auth.decorators import login_required
+from django.views.decorators.csrf import csrf_exempt
+from .models import Notification, NotificationRecipient
 
-   
+@login_required
+def get_notifications(request):
+    # Ensure NotificationRecipient entries exist for role-targeted or broadcast notifications
+    from django.db.models import Q
+
+    # Attach recipients on-the-fly for matching notifications that don't yet have a recipient row
+    role_or_broadcast_qs = Notification.objects.filter(Q(recipient_role=request.user.role) | Q(broadcast=True))
+    # exclude notifications that already have a recipient entry for this user
+    role_or_broadcast_qs = role_or_broadcast_qs.exclude(recipients__user=request.user)
+    for n in role_or_broadcast_qs:
+        try:
+            NotificationRecipient.objects.create(notification=n, user=request.user)
+        except Exception:
+            # ignore race conditions / unique constraint failures
+            pass
+
+    # Get recipient entries (this covers per-user notifications and attached role/broadcast ones)
+    recipient_qs = NotificationRecipient.objects.filter(user=request.user).select_related('notification')
+    recipient_qs = recipient_qs.order_by('-created_at')[:20]
+
+    notifications_data = []
+    for rec in recipient_qs:
+        n = rec.notification
+        notifications_data.append({
+            'id': str(n.id),
+            'type': n.type,
+            'title': n.title,
+            'message': n.message,
+            'read': rec.read,
+            'timestamp': n.created_at.isoformat(),
+            'target_url': n.target_url or '#'
+        })
+
+    unread_count = NotificationRecipient.objects.filter(user=request.user, read=False).count()
+
+    return JsonResponse({
+        'notifications': notifications_data,
+        'unread_count': unread_count
+    })
+
+@login_required
+@csrf_exempt
+def mark_notification_read(request, notification_id):
+    try:
+        # Mark the recipient record as read for this user
+        rec = NotificationRecipient.objects.get(notification_id=notification_id, user=request.user)
+        rec.read = True
+        rec.save()
+        return JsonResponse({'success': True})
+    except Notification.DoesNotExist:
+        return JsonResponse({'success': False, 'error': 'Notification non trouvée'})
+    except NotificationRecipient.DoesNotExist:
+        # Possibly the notification exists but no recipient row was created; try to create one and mark it
+        try:
+            n = Notification.objects.get(id=notification_id)
+            rec = NotificationRecipient.objects.create(notification=n, user=request.user, read=True)
+            return JsonResponse({'success': True})
+        except Exception:
+            return JsonResponse({'success': False, 'error': 'Notification non trouvée'})
+
+@login_required  
+@csrf_exempt
+def mark_all_notifications_read(request):
+    NotificationRecipient.objects.filter(user=request.user, read=False).update(read=True)
+    return JsonResponse({'success': True})
+
+
+# ==========================================================
+# ACTIVE USERS TRACKING (Admin pou monitore koneksyon)
+# ==========================================================
+@login_required
+@login_required
+@admin_required
+def active_users_list(request):
+    """Show all active user sessions with login/logout tracking"""
+    from utilisateurs.models import UserSession
+    from django.db.models import Q, Max
+    
+    # Active sessions (currently online)
+    active_sessions = UserSession.objects.filter(is_active=True).select_related('user').order_by('-login_time')
+    
+    # Recently logged out sessions
+    logged_out_sessions = UserSession.objects.filter(is_active=False).select_related('user').order_by('-logout_time')[:20]
+    
+    # All users with their last session info
+    all_users_with_sessions = []
+    for user in User.objects.all().order_by('role', 'username'):
+        last_session = UserSession.objects.filter(user=user).order_by('-login_time').first()
+        all_users_with_sessions.append({
+            'user': user,
+            'last_session': last_session,
+            'is_online': user.id in [s.user.id for s in active_sessions]
+        })
+    
+    context = {
+        'active_sessions': active_sessions,
+        'logged_out_sessions': logged_out_sessions,
+        'all_users_with_sessions': all_users_with_sessions,
+        'total_active': active_sessions.count(),
+        'total_users': User.objects.count(),
+    }
+    
+    return render(request, 'utilisateurs/active_users.html', context)
+
+
+@login_required
+@admin_required
+def get_active_users_json(request):
+    """API endpoint para sa dashboard estatistik - return active users count"""
+    from utilisateurs.models import UserSession
+    
+    active_count = UserSession.objects.filter(is_active=True).count()
+    
+    return JsonResponse({
+        'active_users': active_count,
+        'timestamp': timezone.now().isoformat(),
+    })

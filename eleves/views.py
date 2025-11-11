@@ -69,6 +69,17 @@ def ajouter_eleve(request):
         form = EleveForm(request.POST, request.FILES)
         if form.is_valid():
             try:
+                eleve_data = form.cleaned_data
+                # Check if this person is already registered as an Enseignant
+                from enseignants.models import Enseignant
+                if Enseignant.objects.filter(
+                    nom__iexact=eleve_data['nom'].strip(),
+                    prenom__iexact=eleve_data['prenom'].strip(),
+                    date_naissance=eleve_data['date_naissance']
+                ).exists():
+                    messages.error(request, "Impossible d'ajouter : cette personne est déjà enregistrée comme enseignant.")
+                    return redirect('eleves:ajouter_eleve')
+
                 eleve = form.save(commit=False)
                 # --- Génération automatique du matricule ---
                 annee_courante = datetime.now().year

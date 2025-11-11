@@ -4,6 +4,7 @@ from django.core.exceptions import ValidationError
 from .models import Inscription
 from classes.models import Classe
 import re
+from core.validators import validate_phone_prefix, validate_unique_across_models
 
 class InscriptionForm(forms.ModelForm):
     class Meta:
@@ -39,11 +40,19 @@ class InscriptionForm(forms.ModelForm):
         cleaned_data = super().clean()
         telephone = cleaned_data.get('telephone_responsable')
         email = cleaned_data.get('email_responsable')
+        # Validate phone prefix and uniqueness across the system
+        if telephone:
+            try:
+                validate_phone_prefix(telephone)
+                validate_unique_across_models('telephone', telephone, instance=self.instance)
+            except ValidationError as ve:
+                self.add_error('telephone_responsable', ve)
 
-        if telephone and Inscription.objects.filter(telephone_responsable=telephone).exists():
-            self.add_error('telephone_responsable', "Ce numéro de téléphone est déjà utilisé pour une autre inscription.")
-        if email and Inscription.objects.filter(email_responsable=email).exists():
-            self.add_error('email_responsable', "Cet email est déjà utilisé pour une autre inscription.")
+        if email:
+            try:
+                validate_unique_across_models('email', email, instance=self.instance)
+            except ValidationError as ve:
+                self.add_error('email_responsable', ve)
         return cleaned_data
 
     def clean_annee_scolaire(self):
