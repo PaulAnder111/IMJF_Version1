@@ -117,12 +117,12 @@ def dashboard(request):
         'matieres_count': Matiere.objects.count(),
         'cours_count': Cours.objects.count(),
         
-        # Estatistik itilizatè
-        # 'secretaires_count': get_user_model().objects.filter(role='secretaire').count(),
-        # 'directeurs_count': get_user_model().objects.filter(role='directeur').count(),
-        # 'archives_count': get_user_model().objects.filter(role='archives').count(),
-        # 'users_count': get_user_model().objects.count(),
-        # 'users_online': users_online,
+        #Estatistik itilizatè
+        'secretaires_count': get_user_model().objects.filter(role='secretaire').count(),
+        'directeurs_count': get_user_model().objects.filter(role='directeur').count(),
+        'archives_count': get_user_model().objects.filter(role='archives').count(),
+        'users_count': get_user_model().objects.count(),
+        'users_online': users_online,
         
         # Inscriptions recentes validees
         'inscriptions_recentes': Inscription.objects.filter(statut='aktif').order_by('-date_created')[:5],
