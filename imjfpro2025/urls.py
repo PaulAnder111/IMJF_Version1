@@ -12,6 +12,7 @@ urlpatterns = [
     path('enseignants/', include('enseignants.urls')),
     path('classes/', include('classes.urls')),
     path('matieres/', include('matieres.urls')),
+    path('parametre/', include('parametre.urls')),
     path('', RedirectView.as_view(url='/utilisateurs/login/')),
     path('inscriptions/', include('inscriptions.urls')),
       # Redirection racine

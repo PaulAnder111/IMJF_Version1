@@ -1,0 +1,146 @@
+{% extends 'utilisateurs/base.html' %}
+{% load static %}
+{% block title %}Historique des Actions{% endblock %}
+
+{% block content %}
+<div class="max-w-7xl mx-auto py-10 px-4 sm:px-6 lg:px-8">
+  <div class="mb-6">
+    <h1 class="text-3xl font-extrabold text-gray-800 dark:text-gray-100">Historique des Actions Utilisateurs</h1>
+    <p class="mt-2 text-sm text-gray-600 dark:text-gray-300">Suivi complet des actions (création, modification, suppression, connexion, etc.).</p>
+  </div>
+
+  <!-- FILTRE + EXPORT -->
+  <div class="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-2xl p-4 shadow-sm mb-6">
+    <form method="get" class="flex flex-col lg:flex-row lg:items-center gap-3">
+      <div class="flex items-center gap-2 flex-1">
+        <label class="sr-only" for="model">Modèle</label>
+        <select id="model" name="model" class="w-full lg:w-48 px-3 py-2 border rounded-lg bg-gray-50 dark:bg-gray-700 border-gray-200 dark:border-gray-600 text-sm">
+          <option value="all"{% if selected_model == 'all' %} selected{% endif %}>Tous les modèles</option>
+          {% for model in models_list %}
+            <option value="{{ model }}"{% if model == selected_model %} selected{% endif %}>{{ model }}</option>
+          {% endfor %}
+        </select>
+      </div>
+
+      <div class="flex items-center gap-2 flex-1">
+        <label class="sr-only" for="user">Utilisateur</label>
+        <select id="user" name="user" class="w-full lg:w-48 px-3 py-2 border rounded-lg bg-gray-50 dark:bg-gray-700 border-gray-200 dark:border-gray-600 text-sm">
+          <option value="all"{% if selected_user == 'all' %} selected{% endif %}>Tous les utilisateurs</option>
+          {% for uid, uname in users_list %}
+            <option value="{{ uid }}"{% if selected_user != 'all' and uid == selected_user %} selected{% endif %}>{{ uname }}</option>
+          {% endfor %}
+        </select>
+      </div>
+
+      <div class="flex items-center gap-2 flex-1">
+        <label class="sr-only" for="action">Action</label>
+        <select id="action" name="action" class="w-full lg:w-48 px-3 py-2 border rounded-lg bg-gray-50 dark:bg-gray-700 border-gray-200 dark:border-gray-600 text-sm">
+          <option value="all"{% if selected_action == 'all' %} selected{% endif %}>Tous les types</option>
+          {% for code,label in actions_list %}
+            <option value="{{ code }}"{% if code == selected_action %} selected{% endif %}>{{ label }}</option>
+          {% endfor %}
+        </select>
+      </div>
+
+      <div class="flex items-center gap-2 flex-1">
+        <input type="text" name="search" placeholder="Recherche description..." value="{{ search }}" class="w-full px-3 py-2 border rounded-lg bg-gray-50 dark:bg-gray-700 border-gray-200 dark:border-gray-600 text-sm">
+      </div>
+
+      <div class="flex items-center gap-2">
+        <button type="submit" class="px-4 py-2 bg-yellow-500 hover:bg-yellow-600 text-white rounded-lg text-sm font-semibold">Filtrer</button>
+
+        <!-- Export CSV: on conserve les paramètres de filtre dans l'URL -->
+        <a href="{% url 'parametre:export_csv' %}?model={{ selected_model }}&user={{ selected_user }}&action={{ selected_action }}&search={{ search|urlencode }}"
+           class="px-4 py-2 bg-green-500 hover:bg-green-600 text-white rounded-lg text-sm font-semibold">
+           Exporter CSV
+        </a>
+      </div>
+    </form>
+  </div>
+
+  <!-- TABLEAU -->
+  <div class="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-2xl shadow-sm overflow-hidden">
+    <div class="overflow-x-auto">
+      <table class="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
+        <thead class="bg-gray-50 dark:bg-gray-900">
+          <tr>
+            <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Utilisateur</th>
+            <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Action</th>
+            <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Modèle</th>
+            <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">ID Objet</th>
+            <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Description</th>
+            <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Date</th>
+          </tr>
+        </thead>
+
+        <tbody class="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700">
+          {% for action in actions %}
+            <tr class="hover:bg-gray-50 dark:hover:bg-gray-900">
+              <td class="px-4 py-3 text-sm text-gray-700 dark:text-gray-200">
+                {% if action.user %}
+                  <div class="flex items-center gap-2">
+                    <div class="w-8 h-8 rounded-full flex items-center justify-center bg-gradient-to-br from-yellow-400 to-yellow-600 text-white font-semibold text-xs">
+                      {{ action.user.first_name|default:action.user.username|slice:":1"|upper }}
+                    </div>
+                    <div>
+                      <div class="font-semibold">{{ action.user.get_full_name|default:action.user.username }}</div>
+                      <div class="text-xs text-gray-500 dark:text-gray-400">{{ action.user.username }}</div>
+                    </div>
+                  </div>
+                {% else %}
+                  <span class="inline-flex items-center gap-2 text-sm text-gray-600 dark:text-gray-400">
+                    <svg class="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3"></path></svg>
+                    System
+                  </span>
+                {% endif %}
+              </td>
+
+              <td class="px-4 py-3 text-sm">
+                {% if action.action == "creation" %}
+                  <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-semibold bg-green-100 text-green-800">Création</span>
+                {% elif action.action == "modification" %}
+                  <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-semibold bg-yellow-100 text-yellow-800">Modification</span>
+                {% elif action.action == "suppression" %}
+                  <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-semibold bg-red-100 text-red-800">Suppression</span>
+                {% elif action.action == "connexion" %}
+                  <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-semibold bg-blue-100 text-blue-800">Connexion</span>
+                {% elif action.action == "deconnexion" %}
+                  <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-semibold bg-indigo-100 text-indigo-800">Déconnexion</span>
+                {% else %}
+                  <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-semibold bg-gray-100 text-gray-800">{{ action.get_action_display }}</span>
+                {% endif %}
+              </td>
+
+              <td class="px-4 py-3 text-sm text-gray-700 dark:text-gray-200">{{ action.model_name }}</td>
+              <td class="px-4 py-3 text-sm text-gray-700 dark:text-gray-200">{{ action.object_id|default:"—" }}</td>
+              <td class="px-4 py-3 text-sm text-gray-700 dark:text-gray-200">{{ action.description|default:"—" }}</td>
+              <td class="px-4 py-3 text-sm text-gray-500 dark:text-gray-400">{{ action.date_action|date:"Y-m-d H:i:s" }}</td>
+            </tr>
+          {% empty %}
+            <tr>
+              <td colspan="6" class="px-4 py-6 text-center text-sm text-gray-500 dark:text-gray-400">
+                Aucune action trouvée.
+              </td>
+            </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- Footer - petite aide -->
+  <div class="mt-4 text-xs text-gray-500 dark:text-gray-400">
+    Tip: utilisez les filtres en haut pour réduire les résultats. L'export CSV prend en compte les filtres actifs.
+  </div>
+</div>
+
+<!-- Optional small script to focus search input on load on large screens -->
+<script>
+  (function(){
+    try {
+      var searchInput = document.querySelector('input[name="search"]');
+      if(searchInput && window.innerWidth > 1024) searchInput.focus();
+    } catch(e) { /* silent */ }
+  })();
+</script>
+{% endblock %}

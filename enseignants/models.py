@@ -2,6 +2,7 @@ from django.db import models
 from django.core.exceptions import ValidationError
 from datetime import date
 
+
 class Enseignant(models.Model):
     SEXE_CHOICES = [
         ('M', 'Masculin'),
@@ -15,7 +16,14 @@ class Enseignant(models.Model):
         ('conge', 'En congé'),
     ]
 
-    matricule = models.CharField(max_length=20, unique=True, verbose_name="Matricule")
+    # Matricule otomatik (pa antre nan form)
+    matricule = models.CharField(
+        max_length=20,
+        unique=True,
+        blank=True,              # obligatwa pou sa mache
+        verbose_name="Matricule"
+    )
+
     nom = models.CharField(max_length=100, verbose_name="Nom")
     prenom = models.CharField(max_length=100, verbose_name="Prénom")
     sexe = models.CharField(max_length=1, choices=SEXE_CHOICES, verbose_name="Sexe")
@@ -28,24 +36,24 @@ class Enseignant(models.Model):
     diplome = models.CharField(max_length=100, verbose_name="Diplôme")
     date_recrutement = models.DateField(verbose_name="Date de recrutement")
     statut = models.CharField(
-        max_length=20, 
-        choices=STATUT_CHOICES, 
+        max_length=20,
+        choices=STATUT_CHOICES,
         default='actif',
         verbose_name="Statut"
     )
     photo = models.ImageField(
-        upload_to='enseignants/', 
-        blank=True, 
+        upload_to='enseignants/',
+        blank=True,
         null=True,
         verbose_name="Photo"
     )
     matieres = models.ManyToManyField(
-        'matieres.Matiere', 
+        'matieres.Matiere',
         blank=True,
         verbose_name="Matières enseignées"
     )
 
-    # Trasabilité
+    # Traçabilité
     cree_par = models.ForeignKey(
         'utilisateurs.CustomUser',
         on_delete=models.SET_NULL,
@@ -69,44 +77,62 @@ class Enseignant(models.Model):
         verbose_name = "Enseignant"
         verbose_name_plural = "Enseignants"
         ordering = ['nom', 'prenom']
-        unique_together = ('nom', 'prenom')  # Evite double enregistrement
+        unique_together = ('nom', 'prenom')  # Evite doublon
 
+    # --------------- VALIDATION GENERALE ---------------
     def clean(self):
+
         # Age minimum 18 ans
         if self.date_naissance:
             age = (date.today() - self.date_naissance).days // 365
             if age < 18:
                 raise ValidationError("L'enseignant doit avoir au moins 18 ans.")
-        
+
         # Date recrutement ne peut pas être dans le futur
         if self.date_recrutement and self.date_recrutement > date.today():
             raise ValidationError("La date de recrutement ne peut pas être dans le futur.")
 
-        # Prevent a person already registered as an Eleve from being an Enseignant
+        # Vérifier si pas déjà élève
         try:
-            # Import here to avoid circular imports at module import time
             from eleves.models import Eleve
             if self.date_naissance and Eleve.objects.filter(
                 nom__iexact=self.nom.strip(),
                 prenom__iexact=self.prenom.strip(),
                 date_naissance=self.date_naissance
             ).exists():
-                raise ValidationError("Une personne avec ces informations est déjà enregistrée comme élève.")
+                raise ValidationError("Cette personne est déjà enregistrée comme élève.")
         except Exception:
-            # If eleves app or model not available, skip this check
             pass
 
+    # --------------- MATRICULE AUTOMATIQUE ---------------
+    def generate_matricule(self):
+        """
+        Matricule format : ENS-2025-0001
+        """
+        prefix = "ENS"
+        year = date.today().year
+
+        last_teacher = Enseignant.objects.order_by('-id').first()
+        next_id = (last_teacher.id + 1) if last_teacher else 1
+
+        return f"{prefix}-{year}-{next_id:04d}"
+
     def save(self, *args, **kwargs):
-        self.full_clean()  # Valide avant de sauvegarder
+        # Génère matricule si vide
+        if not self.matricule:
+            self.matricule = self.generate_matricule()
+
+        self.full_clean()  # Validation complète
         super().save(*args, **kwargs)
 
+    # --------------- PROPRIETES UTILES ---------------
     def __str__(self):
         return f"{self.nom} {self.prenom}"
-    
+
     @property
     def nom_complet(self):
         return f"{self.prenom} {self.nom}"
-    
+
     @property
     def age(self):
         if self.date_naissance:

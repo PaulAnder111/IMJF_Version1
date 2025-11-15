@@ -108,6 +108,7 @@ INSTALLED_APPS = [
     'matieres',
     'classes',
     'inscriptions',
+    'parametre',
 ]
 
 
