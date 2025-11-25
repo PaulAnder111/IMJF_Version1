@@ -1,6 +1,9 @@
 from django.db import models
 from django.utils import timezone
 
+from classes import forms
+from classes.models import Classe
+
 class HistoriqueEleve(models.Model):
     ACTIONS = [
         ('inscription', 'Nouvelle inscription'),
@@ -21,7 +24,7 @@ class HistoriqueEleve(models.Model):
     def __str__(self):
         return f"{self.eleve.nom} - {self.get_action_display()} ({self.date_action.strftime('%Y-%m-%d')})"
     
-    
+
 class Eleve(models.Model):
     matricule = models.CharField(max_length=50, unique=True, verbose_name="Matricule")
     nom = models.CharField(max_length=100)

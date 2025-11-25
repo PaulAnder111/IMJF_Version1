@@ -5,6 +5,7 @@
 
 {% block content %}
 {% include "messages_block.html" %}
+
 <div class="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
 
@@ -25,6 +26,27 @@
             </a>
         </div>
 
+        <!-- AFFICHER LES ERREURS GLOBALES -->
+        {% if form.errors %}
+        <div class="bg-red-50 border-l-4 border-red-500 p-4 mb-6 rounded-lg">
+            <div class="flex items-start">
+                <svg class="w-6 h-6 text-red-500 mr-3 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                    <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd"></path>
+                </svg>
+                <div>
+                    <h3 class="text-red-800 font-semibold">Erreurs dans le formulaire :</h3>
+                    <ul class="list-disc list-inside text-red-700 mt-2">
+                        {% for field, errors in form.errors.items %}
+                            {% for error in errors %}
+                                <li>{{ field|title }} : {{ error }}</li>
+                            {% endfor %}
+                        {% endfor %}
+                    </ul>
+                </div>
+            </div>
+        </div>
+        {% endif %}
+
         <!-- FORMULAIRE CARD -->
         <div class="bg-white rounded-2xl shadow-xl overflow-hidden border border-gray-200 p-8">
             <form method="POST" enctype="multipart/form-data" class="space-y-8">
@@ -34,33 +56,77 @@
                 <div class="bg-gray-50 p-6 rounded-xl shadow-inner border border-gray-200">
                     <h2 class="text-xl font-bold text-gray-800 mb-6">Informations Personnelles</h2>
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+
+                        <!-- Matricule readonly -->
                         <div>
-                            {{ form.matricule.label_tag }}
-                            {{ form.matricule }}
+                            <label class="block text-sm font-semibold text-gray-700 mb-1">Matricule</label>
+                            <input type="text" value="{{ enseignant.matricule }}" readonly
+                                   class="w-full px-4 py-2 border border-gray-300 rounded-lg bg-gray-100 cursor-not-allowed">
                         </div>
+
+                        <!-- Nom -->
                         <div>
-                            {{ form.nom.label_tag }}
-                            {{ form.nom }}
+                            <label class="block text-sm font-semibold text-gray-700 mb-1">{{ form.nom.label }}</label>
+                            <input type="text" name="nom" value="{{ form.nom.value|default:enseignant.nom }}"
+                                   class="w-full px-4 py-2 border {% if form.nom.errors %}border-red-500{% else %}border-gray-300{% endif %} rounded-lg focus:ring-2 focus:ring-yellow-500 focus:border-transparent">
+                            {% if form.nom.errors %}
+                                <p class="text-red-500 text-xs mt-1">{{ form.nom.errors.0 }}</p>
+                            {% endif %}
                         </div>
+
+                        <!-- Prénom -->
                         <div>
-                            {{ form.prenom.label_tag }}
-                            {{ form.prenom }}
+                            <label class="block text-sm font-semibold text-gray-700 mb-1">{{ form.prenom.label }}</label>
+                            <input type="text" name="prenom" value="{{ form.prenom.value|default:enseignant.prenom }}"
+                                   class="w-full px-4 py-2 border {% if form.prenom.errors %}border-red-500{% else %}border-gray-300{% endif %} rounded-lg focus:ring-2 focus:ring-yellow-500 focus:border-transparent">
+                            {% if form.prenom.errors %}
+                                <p class="text-red-500 text-xs mt-1">{{ form.prenom.errors.0 }}</p>
+                            {% endif %}
                         </div>
+
+                        <!-- Sexe -->
                         <div>
-                            {{ form.sexe.label_tag }}
-                            {{ form.sexe }}
+                            <label class="block text-sm font-semibold text-gray-700 mb-1">{{ form.sexe.label }}</label>
+                            <select name="sexe" class="w-full px-4 py-2 border {% if form.sexe.errors %}border-red-500{% else %}border-gray-300{% endif %} rounded-lg focus:ring-2 focus:ring-yellow-500 focus:border-transparent">
+                                <option value="">---------</option>
+                                <option value="M" {% if form.sexe.value == 'M' or enseignant.sexe == 'M' %}selected{% endif %}>Masculin</option>
+                                <option value="F" {% if form.sexe.value == 'F' or enseignant.sexe == 'F' %}selected{% endif %}>Féminin</option>
+                            </select>
+                            {% if form.sexe.errors %}
+                                <p class="text-red-500 text-xs mt-1">{{ form.sexe.errors.0 }}</p>
+                            {% endif %}
                         </div>
+
+                        <!-- Date de Naissance -->
                         <div>
-                            {{ form.date_naissance.label_tag }}
-                            {{ form.date_naissance }}
+                            <label class="block text-sm font-semibold text-gray-700 mb-1">{{ form.date_naissance.label }}</label>
+                            <input type="date" name="date_naissance" 
+                                   value="{% if form.date_naissance.value %}{{ form.date_naissance.value|date:'Y-m-d' }}{% else %}{{ enseignant.date_naissance|date:'Y-m-d' }}{% endif %}"
+                                   class="w-full px-4 py-2 border {% if form.date_naissance.errors %}border-red-500{% else %}border-gray-300{% endif %} rounded-lg focus:ring-2 focus:ring-yellow-500 focus:border-transparent">
+                            {% if form.date_naissance.errors %}
+                                <p class="text-red-500 text-xs mt-1">{{ form.date_naissance.errors.0 }}</p>
+                            {% endif %}
                         </div>
+
+                        <!-- Lieu de Naissance -->
                         <div>
-                            {{ form.lieu_naissance.label_tag }}
-                            {{ form.lieu_naissance }}
+                            <label class="block text-sm font-semibold text-gray-700 mb-1">{{ form.lieu_naissance.label }}</label>
+                            <input type="text" name="lieu_naissance" value="{{ form.lieu_naissance.value|default:enseignant.lieu_naissance }}"
+                                   class="w-full px-4 py-2 border {% if form.lieu_naissance.errors %}border-red-500{% else %}border-gray-300{% endif %} rounded-lg focus:ring-2 focus:ring-yellow-500 focus:border-transparent">
+                            {% if form.lieu_naissance.errors %}
+                                <p class="text-red-500 text-xs mt-1">{{ form.lieu_naissance.errors.0 }}</p>
+                            {% endif %}
                         </div>
+
+                        <!-- Date de Recrutement -->
                         <div>
-                            {{ form.date_recrutement.label_tag }}
-                            {{ form.date_recrutement }}
+                            <label class="block text-sm font-semibold text-gray-700 mb-1">{{ form.date_recrutement.label }}</label>
+                            <input type="date" name="date_recrutement" 
+                                   value="{% if form.date_recrutement.value %}{{ form.date_recrutement.value|date:'Y-m-d' }}{% else %}{{ enseignant.date_recrutement|date:'Y-m-d' }}{% endif %}"
+                                   class="w-full px-4 py-2 border {% if form.date_recrutement.errors %}border-red-500{% else %}border-gray-300{% endif %} rounded-lg focus:ring-2 focus:ring-yellow-500 focus:border-transparent">
+                            {% if form.date_recrutement.errors %}
+                                <p class="text-red-500 text-xs mt-1">{{ form.date_recrutement.errors.0 }}</p>
+                            {% endif %}
                         </div>
                     </div>
                 </div>
@@ -69,25 +135,55 @@
                 <div class="bg-gray-50 p-6 rounded-xl shadow-inner border border-gray-200">
                     <h2 class="text-xl font-bold text-gray-800 mb-6">Informations Professionnelles & Contact</h2>
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        
+                        <!-- Adresse -->
                         <div>
-                            {{ form.adresse.label_tag }}
-                            {{ form.adresse }}
+                            <label class="block text-sm font-semibold text-gray-700 mb-1">{{ form.adresse.label }}</label>
+                            <input type="text" name="adresse" value="{{ form.adresse.value|default:enseignant.adresse }}"
+                                   class="w-full px-4 py-2 border {% if form.adresse.errors %}border-red-500{% else %}border-gray-300{% endif %} rounded-lg focus:ring-2 focus:ring-yellow-500 focus:border-transparent">
+                            {% if form.adresse.errors %}
+                                <p class="text-red-500 text-xs mt-1">{{ form.adresse.errors.0 }}</p>
+                            {% endif %}
                         </div>
+
+                        <!-- Téléphone -->
                         <div>
-                            {{ form.telephone.label_tag }}
-                            {{ form.telephone }}
+                            <label class="block text-sm font-semibold text-gray-700 mb-1">{{ form.telephone.label }}</label>
+                            <input type="text" name="telephone" value="{{ form.telephone.value|default:enseignant.telephone }}"
+                                   class="w-full px-4 py-2 border {% if form.telephone.errors %}border-red-500{% else %}border-gray-300{% endif %} rounded-lg focus:ring-2 focus:ring-yellow-500 focus:border-transparent">
+                            {% if form.telephone.errors %}
+                                <p class="text-red-500 text-xs mt-1">{{ form.telephone.errors.0 }}</p>
+                            {% endif %}
                         </div>
+
+                        <!-- Email -->
                         <div>
-                            {{ form.email.label_tag }}
-                            {{ form.email }}
+                            <label class="block text-sm font-semibold text-gray-700 mb-1">{{ form.email.label }}</label>
+                            <input type="email" name="email" value="{{ form.email.value|default:enseignant.email }}"
+                                   class="w-full px-4 py-2 border {% if form.email.errors %}border-red-500{% else %}border-gray-300{% endif %} rounded-lg focus:ring-2 focus:ring-yellow-500 focus:border-transparent">
+                            {% if form.email.errors %}
+                                <p class="text-red-500 text-xs mt-1">{{ form.email.errors.0 }}</p>
+                            {% endif %}
                         </div>
+
+                        <!-- Spécialité -->
                         <div>
-                            {{ form.specialite.label_tag }}
-                            {{ form.specialite }}
+                            <label class="block text-sm font-semibold text-gray-700 mb-1">{{ form.specialite.label }}</label>
+                            <input type="text" name="specialite" value="{{ form.specialite.value|default:enseignant.specialite }}"
+                                   class="w-full px-4 py-2 border {% if form.specialite.errors %}border-red-500{% else %}border-gray-300{% endif %} rounded-lg focus:ring-2 focus:ring-yellow-500 focus:border-transparent">
+                            {% if form.specialite.errors %}
+                                <p class="text-red-500 text-xs mt-1">{{ form.specialite.errors.0 }}</p>
+                            {% endif %}
                         </div>
+
+                        <!-- Diplôme -->
                         <div>
-                            {{ form.diplome.label_tag }}
-                            {{ form.diplome }}
+                            <label class="block text-sm font-semibold text-gray-700 mb-1">{{ form.diplome.label }}</label>
+                            <input type="text" name="diplome" value="{{ form.diplome.value|default:enseignant.diplome }}"
+                                   class="w-full px-4 py-2 border {% if form.diplome.errors %}border-red-500{% else %}border-gray-300{% endif %} rounded-lg focus:ring-2 focus:ring-yellow-500 focus:border-transparent">
+                            {% if form.diplome.errors %}
+                                <p class="text-red-500 text-xs mt-1">{{ form.diplome.errors.0 }}</p>
+                            {% endif %}
                         </div>
 
                         <!-- Photo -->
@@ -96,36 +192,58 @@
                             <div class="flex items-center gap-4">
                                 <label for="id_photo" class="cursor-pointer">
                                     {% if enseignant.photo %}
-                                    <div class="w-24 h-24 rounded-full border-4 border-gray-200 hover:border-yellow-500 transition-all duration-200 overflow-hidden">
+                                    <div id="photo-preview" class="w-24 h-24 rounded-full border-4 border-gray-200 hover:border-yellow-500 transition-all duration-200 overflow-hidden">
                                         <img src="{{ enseignant.photo.url }}" alt="Photo" class="w-full h-full object-cover">
                                     </div>
                                     {% else %}
-                                    <div class="w-24 h-24 rounded-full bg-gradient-to-r from-yellow-400 to-yellow-600 flex items-center justify-center text-white text-2xl font-bold border-4 border-gray-200 hover:border-yellow-500 transition-all duration-200">
+                                    <div id="photo-preview" class="w-24 h-24 rounded-full bg-gradient-to-r from-yellow-400 to-yellow-600 flex items-center justify-center text-white text-2xl font-bold border-4 border-gray-200 hover:border-yellow-500 transition-all duration-200">
                                         <i class="fas fa-camera"></i>
                                     </div>
                                     {% endif %}
                                 </label>
                                 <div class="flex-1">
-                                    {{ form.photo }}
-                                    <div class="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center hover:border-yellow-500 transition-all duration-200">
+                                    <input type="file" name="photo" id="id_photo" accept="image/*" class="hidden">
+                                    <label for="id_photo" class="block border-2 border-dashed border-gray-300 rounded-lg p-6 text-center hover:border-yellow-500 transition-all duration-200 cursor-pointer">
                                         <i class="fas fa-cloud-upload-alt text-3xl text-gray-400 mb-2"></i>
                                         <p class="text-sm text-gray-600">Cliquez pour changer la photo</p>
                                         <p class="text-xs text-gray-400 mt-1">PNG, JPG jusqu'à 5MB</p>
-                                    </div>
+                                    </label>
+                                    {% if form.photo.errors %}
+                                        <p class="text-red-500 text-xs mt-1">{{ form.photo.errors.0 }}</p>
+                                    {% endif %}
                                 </div>
                             </div>
                         </div>
 
                         <!-- Matières enseignées -->
                         <div class="md:col-span-2">
-                            {{ form.matieres.label_tag }}
-                            {{ form.matieres }}
+                            <label class="block text-sm font-semibold text-gray-700 mb-1">{{ form.matieres.label }}</label>
+                            <select name="matieres" multiple class="w-full px-4 py-2 border {% if form.matieres.errors %}border-red-500{% else %}border-gray-300{% endif %} rounded-lg focus:ring-2 focus:ring-yellow-500 focus:border-transparent" size="5">
+                                {% for matiere in form.matieres.field.queryset %}
+                                    <option value="{{ matiere.id }}" 
+                                            {% if matiere in enseignant.matieres.all %}selected{% endif %}>
+                                        {{ matiere }}
+                                    </option>
+                                {% endfor %}
+                            </select>
+                            <p class="text-xs text-gray-500 mt-1">Maintenez Ctrl (ou Cmd sur Mac) pour sélectionner plusieurs matières</p>
+                            {% if form.matieres.errors %}
+                                <p class="text-red-500 text-xs mt-1">{{ form.matieres.errors.0 }}</p>
+                            {% endif %}
                         </div>
 
                         <!-- Statut -->
                         <div class="md:col-span-2">
-                            {{ form.statut.label_tag }}
-                            {{ form.statut }}
+                            <label class="block text-sm font-semibold text-gray-700 mb-1">{{ form.statut.label }}</label>
+                            <select name="statut" class="w-full px-4 py-2 border {% if form.statut.errors %}border-red-500{% else %}border-gray-300{% endif %} rounded-lg focus:ring-2 focus:ring-yellow-500 focus:border-transparent">
+                                <option value="">---------</option>
+                                <option value="actif" {% if form.statut.value == 'actif' or enseignant.statut == 'actif' %}selected{% endif %}>Actif</option>
+                                <option value="inactif" {% if form.statut.value == 'inactif' or enseignant.statut == 'inactif' %}selected{% endif %}>Inactif</option>
+                                <option value="conge" {% if form.statut.value == 'conge' or enseignant.statut == 'conge' %}selected{% endif %}>En Congé</option>
+                            </select>
+                            {% if form.statut.errors %}
+                                <p class="text-red-500 text-xs mt-1">{{ form.statut.errors.0 }}</p>
+                            {% endif %}
                         </div>
                     </div>
                 </div>
@@ -150,14 +268,16 @@ document.getElementById('id_photo').addEventListener('change', function(e) {
     if(file){
         const reader = new FileReader();
         reader.onload = function(e){
-            const preview = document.querySelector('label[for="id_photo"] > div');
-            preview.style.backgroundImage = `url(${e.target.result})`;
-            preview.style.backgroundSize = 'cover';
-            preview.style.backgroundPosition = 'center';
-            preview.innerHTML = '';
+            const preview = document.getElementById('photo-preview');
+            if(preview.querySelector('img')){
+                preview.querySelector('img').src = e.target.result;
+            } else {
+                preview.innerHTML = `<img src="${e.target.result}" alt="Preview" class="w-full h-full object-cover">`;
+            }
         }
         reader.readAsDataURL(file);
     }
 });
 </script>
+
 {% endblock %}

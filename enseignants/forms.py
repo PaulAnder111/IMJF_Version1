@@ -3,8 +3,7 @@
 from django import forms
 from django.core.exceptions import ValidationError
 from .models import Enseignant
-from core.validators import validate_phone_prefix, validate_unique_across_models
-
+from core.validators import validate_phone_prefix  # Retire validate_unique_across_models
 
 class EnseignantForm(forms.ModelForm):
     class Meta:
@@ -99,17 +98,27 @@ class EnseignantForm(forms.ModelForm):
             'matieres': 'Matières enseignées',
         }
 
-    # ----------------------- VALIDATIONS -----------------------
+    # ----------------------- VALIDATIONS SIMPLIFIÉES -----------------------
 
     def clean_email(self):
         email = self.cleaned_data.get('email')
         if email:
-            validate_unique_across_models('email', email, instance=self.instance)
+            # Valide sèlman inik nan menm modèl Enseignant
+            queryset = Enseignant.objects.filter(email__iexact=email)
+            if self.instance and self.instance.pk:
+                queryset = queryset.exclude(pk=self.instance.pk)
+            if queryset.exists():
+                raise ValidationError("Un enseignant avec cet email existe déjà.")
         return email
 
     def clean_telephone(self):
         telephone = self.cleaned_data.get('telephone')
         if telephone:
             validate_phone_prefix(telephone)
-            validate_unique_across_models('telephone', telephone, instance=self.instance)
+            # Valide sèlman inik nan menm modèl Enseignant
+            queryset = Enseignant.objects.filter(telephone=telephone)
+            if self.instance and self.instance.pk:
+                queryset = queryset.exclude(pk=self.instance.pk)
+            if queryset.exists():
+                raise ValidationError("Un enseignant avec ce numéro de téléphone existe déjà.")
         return telephone

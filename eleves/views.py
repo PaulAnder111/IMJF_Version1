@@ -10,6 +10,59 @@ from .models import Eleve, HistoriqueEleve
 from classes.models import Classe
 
 
+import csv
+from django.http import HttpResponse
+from django.shortcuts import get_object_or_404
+
+def export_eleve_csv(request, pk):
+    eleve = get_object_or_404(Eleve, pk=pk)
+    
+    response = HttpResponse(content_type='text/csv')
+    response['Content-Disposition'] = f'attachment; filename="eleve_{eleve.matricule}.csv"'
+    
+    writer = csv.writer(response)
+    
+    # En-tête
+    writer.writerow(['SYGEE - Fiche Élève'])
+    writer.writerow([])
+    
+    # Informations personnelles
+    writer.writerow(['INFORMATIONS PERSONNELLES'])
+    writer.writerow(['Nom', 'Prénom', 'Matricule', 'Date de naissance', 'Lieu de naissance', 'Sexe', 'Adresse'])
+    writer.writerow([
+        eleve.nom, 
+        eleve.prenom, 
+        eleve.matricule, 
+        eleve.date_naissance.strftime('%d/%m/%Y') if eleve.date_naissance else '',
+        eleve.lieu_naissance or 'Non renseigné',
+        eleve.get_sexe_display() if hasattr(eleve, 'get_sexe_display') else eleve.sexe,
+        eleve.adresse or 'Non renseigné'
+    ])
+    writer.writerow([])
+    
+    # Informations académiques
+    writer.writerow(['INFORMATIONS ACADÉMIQUES'])
+    writer.writerow(['Niveau', 'Classe actuelle', 'Statut', 'Date inscription'])
+    writer.writerow([
+        eleve.niveau or 'Non renseigné',
+        str(eleve.classe_actuelle) if eleve.classe_actuelle else 'Non affecté',
+        eleve.get_statut_display() if hasattr(eleve, 'get_statut_display') else eleve.statut,
+        eleve.date_inscription.strftime('%d/%m/%Y') if eleve.date_inscription else ''
+    ])
+    writer.writerow([])
+    
+    # Informations de contact
+    writer.writerow(['INFORMATIONS DE CONTACT'])
+    writer.writerow(['Téléphone', 'Email', 'Nom parent', 'Téléphone parent'])
+    writer.writerow([
+        getattr(eleve, 'telephone', 'Non renseigné'),
+        getattr(eleve, 'email', 'Non renseigné'),
+        getattr(eleve, 'nom_parent', 'Non renseigné'),
+        getattr(eleve, 'telephone_parent', 'Non renseigné')
+    ])
+    
+    return response
+
 # -------------------- LISTE --------------------
 @login_required
 def eleves_list(request):
@@ -53,16 +106,20 @@ def eleves_list(request):
 # -------------------- DETAIL --------------------
 @login_required
 def eleve_detail(request, pk):
-    """Afficher les détails d’un élève"""
     eleve = get_object_or_404(Eleve, pk=pk)
     historique = HistoriqueEleve.objects.filter(eleve=eleve).order_by('-date_action')
-    return render(request, 'eleve_detail.html', {'eleve': eleve, 'historique': historique})
+    context = {
+        'eleve': eleve,
+        'historique': historique,
+    }
+    return render(request, 'eleves_detail.html', context)
 
 
 # -------------------- AJOUTER --------------------
+# -------------------- AJOUTER --------------------
 @role_required(['admin', 'directeur', 'secretaire'])
 def ajouter_eleve(request):
-    """Ajout manuel d’un élève"""
+    """Ajout manuel d'un élève"""
     classes = Classe.objects.filter(statut='actif').order_by('nom_classe')
     
     if request.method == 'POST':
@@ -94,6 +151,8 @@ def ajouter_eleve(request):
                     nouveau_numero = 1
 
                 eleve.matricule = f"ELEVE{annee_courante}{nouveau_numero:04d}"
+                
+                # Pa bezwen jere foto isit la - modèl la ap okipe sa otomatikman
                 eleve.save()
 
                 # --- Historique : nouvelle inscription ---
@@ -118,11 +177,15 @@ def ajouter_eleve(request):
 
 
 # -------------------- MODIFIER --------------------
+# -------------------- MODIFIER --------------------
 @role_required(['admin', 'directeur', 'secretaire'])
 def eleve_update(request, pk):
-    """Modifier les informations d’un élève"""
+    """Modifier les informations d'un élève"""
     eleve = get_object_or_404(Eleve, pk=pk)
     ancienne_classe = eleve.classe_actuelle
+    
+    # Jwenn lis klas aktif yo
+    classes = Classe.objects.filter(statut='actif').order_by('nom_classe')
 
     if request.method == 'POST':
         form = EleveForm(request.POST, request.FILES, instance=eleve)
@@ -139,14 +202,18 @@ def eleve_update(request, pk):
                 )
 
             eleve_modifie.save()
-            messages.success(request, "✅ Les informations de l’élève ont été mises à jour.")
-            return redirect('eleves:eleve_detail', pk=eleve.pk)
+            messages.success(request, "✅ Les informations de l'élève ont été mises à jour.")
+            return redirect('eleves:eleve_list', pk=eleve.pk)
         else:
             messages.error(request, "Erreurs dans le formulaire.")
     else:
         form = EleveForm(instance=eleve)
 
-    return render(request, 'eleve_update.html', {'form': form, 'eleve': eleve})
+    return render(request, 'eleve_update.html', {
+        'form': form, 
+        'eleve': eleve,
+        'classes': classes  # Pase klas yo nan kontèks la
+    })
 
 
 # -------------------- ARCHIVER --------------------

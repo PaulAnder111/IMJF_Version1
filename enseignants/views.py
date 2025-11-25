@@ -57,20 +57,25 @@ def enseignant_list(request):
 # ======================================================
 # 🔹 CREATE
 # ======================================================
+
 @role_required(['admin', 'directeur'])
 def create_enseignant(request):
     """Créer un nouvel enseignant"""
     if request.method == 'POST':
         form = EnseignantForm(request.POST, request.FILES)
         if form.is_valid():
-            enseignant = form.save(commit=False)
-            enseignant.cree_par = request.user
-            enseignant.statut = 'actif'
-            enseignant.save()
-            form.save_m2m()
-            messages.success(request, f"L'enseignant {enseignant.nom} {enseignant.prenom} a été ajouté avec succès.")
-            return redirect('enseignants:enseignants')
+            try:
+                enseignant = form.save(commit=False)
+                enseignant.cree_par = request.user
+                enseignant.statut = 'actif'
+                enseignant.save()
+                form.save_m2m()
+                messages.success(request, f"L'enseignant {enseignant.nom} {enseignant.prenom} a été ajouté avec succès.")
+                return redirect('enseignants:enseignants')
+            except Exception as e:
+                messages.error(request, f"Erreur lors de l'ajout : {str(e)}")
         else:
+            # Afiche erè fòm yo
             for field, errors in form.errors.items():
                 for error in errors:
                     messages.error(request, f"{field}: {error}")
@@ -78,7 +83,6 @@ def create_enseignant(request):
         form = EnseignantForm()
 
     return render(request, 'enseignants/ajouter_enseignant.html', {'form': form})
-
 
 # ======================================================
 # 🔹 DETAIL

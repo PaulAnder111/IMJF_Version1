@@ -15,13 +15,22 @@
                 </div>
                 <div>
                     <h1 class="text-2xl font-bold text-white">Détails de l'Élève</h1>
-                    <p class="text-gray-300 text-sm">Informations complètes et historique de l’élève</p>
+                    <p class="text-gray-300 text-sm">Informations complètes et historique de l'élève</p>
                 </div>
             </div>
-            <a href="{% url 'eleves:eleve_list' %}" class="bg-gray-600 hover:bg-gray-700 text-white px-6 py-3 rounded-lg font-semibold transition-all duration-300 flex items-center space-x-2">
-                <i class="fas fa-arrow-left"></i>
-                <span>Retour</span>
-            </a>
+            <div class="flex items-center space-x-3">
+                <!-- Bouton Export CSV -->
+                <a href="{% url 'eleves:export_eleve_csv' eleve.pk %}" 
+                   class="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg font-semibold transition-all duration-300 flex items-center space-x-2">
+                    <i class="fas fa-file-csv"></i>
+                    <span>Export CSV</span>
+                </a>
+                <a href="{% url 'eleves:eleve_list' %}" 
+                   class="bg-gray-600 hover:bg-gray-700 text-white px-6 py-3 rounded-lg font-semibold transition-all duration-300 flex items-center space-x-2">
+                    <i class="fas fa-arrow-left"></i>
+                    <span>Retour</span>
+                </a>
+            </div>
         </div>
     </div>
 
@@ -46,12 +55,18 @@
     <div class="bg-white rounded-lg shadow-lg p-6 mb-6">
         <div class="flex flex-col md:flex-row gap-6">
             <div class="flex-shrink-0">
-                {% if eleve.photo %}
+                {% if eleve.photo and eleve.photo.name != 'eleves/photos/default_avatar.png' %}
+                    <!-- Si gen yon foto uploaded, montre li -->
                     <img src="{{ eleve.photo.url }}" alt="Photo de {{ eleve.prenom }}" 
-                         class="w-32 h-32 rounded-lg object-cover border-2 border-gray-200">
+                         class="w-32 h-32 rounded-lg object-cover border-2 border-gray-200 shadow-md">
                 {% else %}
-                    <div class="w-32 h-32 rounded-lg bg-yellow-500 flex items-center justify-center text-white text-2xl font-bold border-2 border-yellow-400">
-                        {{ eleve.prenom.0|upper }}
+                    <!-- Si pa gen foto, montre div ak inisyal yo -->
+                    <div class="w-32 h-32 rounded-lg bg-gradient-to-br 
+                        {% if eleve.sexe == 'M' %}from-blue-500 to-blue-600{% else %}from-pink-500 to-pink-600{% endif %} 
+                        flex items-center justify-center text-white text-4xl font-bold border-2 
+                        {% if eleve.sexe == 'M' %}border-blue-400{% else %}border-pink-400{% endif %} 
+                        shadow-lg">
+                        {{ eleve.prenom.0|upper }}{{ eleve.nom.0|upper }}
                     </div>
                 {% endif %}
             </div>
@@ -119,6 +134,34 @@
         </div>
     </div>
 
+    <!-- INFORMATIONS DE CONTACT -->
+    <div class="bg-white rounded-lg shadow-lg p-6 mb-6">
+        <div class="border-l-4 border-purple-500 pl-4 mb-4">
+            <h2 class="text-xl font-bold text-gray-800 flex items-center">
+                <i class="fas fa-phone text-purple-500 mr-3"></i>
+                Informations de Contact
+            </h2>
+        </div>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div>
+                <p class="text-sm text-gray-500">Téléphone</p>
+                <p class="font-semibold text-gray-800">{{ eleve.telephone|default:"Non renseigné" }}</p>
+            </div>
+            <div>
+                <p class="text-sm text-gray-500">Email</p>
+                <p class="font-semibold text-gray-800">{{ eleve.email|default:"Non renseigné" }}</p>
+            </div>
+            <div>
+                <p class="text-sm text-gray-500">Nom du Parent</p>
+                <p class="font-semibold text-gray-800">{{ eleve.nom_parent|default:"Non renseigné" }}</p>
+            </div>
+            <div>
+                <p class="text-sm text-gray-500">Téléphone du Parent</p>
+                <p class="font-semibold text-gray-800">{{ eleve.telephone_parent|default:"Non renseigné" }}</p>
+            </div>
+        </div>
+    </div>
+
     <!-- HISTORIQUE DES ACTIONS -->
     <div class="bg-white rounded-lg shadow-lg p-6 mb-8">
         <div class="border-l-4 border-green-500 pl-4 mb-4">
@@ -174,16 +217,6 @@
             <i class="fas fa-times"></i>
             <span>Fermer</span>
         </a>
-        <a href="{% url 'eleves:eleve_update' eleve.id %}" 
-           class="px-6 py-3 bg-blue-500 hover:bg-blue-600 text-white font-semibold rounded-lg transition-all duration-300 flex items-center space-x-2">
-            <i class="fas fa-edit"></i>
-            <span>Modifier</span>
-        </a>
-        <button onclick="confirmDelete('{{ eleve.id }}')" 
-           class="px-6 py-3 bg-red-500 hover:bg-red-600 text-white font-semibold rounded-lg transition-all duration-300 flex items-center space-x-2">
-            <i class="fas fa-trash"></i>
-            <span>Supprimer</span>
-        </button>
     </div>
 </div>
 

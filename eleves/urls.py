@@ -5,12 +5,12 @@ app_name = 'eleves'
 
 urlpatterns = [
     path('eleve_list/', views.eleves_list, name='eleve_list'),  # liste actif
-    path('<int:pk>/eleve_detail/', views.eleve_detail, name='eleve_detail'),
+    path('<int:pk>/eleves_detail/', views.eleve_detail, name='eleves_detail'),
     path('<int:pk>/eleve_update/', views.eleve_update, name='eleve_update'),
     path('<int:pk>/eleve_delete/', views.eleve_delete, name='eleve_delete'),
     path('add_eleves/',views.ajouter_eleve,name='add_eleves'),
     path('archives/', views.eleve_archives, name='eleve_archives'),  # liste archivés
-    
+    path('eleve/<int:pk>/export-csv/', views.export_eleve_csv, name='export_eleve_csv'),
     path('archive/<int:pk>/', views.eleve_archiver, name='eleve_archiver'),  # archive un élève
     path('restaurer/<int:pk>/', views.eleve_restaurer, name='eleve_restaurer'),  # restaurer un élève
 ]

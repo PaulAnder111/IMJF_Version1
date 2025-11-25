@@ -1,0 +1,134 @@
+/* =========================================================
+   IMJF Complete Dark Mode Styles
+   Tables, Modals, Forms, Buttons, Cards, Sidebar
+========================================================= */
+
+/* ===========================
+   1️⃣ Tables
+=========================== */
+.table-base,
+.table,
+.table-dark {
+  @apply min-w-full border-collapse bg-white text-gray-800 dark:bg-gray-900 dark:text-gray-100;
+}
+
+.table-base th,
+.table th,
+.table-dark th {
+  @apply px-4 py-2 bg-gray-200 text-gray-700 dark:bg-gray-700 dark:text-gray-200;
+}
+
+.table-base td,
+.table td,
+.table-dark td {
+  @apply px-4 py-2 border-b border-gray-300 dark:border-gray-600;
+}
+
+.table-base tr:hover,
+.table tr:hover,
+.table-dark tr:hover {
+  @apply bg-gray-100 dark:bg-gray-800;
+}
+
+.table-base tbody tr:nth-child(even),
+.table tbody tr:nth-child(even),
+.table-dark tbody tr:nth-child(even) {
+  @apply bg-gray-50 dark:bg-gray-800;
+}
+
+.table-base tbody tr:nth-child(odd),
+.table tbody tr:nth-child(odd),
+.table-dark tbody tr:nth-child(odd) {
+  @apply bg-white dark:bg-gray-900;
+}
+
+.table-base,
+.table,
+.table-dark {
+  @apply border border-gray-300 dark:border-gray-600;
+}
+
+.table-base caption,
+.table caption,
+.table-dark caption {
+  @apply text-gray-700 dark:text-gray-300 py-2 font-semibold;
+}
+
+/* ===========================
+   2️⃣ Modals
+=========================== */
+.modal-base {
+  @apply modal-content bg-white text-gray-800 dark:bg-gray-800 dark:text-gray-100 rounded-2xl shadow-2xl p-6 transform transition-all;
+}
+
+/* ===========================
+   3️⃣ Forms (Input, Textarea, Select)
+=========================== */
+.input-base,
+.textarea-base,
+.select-base {
+  @apply w-full px-4 py-3 border-2 border-gray-300 dark:border-gray-600 rounded-lg 
+         focus:ring-2 focus:ring-yellow-500 focus:border-transparent 
+         bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100;
+}
+
+/* ===========================
+   4️⃣ Buttons
+=========================== */
+.btn-yellow {
+  @apply bg-gradient-to-r from-yellow-500 to-yellow-600 text-white px-6 py-3 rounded-lg 
+         hover:from-yellow-600 hover:to-yellow-700 transition shadow-lg font-semibold;
+}
+
+.btn-gray {
+  @apply bg-gray-500 text-white px-6 py-3 rounded-lg hover:bg-gray-600 transition shadow-lg font-semibold;
+}
+
+.btn-green {
+  @apply bg-gradient-to-r from-green-500 to-green-600 text-white px-6 py-3 rounded-lg 
+         hover:from-green-600 hover:to-green-700 transition shadow-lg font-semibold;
+}
+
+/* ===========================
+   5️⃣ Cards / Boxes
+=========================== */
+.card-base {
+  @apply bg-white dark:bg-gray-800 text-gray-800 dark:text-gray-100 rounded-xl shadow-lg p-4;
+}
+
+/* ===========================
+   6️⃣ Sidebar
+=========================== */
+.sidebar-base {
+  @apply fixed left-0 top-0 h-full pt-16 z-30 bg-white dark:bg-gray-900 text-gray-800 dark:text-gray-100 overflow-y-auto;
+}
+
+.sidebar-base a {
+  @apply flex items-center gap-3 px-4 py-3 rounded-lg transition hover:bg-gray-100 dark:hover:bg-gray-800;
+}
+
+/* ===========================
+   7️⃣ Table Scroll / Responsive
+=========================== */
+.table-responsive {
+  @apply overflow-x-auto;
+}
+
+/* ===========================
+   8️⃣ Misc Elements
+=========================== */
+.text-dark {
+  @apply text-gray-900 dark:text-gray-100;
+}
+
+.bg-dark {
+  @apply bg-white dark:bg-gray-900;
+}
+
+.border-dark {
+  @apply border-gray-300 dark:border-gray-600;
+}
+
+.hover-dark:hover {
+  @apply bg-gray-100 dark:bg-gray-800;
+}
