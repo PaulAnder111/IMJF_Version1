@@ -4,312 +4,362 @@
 {% block title %}Liste des Cours - SYGEE{% endblock %}
 
 {% block content %}
-<div class="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100">
+{% include "messages_block.html" %}
 
-    <!-- Header -->
-    <div class="bg-gradient-to-r from-gray-800 via-gray-700 to-yellow-600 shadow-md">
-        <div class="max-w-7xl mx-auto px-3 sm:px-4 lg:px-6 py-4 flex flex-col md:flex-row justify-between items-center">
-            <div class="mb-2 md:mb-0 text-center md:text-left">
-                <h1 class="text-2xl font-bold text-white flex items-center justify-center md:justify-start">
-                    <svg class="w-7 h-7 mr-2 text-yellow-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
-                              d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13"/>
-                    </svg>
-                    Gestion des Cours
-                </h1>
-                <p class="text-gray-200 mt-1 text-sm">Gérez tous les cours de l'établissement</p>
-            </div>
-            
-            <!-- Bouton Ajouter - Cache pour SECRETAIRE et ARCHIVE -->
-            {% if request.user.role == 'admin' or request.user.role == 'directeur' %}
-            <a href="{% url 'cours:ajouter_cours' %}"
-               class="inline-flex items-center justify-center bg-yellow-500 hover:bg-yellow-400 text-gray-900 font-medium px-4 py-2 rounded-lg shadow-md transform hover:scale-105 transition duration-300 text-sm">
-                ➕ Ajouter un Cours
-            </a>
-            {% endif %}
-        </div>
+<!-- SECTION HEADER AVEC GRADIENT (GRIS FONSE → OR) -->
+<div class="bg-gradient-to-r from-gray-800 to-amber-500 py-4 px-3 sm:px-6 text-white shadow-md mb-6 rounded-lg">
+  <div class="max-w-7xl mx-auto flex flex-col sm:flex-row justify-between items-center gap-2">
+    <div class="text-center sm:text-left">
+      <h1 class="text-2xl font-bold mb-1">Gestion des Cours</h1>
+      <p class="text-white/80 text-sm">Gérez tous les cours de l'établissement</p>
     </div>
-
-    <!-- Statistiques -->
-    <div class="max-w-7xl mx-auto mt-6 px-6 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 text-center">
-        <div class="bg-white shadow-md rounded-xl p-4 border-t-4 border-yellow-500">
-            <h3 class="text-sm font-medium text-gray-600">Total Cours</h3>
-            <p class="text-2xl font-bold text-gray-900">{{ total_cours }}</p>
-        </div>
-        <div class="bg-white shadow-md rounded-xl p-4 border-t-4 border-green-500">
-            <h3 class="text-sm font-medium text-gray-600">Actifs</h3>
-            <p class="text-2xl font-bold text-green-600">{{ cours_actifs }}</p>
-        </div>
-        <div class="bg-white shadow-md rounded-xl p-4 border-t-4 border-red-500">
-            <h3 class="text-sm font-medium text-gray-600">Inactifs</h3>
-            <p class="text-2xl font-bold text-red-600">{{ cours_inactifs }}</p>
-        </div>
-        <div class="bg-white shadow-md rounded-xl p-4 border-t-4 border-blue-500">
-            <h3 class="text-sm font-medium text-gray-600">Total Enseignants</h3>
-            <p class="text-2xl font-bold text-blue-600">{{ total_enseignants }}</p>
-        </div>
-    </div>
-
-    <!-- Barre de recherche et filtres -->
-    <div class="max-w-7xl mx-auto mt-6 px-6 flex flex-col sm:flex-row gap-4 items-center">
-        <!-- Recherche -->
-        <input type="text" id="searchInput" placeholder="Rechercher par Matière, Enseignant, Jour..."
-               class="flex-1 border rounded-lg px-3 py-2 focus:ring-2 focus:ring-yellow-400 focus:outline-none"
-               onkeyup="filterTable()">
-
-        <!-- Filtre Statut -->
-        <select id="filterStatut" class="border rounded-lg px-3 py-2 focus:ring-2 focus:ring-yellow-400 focus:outline-none"
-                onchange="filterTable()">
-            <option value="">Tous Statuts</option>
-            <option value="actif">Actif</option>
-            <option value="inactif">Inactif</option>
-        </select>
-
-        <!-- Filtre Classe -->
-        <select id="filterClasse" class="border rounded-lg px-3 py-2 focus:ring-2 focus:ring-yellow-400 focus:outline-none"
-                onchange="filterTable()">
-            <option value="">Toutes Classes</option>
-            {% for classe in classes %}
-            <option value="{{ classe.nom_classe }}">{{ classe.nom_classe }}</option>
-            {% endfor %}
-        </select>
-    </div>
-
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
-        {% if cours %}
-        <div class="bg-white rounded-2xl shadow-lg overflow-hidden mt-4">
-            <div class="overflow-x-auto">
-                <table class="w-full">
-                    <thead class="bg-gray-800 text-white">
-                        <tr>
-                          <th class="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wider">Matière</th>
-                          <th class="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wider">Classe</th>
-                          <th class="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wider">Enseignant</th>
-                          <th class="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wider">Jour</th>
-                          <th class="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wider">Heures</th>
-                          <th class="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wider">Salle</th>
-                          <th class="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wider">Statut</th>
-                          <th class="px-4 py-3 text-center text-xs font-semibold uppercase tracking-wider">Actions</th>
-                     </tr>
-                    </thead>
-                    <tbody class="divide-y divide-gray-200">
-                        {% for cours in cours %}
-                        <tr class="hover:bg-gray-50 transition">
-                            <td class="px-4 py-3 text-sm text-gray-800">{{ cours.matiere.nom|default:cours.matiere }}</td>
-                            <td class="px-4 py-3 text-sm text-gray-700">{{ cours.classe.nom|default:cours.classe }}</td>
-                            <td class="px-4 py-3 text-sm text-gray-700">{{ cours.enseignant.nom }} {{ cours.enseignant.prenom }}</td>
-                            <td class="px-4 py-3 text-sm text-gray-700">{{ cours.jour }}</td>
-                            <td class="px-4 py-3 text-sm text-gray-700">{{ cours.heure_debut }} - {{ cours.heure_fin }}</td>
-                            <td class="px-4 py-3 text-sm text-gray-700">{{ cours.salle|default:"-" }}</td>
-                            <td class="px-4 py-3 text-sm">
-                                {% if cours.statut == 'actif' %}
-                                    <span class="bg-green-100 text-green-700 px-2 py-1 rounded-full text-xs font-semibold">Actif</span>
-                                {% else %}
-                                    <span class="bg-red-100 text-red-700 px-2 py-1 rounded-full text-xs font-semibold">Inactif</span>
-                                {% endif %}
-                            </td>
-                            <td class="px-4 py-3 text-center">
-                                <div class="flex justify-center gap-2">
-                                    <!-- Bouton Voir - Visible pour tous -->
-                                    <a href="#"
-                                       class="text-gray-700 hover:text-gray-900 bg-gray-100 hover:bg-gray-200 px-3 py-1.5 rounded-lg transition text-sm font-medium"
-                                       title="Voir Détails">
-                                        <svg class="w-4 h-4 inline" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                                  d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                                  d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
-                                        </svg>
-                                    </a>
-                                    
-                                    <!-- Bouton Modifier - Cache pour ARCHIVE -->
-                                    {% if request.user.role != 'archives' %}
-                                    <a href="{% url 'cours:modifier_cours' cours.id %}"
-                                       class="text-blue-600 hover:text-blue-700 bg-blue-50 hover:bg-blue-100 px-3 py-1.5 rounded-lg transition text-sm font-medium"
-                                       title="Modifier">
-                                        <svg class="w-4 h-4 inline" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                                  d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
-                                        </svg>
-                                    </a>
-                                    {% endif %}
-                                    
-                                    <!-- Bouton Supprimer - Cache pour SECRETAIRE et ARCHIVE -->
-                                    {% if request.user.role == 'admin' or request.user.role == 'directeur' %}
-                                    <button onclick="confirmDelete('{{ cours.id }}', '{{ cours.matiere.nom }}')"
-                                            class="text-red-600 hover:text-red-700 bg-red-50 hover:bg-red-100 px-3 py-1.5 rounded-lg transition text-sm font-medium"
-                                            title="Supprimer">
-                                        <svg class="w-4 h-4 inline" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                                  d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
-                                        </svg>
-                                    </button>
-                                    {% endif %}
-                                </div>
-                            </td>
-                        </tr>
-                        {% endfor %}
-                    </tbody>
-                </table>
-            </div>
-        </div>
-
-        {% else %}
-        <div class="bg-white rounded-2xl shadow-lg p-12 text-center mt-6">
-            <svg class="w-24 h-24 mx-auto text-gray-300 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                      d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13"/>
-            </svg>
-            <h3 class="text-2xl font-bold text-gray-700 mb-2">Aucun cours trouvé</h3>
-            <p class="text-gray-500 mb-6">Commencez par ajouter votre premier cours</p>
-            
-            <!-- Bouton Ajouter dans état vide - Cache pour SECRETAIRE et ARCHIVE -->
-            {% if request.user.role == 'admin' or request.user.role == 'directeur' %}
-            <a href="{% url 'cours:ajouter_cours' %}"
-               class="inline-flex items-center justify-center bg-yellow-500 hover:bg-yellow-400 text-gray-900 font-bold px-6 py-3 rounded-lg shadow-md transform hover:scale-105 transition duration-300">
-                ➕ Ajouter un Cours
-            </a>
-            {% endif %}
-        </div>
-        {% endif %}
-    </div>
+    
+    <!-- Bouton Ajouter - Cache pour SECRETAIRE et ARCHIVE -->
+    {% if request.user.role == 'admin' or request.user.role == 'directeur' %}
+    <a href="{% url 'cours:ajouter_cours' %}"
+       class="inline-flex items-center px-4 py-2 bg-white/20 text-white font-semibold rounded-lg shadow-md hover:bg-white/30 transform hover:scale-105 transition-all duration-300 ease-in-out text-sm border border-white/30">
+      <i class="fas fa-plus-circle mr-2"></i> Ajouter un Cours
+    </a>
+    {% endif %}
+  </div>
 </div>
 
-<!-- Modal Messages -->
-<div id="messageModal" class="fixed inset-0 flex items-center justify-center bg-black bg-opacity-40 z-50 hidden">
-    <div class="bg-white rounded-xl shadow-lg max-w-md w-full p-6 relative">
-        <button onclick="closeModal()" class="absolute top-3 right-3 text-gray-500 hover:text-gray-700">✖</button>
-        <div id="modalMessageContent" class="text-gray-800 text-sm font-medium"></div>
+<div class="max-w-7xl mx-auto px-4">
+  <!-- STATISTIQUES AVEC KOULE -->
+  <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+    <!-- Total Cours -->
+    <div class="bg-gradient-to-br from-amber-400 to-amber-500 rounded-xl shadow-lg p-5 transform hover:scale-105 transition-all duration-300">
+      <div class="flex items-center justify-between">
+        <div>
+          <p class="text-sm text-white font-semibold mb-1">Total Cours</p>
+          <p class="text-3xl font-bold text-white">{{ total_cours|default:"0" }}</p>
+        </div>
+        <div class="w-14 h-14 bg-white/20 rounded-full flex items-center justify-center shadow-lg">
+          <i class="fas fa-book text-white text-2xl"></i>
+        </div>
+      </div>
+      <p class="text-xs text-white/90 mt-2 font-medium">
+        <i class="fas fa-book mr-1"></i> Tous les cours
+      </p>
     </div>
+
+    <!-- Cours Actifs -->
+    <div class="bg-gradient-to-br from-green-500 to-green-600 rounded-xl shadow-lg p-5 transform hover:scale-105 transition-all duration-300">
+      <div class="flex items-center justify-between">
+        <div>
+          <p class="text-sm text-white font-semibold mb-1">Actifs</p>
+          <p class="text-3xl font-bold text-white">{{ cours_actifs|default:"0" }}</p>
+        </div>
+        <div class="w-14 h-14 bg-white/20 rounded-full flex items-center justify-center shadow-lg">
+          <i class="fas fa-check-circle text-white text-2xl"></i>
+        </div>
+      </div>
+      <p class="text-xs text-white/90 mt-2 font-medium">
+        <i class="fas fa-circle mr-1"></i> En activité
+      </p>
+    </div>
+
+    <!-- Cours Inactifs -->
+    <div class="bg-gradient-to-br from-red-500 to-red-600 rounded-xl shadow-lg p-5 transform hover:scale-105 transition-all duration-300">
+      <div class="flex items-center justify-between">
+        <div>
+          <p class="text-sm text-white font-semibold mb-1">Inactifs</p>
+          <p class="text-3xl font-bold text-white">{{ cours_inactifs|default:"0" }}</p>
+        </div>
+        <div class="w-14 h-14 bg-white/20 rounded-full flex items-center justify-center shadow-lg">
+          <i class="fas fa-pause-circle text-white text-2xl"></i>
+        </div>
+      </div>
+      <p class="text-xs text-white/90 mt-2 font-medium">
+        <i class="fas fa-times-circle mr-1"></i> Suspendus
+      </p>
+    </div>
+
+    <!-- Total Enseignants -->
+    <div class="bg-gradient-to-br from-blue-500 to-blue-600 rounded-xl shadow-lg p-5 transform hover:scale-105 transition-all duration-300">
+      <div class="flex items-center justify-between">
+        <div>
+          <p class="text-sm text-white font-semibold mb-1">Enseignants</p>
+          <p class="text-3xl font-bold text-white">{{ total_enseignants|default:"0" }}</p>
+        </div>
+        <div class="w-14 h-14 bg-white/20 rounded-full flex items-center justify-center shadow-lg">
+          <i class="fas fa-chalkboard-teacher text-white text-2xl"></i>
+        </div>
+      </div>
+      <p class="text-xs text-white/90 mt-2 font-medium">
+        <i class="fas fa-users mr-1"></i> Enseignants actifs
+      </p>
+    </div>
+  </div>
+
+  <!-- RECHERCHE ET FILTRE - BLAN TOUT SENP -->
+  <div class="bg-white rounded-xl border border-gray-200 shadow-sm p-6 mb-6">
+    <div class="flex flex-col md:flex-row gap-4">
+      <!-- Barre de recherche automatique -->
+      <div class="flex-1 relative">
+        <div class="absolute inset-y-0 left-0 flex items-center pl-4 pointer-events-none">
+          <i class="fas fa-search text-gray-400"></i>
+        </div>
+        <input 
+          type="text" 
+          id="searchInput"
+          placeholder="Rechercher par matière, enseignant, classe, jour..." 
+          class="w-full pl-12 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-amber-500 focus:border-amber-500 text-gray-900 text-sm"
+          onkeyup="filterTable()"
+        >
+      </div>
+
+      <!-- Filtre par statut -->
+      <div class="relative">
+        <div class="absolute inset-y-0 left-0 flex items-center pl-4 pointer-events-none">
+          <i class="fas fa-filter text-gray-400"></i>
+        </div>
+        <select 
+          id="filterStatut"
+          class="w-full md:w-48 pl-12 pr-10 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-amber-500 focus:border-amber-500 text-gray-900 appearance-none cursor-pointer text-sm"
+          onchange="filterTable()"
+        >
+          <option value="">Tous les statuts</option>
+          <option value="actif">Actif</option>
+          <option value="inactif">Inactif</option>
+        </select>
+        <div class="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
+          <i class="fas fa-chevron-down text-gray-400"></i>
+        </div>
+      </div>
+
+      <!-- Filtre par classe -->
+      <div class="relative">
+        <div class="absolute inset-y-0 left-0 flex items-center pl-4 pointer-events-none">
+          <i class="fas fa-graduation-cap text-gray-400"></i>
+        </div>
+        <select 
+          id="filterClasse"
+          class="w-full md:w-48 pl-12 pr-10 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-amber-500 focus:border-amber-500 text-gray-900 appearance-none cursor-pointer text-sm"
+          onchange="filterTable()"
+        >
+          <option value="">Toutes les classes</option>
+          {% for classe in classes %}
+          <option value="{{ classe.nom_classe }}">{{ classe.nom_classe }}</option>
+          {% endfor %}
+        </select>
+        <div class="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
+          <i class="fas fa-chevron-down text-gray-400"></i>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- TABLEAU - BLAN TOUT SENP -->
+  {% if cours %}
+  <div class="bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden">
+    <div class="overflow-x-auto">
+      <table class="w-full">
+        <thead class="bg-gray-50 border-b border-gray-200">
+          <tr>
+            <th class="px-6 py-4 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">
+              <i class="fas fa-book mr-2 text-amber-500"></i>Matière
+            </th>
+            <th class="px-6 py-4 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">
+              <i class="fas fa-graduation-cap mr-2 text-amber-500"></i>Classe
+            </th>
+            <th class="px-6 py-4 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">
+              <i class="fas fa-user-tie mr-2 text-amber-500"></i>Enseignant
+            </th>
+            <th class="px-6 py-4 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">
+              <i class="fas fa-calendar-day mr-2 text-amber-500"></i>Jour
+            </th>
+            <th class="px-6 py-4 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">
+              <i class="fas fa-clock mr-2 text-amber-500"></i>Heures
+            </th>
+            <th class="px-6 py-4 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">
+              <i class="fas fa-door-open mr-2 text-amber-500"></i>Salle
+            </th>
+            <th class="px-6 py-4 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">
+              <i class="fas fa-circle mr-2 text-amber-500"></i>Statut
+            </th>
+            <th class="px-6 py-4 text-center text-xs font-semibold text-gray-700 uppercase tracking-wider">
+              <i class="fas fa-cog mr-2 text-amber-500"></i>Actions
+            </th>
+          </tr>
+        </thead>
+        <tbody class="divide-y divide-gray-200" id="coursTable">
+          {% for cours in cours %}
+          <tr class="hover:bg-gray-50 transition-colors duration-200 cours-row">
+            <td class="px-6 py-4 whitespace-nowrap">
+              <div class="flex items-center">
+                <div class="flex-shrink-0 h-10 w-10 bg-amber-50 rounded-lg flex items-center justify-center border border-amber-200">
+                  <i class="fas fa-book text-amber-500 text-sm"></i>
+                </div>
+                <div class="ml-4">
+                  <div class="text-sm font-semibold text-gray-900">{{ cours.matiere.nom|default:cours.matiere }}</div>
+                  <div class="text-xs text-gray-500">{{ cours.matiere.code|default:"" }}</div>
+                </div>
+              </div>
+            </td>
+            <td class="px-6 py-4 whitespace-nowrap">
+              <span class="text-sm font-medium text-gray-900 bg-blue-50 px-3 py-1 rounded-full border border-blue-200">
+                {{ cours.classe.nom|default:cours.classe }}
+              </span>
+            </td>
+            <td class="px-6 py-4 whitespace-nowrap">
+              <div class="flex items-center">
+                <div class="flex-shrink-0 h-8 w-8 bg-amber-50 rounded-full flex items-center justify-center text-amber-600 text-xs font-bold border border-amber-200">
+                  {{ cours.enseignant.nom.0 }}{{ cours.enseignant.prenom.0 }}
+                </div>
+                <div class="ml-3">
+                  <div class="text-sm font-medium text-gray-900">{{ cours.enseignant.nom }} {{ cours.enseignant.prenom }}</div>
+                </div>
+              </div>
+            </td>
+            <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-700">
+              <i class="fas fa-calendar text-amber-500 mr-2"></i>{{ cours.jour }}
+            </td>
+            <td class="px-6 py-4 whitespace-nowrap">
+              <div class="text-sm text-gray-900 font-medium">{{ cours.heure_debut }}</div>
+              <div class="text-xs text-gray-500">à {{ cours.heure_fin }}</div>
+            </td>
+            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-700">
+              {% if cours.salle %}
+                <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-800 border border-gray-200">
+                  <i class="fas fa-door-open mr-1"></i>{{ cours.salle }}
+                </span>
+              {% else %}
+                <span class="text-gray-400 italic">—</span>
+              {% endif %}
+            </td>
+            <td class="px-6 py-4 whitespace-nowrap">
+              {% if cours.statut == 'actif' %}
+                <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold bg-green-100 text-green-800 border border-green-200">
+                  <i class="fas fa-check-circle mr-1"></i> Actif
+                </span>
+              {% else %}
+                <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold bg-red-100 text-red-800 border border-red-200">
+                  <i class="fas fa-times-circle mr-1"></i> Inactif
+                </span>
+              {% endif %}
+            </td>
+            <td class="px-6 py-4 whitespace-nowrap text-center">
+              <div class="flex justify-center gap-2">
+                <!-- Détails - Visible pour tous -->
+                <a href="#"
+                   class="inline-flex items-center justify-center w-9 h-9 text-gray-600 hover:text-white bg-gray-100 hover:bg-gray-600 rounded-lg transition-all duration-200 shadow-sm hover:shadow-md transform hover:scale-110"
+                   title="Voir Détails">
+                  <i class="fas fa-eye"></i>
+                </a>
+                
+                <!-- Modifier - Cache pour ARCHIVE -->
+                {% if request.user.role != 'archives' %}
+                <a href="{% url 'cours:modifier_cours' cours.id %}"
+                   class="inline-flex items-center justify-center w-9 h-9 text-blue-600 hover:text-white bg-blue-100 hover:bg-blue-600 rounded-lg transition-all duration-200 shadow-sm hover:shadow-md transform hover:scale-110"
+                   title="Modifier">
+                  <i class="fas fa-edit"></i>
+                </a>
+                {% endif %}
+                
+                <!-- Supprimer - Cache pour SECRETAIRE et ARCHIVE -->
+                {% if request.user.role == 'admin' or request.user.role == 'directeur' %}
+                <button onclick="confirmDelete('{{ cours.id }}', '{{ cours.matiere.nom|default:cours.matiere }}')"
+                   class="inline-flex items-center justify-center w-9 h-9 text-red-600 hover:text-white bg-red-100 hover:bg-red-600 rounded-lg transition-all duration-200 shadow-sm hover:shadow-md transform hover:scale-110"
+                   title="Supprimer">
+                  <i class="fas fa-trash"></i>
+                </button>
+                {% endif %}
+              </div>
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  {% else %}
+  <!-- MESSAGE VIDE - BLAN TOUT SENP -->
+  <div class="bg-white rounded-xl border border-gray-200 shadow-sm p-12 text-center">
+    <div class="w-24 h-24 mx-auto mb-6 bg-amber-50 rounded-full flex items-center justify-center border border-amber-200">
+      <i class="fas fa-book-open text-3xl text-amber-500"></i>
+    </div>
+    <h3 class="text-2xl font-bold text-gray-700 mb-3">Aucun cours trouvé</h3>
+    <p class="text-gray-500 mb-6">
+      {% if request.GET.search %}
+        Aucun résultat ne correspond à votre recherche.
+      {% else %}
+        Commencez par ajouter votre premier cours.
+      {% endif %}
+    </p>
+    
+    <!-- Bouton Ajouter dans état vide - Cache pour SECRETAIRE et ARCHIVE -->
+    {% if request.user.role == 'admin' or request.user.role == 'directeur' %}
+    <a href="{% url 'cours:ajouter_cours' %}" 
+       class="inline-flex items-center justify-center bg-amber-500 hover:bg-amber-600 text-white font-semibold px-8 py-3 rounded-lg shadow-md transform hover:scale-105 transition duration-300">
+      <i class="fas fa-plus-circle mr-2"></i> Ajouter un cours
+    </a>
+    {% endif %}
+  </div>
+  {% endif %}
 </div>
 
 <script>
-// Modal messages
-document.addEventListener('DOMContentLoaded', () => {
-     {% if messages %}
-        const modal = document.getElementById('messageModal');
-        const content = document.getElementById('modalMessageContent');
-
-        let html = '';
-        {% for message in messages %}
-            html += '<div class="mb-2 px-4 py-2 rounded ' + 
-                   '{% if message.tags == "success" %}bg-green-100 text-green-700{% endif %}' +
-                   '{% if message.tags == "error" %}bg-red-100 text-red-700{% endif %}' +
-                   '{% if message.tags == "warning" %}bg-yellow-100 text-yellow-700{% endif %}">' +
-                   '{{ message|safe }}</div>';
-        {% endfor %}
-        content.innerHTML = html;
-        modal.classList.remove('hidden');
-        setTimeout(() => { modal.classList.add('hidden'); }, 5000);
-    {% endif %}
-});
-
-function closeModal() {
-    document.getElementById('messageModal').classList.add('hidden');
-}
-
-// Recherche et filtres live
+// Script pour la recherche et le filtrage
 function filterTable() {
     const input = document.getElementById("searchInput").value.toLowerCase();
     const statutFilter = document.getElementById("filterStatut").value.toLowerCase();
     const classeFilter = document.getElementById("filterClasse").value.toLowerCase();
-    const table = document.querySelector("table tbody");
-    const rows = table.getElementsByTagName("tr");
+    const rows = document.querySelectorAll("#coursTable .cours-row");
 
-    for (let i = 0; i < rows.length; i++) {
-        const cols = rows[i].getElementsByTagName("td");
-        let matiere = cols[0].textContent.toLowerCase();
-        let classe = cols[1].textContent.toLowerCase();
-        let enseignant = cols[2].textContent.toLowerCase();
-        let jour = cols[3].textContent.toLowerCase();
-        let statut = cols[6].textContent.toLowerCase();
+    rows.forEach(row => {
+        const cols = row.getElementsByTagName("td");
+        const matiere = cols[0].textContent.toLowerCase();
+        const classe = cols[1].textContent.toLowerCase();
+        const enseignant = cols[2].textContent.toLowerCase();
+        const jour = cols[3].textContent.toLowerCase();
+        const statut = cols[6].textContent.toLowerCase();
 
-        let matchesSearch = matiere.includes(input) || enseignant.includes(input) || jour.includes(input);
-        let matchesStatut = statutFilter === "" || statut.includes(statutFilter);
-        let matchesClasse = classeFilter === "" || classe.includes(classeFilter);
+        const matchesSearch = matiere.includes(input) || 
+                            classe.includes(input) || 
+                            enseignant.includes(input) || 
+                            jour.includes(input);
+        
+        const matchesStatut = statutFilter === "" || statut.includes(statutFilter);
+        const matchesClasse = classeFilter === "" || classe.includes(classeFilter);
 
-        rows[i].style.display = (matchesSearch && matchesStatut && matchesClasse) ? "" : "none";
-    }
+        row.style.display = (matchesSearch && matchesStatut && matchesClasse) ? "" : "none";
+    });
 }
 
-// Confirmation suppression - Seulement pour ADMIN et DIRECTEUR
+// Confirmation de suppression
 function confirmDelete(coursId, coursName) {
     if(confirm(`Êtes-vous sûr de vouloir supprimer le cours "${coursName}" ?`)) {
         window.location.href = `/cours/supprimer/${coursId}/`;
     }
 }
+
+// Animation des cartes statistiques
+document.addEventListener('DOMContentLoaded', function() {
+    const observerOptions = {
+        threshold: 0.1,
+        rootMargin: '0px 0px -100px 0px'
+    };
+
+    const observer = new IntersectionObserver(function(entries) {
+        entries.forEach(entry => {
+            if (entry.isIntersecting) {
+                entry.target.style.opacity = '0';
+                entry.target.style.transform = 'translateY(20px)';
+                setTimeout(() => {
+                    entry.target.style.transition = 'all 0.5s ease-out';
+                    entry.target.style.opacity = '1';
+                    entry.target.style.transform = 'translateY(0)';
+                }, 100);
+                observer.unobserve(entry.target);
+            }
+        });
+    }, observerOptions);
+
+    document.querySelectorAll('.grid > div').forEach(card => {
+        observer.observe(card);
+    });
+});
 </script>
-
-<!-- Style pour assurer la compatibilité avec la sidebar -->
-<style>
-@media (min-width: 1024px) {
-    .max-w-7xl {
-        max-width: 80rem;
-        margin-left: auto;
-        margin-right: auto;
-    }
-}
-
-/* Assurer que le contenu ne dépasse pas sous la sidebar */
-.min-h-screen {
-    min-height: calc(100vh - 4rem);
-}
-
-/* Responsive pour mobile */
-@media (max-width: 768px) {
-    .px-4 {
-        padding-left: 1rem;
-        padding-right: 1rem;
-    }
-    
-    .py-6 {
-        padding-top: 1.5rem;
-        padding-bottom: 1.5rem;
-    }
-    
-    .gap-4 {
-        gap: 1rem;
-    }
-    
-    .text-2xl {
-        font-size: 1.5rem;
-    }
-    
-    .grid-cols-4 {
-        grid-template-columns: repeat(2, minmax(0, 1fr));
-    }
-    
-    /* Ajustements pour les boutons d'action sur mobile */
-    .flex.justify-center.gap-2 {
-        gap: 0.25rem;
-    }
-    
-    .px-3.py-1-5 {
-        padding-left: 0.5rem;
-        padding-right: 0.5rem;
-        padding-top: 0.375rem;
-        padding-bottom: 0.375rem;
-    }
-}
-
-/* Ajustements pour très petits écrans */
-@media (max-width: 640px) {
-    .px-6 {
-        padding-left: 1rem;
-        padding-right: 1rem;
-    }
-    
-    .grid-cols-2 {
-        grid-template-columns: repeat(1, minmax(0, 1fr));
-    }
-    
-    .flex-col.sm\:flex-row {
-        flex-direction: column;
-    }
-    
-    .gap-4 {
-        gap: 0.75rem;
-    }
-}
-</style>
 {% endblock %}

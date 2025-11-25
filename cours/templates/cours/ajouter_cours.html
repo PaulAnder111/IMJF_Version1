@@ -4,260 +4,293 @@
 {% block title %}Ajouter un Cours - SYGEE{% endblock %}
 
 {% block content %}
-<div class="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100">
-    <!-- En-tête réduit -->
-    <div class="bg-gradient-to-r from-gray-800 via-gray-700 to-yellow-600 shadow-lg">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 flex flex-col md:flex-row md:items-center md:justify-between">
-            <div>
-                <h1 class="text-2xl font-bold text-white flex items-center">
-                    <svg class="w-6 h-6 mr-2 text-yellow-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v12m6-6H6" />
-                    </svg>
-                    Ajouter un Cours
-                </h1>
-                <p class="text-gray-200 text-sm">Créez un nouveau cours dans le système</p>
-            </div>
-            <a href="{% url 'cours:cours' %}"
-               class="mt-2 md:mt-0 inline-flex items-center justify-center bg-gray-200 hover:bg-gray-300 text-gray-900 font-medium px-4 py-2 rounded-lg shadow transform hover:scale-105 transition duration-200 text-sm">
-                <i class="fas fa-arrow-left mr-2"></i> Retour
-            </a>
-        </div>
+{% include "messages_block.html" %}
+
+<!-- SECTION HEADER AVEC GRADIENT (GRIS FONSE → OR) -->
+<div class="bg-gradient-to-r from-gray-800 to-amber-500 py-4 px-3 sm:px-6 text-white shadow-md mb-6 rounded-lg">
+  <div class="max-w-7xl mx-auto flex flex-col sm:flex-row justify-between items-center gap-2">
+    <div class="text-center sm:text-left">
+      <h1 class="text-2xl font-bold mb-1">Ajouter un Cours</h1>
+      <p class="text-white/80 text-sm">Créez un nouveau cours dans le système</p>
     </div>
-
-    <!-- Formulaire plus compact et horizontal -->
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
-        <div class="bg-white rounded-xl shadow-lg p-4 sm:p-6">
-            <h2 class="text-lg font-bold text-gray-800 mb-4 flex items-center">
-                <i class="fas fa-book-open text-yellow-500 mr-2"></i> Informations du cours
-            </h2>
-
-            <form method="POST" class="space-y-4">
-                {% csrf_token %}
-
-                <!-- LIGNE 1 - Plus compacte -->
-                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
-                    <!-- Matière -->
-                    <div class="form-group">
-                        <label class="block font-medium text-gray-700 mb-1 text-sm flex items-center">
-                            <i class="fas fa-book text-yellow-500 mr-1 text-xs"></i> Matière
-                        </label>
-                        <select name="matiere" required class="form-field-compact">
-                            <option value="">--- Choisir ---</option>
-                            {% for matiere in matieres %}
-                                <option value="{{ matiere.id }}">{{ matiere.nom_matiere }}</option>
-                            {% endfor %}
-                        </select>
-                    </div>
-
-                    <!-- Classe -->
-                    <div class="form-group">
-                        <label class="block font-medium text-gray-700 mb-1 text-sm flex items-center">
-                            <i class="fas fa-users text-yellow-500 mr-1 text-xs"></i> Classe
-                        </label>
-                        <select name="classe" required class="form-field-compact">
-                            <option value="">--- Choisir ---</option>
-                            {% for classe in classes %}
-                                <option value="{{ classe.id }}">{{ classe.nom_classe }}</option>
-                            {% endfor %}
-                        </select>
-                    </div>
-
-                    <!-- Enseignant -->
-                    <div class="form-group">
-                        <label class="block font-medium text-gray-700 mb-1 text-sm flex items-center">
-                            <i class="fas fa-chalkboard-teacher text-yellow-500 mr-1 text-xs"></i> Enseignant
-                        </label>
-                        <select name="enseignant" required class="form-field-compact">
-                            <option value="">--- Choisir ---</option>
-                            {% for enseignant in enseignants %}
-                                <option value="{{ enseignant.id }}">{{ enseignant.prenom }} {{ enseignant.nom }}</option>
-                            {% endfor %}
-                        </select>
-                    </div>
-                </div>
-
-                <!-- LIGNE 2 - Plus compacte -->
-                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
-                    <!-- Jour -->
-                    <div class="form-group">
-                        <label class="block font-medium text-gray-700 mb-1 text-sm flex items-center">
-                            <i class="fas fa-calendar-day text-yellow-500 mr-1 text-xs"></i> Jour
-                        </label>
-                        <select name="jour" required class="form-field-compact">
-                            {% for key, value in jours %}
-                                <option value="{{ key }}">{{ value }}</option>
-                            {% endfor %}
-                        </select>
-                    </div>
-
-                    <!-- Heure début -->
-                    <div class="form-group">
-                        <label class="block font-medium text-gray-700 mb-1 text-sm flex items-center">
-                            <i class="fas fa-clock text-yellow-500 mr-1 text-xs"></i> Heure début
-                        </label>
-                        <input type="time" name="heure_debut" required class="form-field-compact">
-                    </div>
-
-                    <!-- Heure fin -->
-                    <div class="form-group">
-                        <label class="block font-medium text-gray-700 mb-1 text-sm flex items-center">
-                            <i class="fas fa-clock text-yellow-500 mr-1 text-xs"></i> Heure fin
-                        </label>
-                        <input type="time" name="heure_fin" required class="form-field-compact">
-                    </div>
-                </div>
-
-                <!-- LIGNE 3 - Plus compacte -->
-                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
-                    <!-- Salle -->
-                    <div class="form-group">
-                        <label class="block font-medium text-gray-700 mb-1 text-sm flex items-center">
-                            <i class="fas fa-door-open text-yellow-500 mr-1 text-xs"></i> Salle
-                        </label>
-                        <input type="text" name="salle" placeholder="Salle B3" class="form-field-compact">
-                    </div>
-
-                    <!-- Année scolaire -->
-                    <div class="form-group">
-                        <label class="block font-medium text-gray-700 mb-1 text-sm flex items-center">
-                            <i class="fas fa-calendar-alt text-yellow-500 mr-1 text-xs"></i> Année scolaire
-                        </label>
-                        <select name="annee_scolaire" required class="form-field-compact">
-                            {% for key, value in annees %}
-                                <option value="{{ key }}">{{ value }}</option>
-                            {% endfor %}
-                        </select>
-                    </div>
-
-                    <!-- Semestre -->
-                    <div class="form-group">
-                        <label class="block font-medium text-gray-700 mb-1 text-sm flex items-center">
-                            <i class="fas fa-calendar-week text-yellow-500 mr-1 text-xs"></i> Semestre
-                        </label>
-                        <input type="text" name="semestre" placeholder="1er semestre" class="form-field-compact">
-                    </div>
-                </div>
-
-                <!-- LIGNE 4 - Plus compacte -->
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
-                    <!-- Statut -->
-                    <div class="form-group">
-                        <label class="block font-medium text-gray-700 mb-1 text-sm flex items-center">
-                            <i class="fas fa-info-circle text-yellow-500 mr-1 text-xs"></i> Statut
-                        </label>
-                        <select name="statut" required class="form-field-compact">
-                            {% for key, value in statuts %}
-                                <option value="{{ key }}">{{ value }}</option>
-                            {% endfor %}
-                        </select>
-                    </div>
-
-                    <!-- Nombre d'heures total -->
-                    <div class="form-group">
-                        <label class="block font-medium text-gray-700 mb-1 text-sm flex items-center">
-                            <i class="fas fa-hourglass-half text-yellow-500 mr-1 text-xs"></i> Heures totales
-                        </label>
-                        <input type="number" name="nb_heures_total" min="0" class="form-field-compact" placeholder="30">
-                    </div>
-                </div>
-
-                <!-- LIGNE 5 : Code du cours -->
-                <div class="form-group">
-                    <label class="block font-medium text-gray-700 mb-1 text-sm flex items-center">
-                        <i class="fas fa-code text-yellow-500 mr-1 text-xs"></i> Code du cours (optionnel)
-                    </label>
-                    <input type="text" name="code_cours" class="form-field-compact" placeholder="CRS-2025-MATH01">
-                </div>
-
-                <!-- BOUTONS compacts -->
-                <div class="flex flex-col sm:flex-row justify-end pt-4 space-y-2 sm:space-y-0 sm:space-x-3">
-                    <a href="{% url 'cours:cours' %}" 
-                       class="btn-gray-compact text-center"><i class="fas fa-times mr-1"></i> Annuler</a>
-                    <button type="submit" class="btn-yellow-compact text-center">
-                        <i class="fas fa-save mr-1"></i> Enregistrer
-                    </button>
-                </div>
-            </form>
-        </div>
-    </div>
+    <a href="{% url 'cours:cours' %}"
+       class="inline-flex items-center px-4 py-2 bg-white/20 text-white font-semibold rounded-lg shadow-md hover:bg-white/30 transform hover:scale-105 transition-all duration-300 ease-in-out text-sm border border-white/30">
+      <i class="fas fa-arrow-left mr-2"></i> Retour à la liste
+    </a>
+  </div>
 </div>
 
-<!-- STYLES COMPACTS -->
+<div class="max-w-7xl mx-auto px-4">
+  <!-- CARTE DU FORMULAIRE -->
+  <div class="bg-white rounded-2xl shadow-lg overflow-hidden border border-amber-200">
+    <!-- En-tête de la carte -->
+    <div class="bg-gradient-to-r from-amber-500 to-amber-600 px-6 py-4">
+      <h2 class="text-xl font-bold text-white flex items-center">
+        <i class="fas fa-book-open mr-3 text-white"></i> Informations du cours
+      </h2>
+      <p class="text-white/80 text-sm mt-1">Remplissez les informations pour créer un nouveau cours</p>
+    </div>
+
+    <!-- Formulaire -->
+    <div class="p-6">
+      <form method="POST" class="space-y-6">
+        {% csrf_token %}
+
+        <!-- LIGNE 1 -->
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+          <!-- Matière -->
+          <div class="form-group">
+            <label class="block font-semibold text-gray-700 mb-2 text-sm flex items-center">
+              <i class="fas fa-book text-amber-500 mr-2"></i> Matière *
+            </label>
+            <select name="matiere" required class="form-field-modern">
+              <option value="">--- Choisir une matière ---</option>
+              {% for matiere in matieres %}
+                <option value="{{ matiere.id }}">{{ matiere.nom_matiere }}</option>
+              {% endfor %}
+            </select>
+          </div>
+
+          <!-- Classe -->
+          <div class="form-group">
+            <label class="block font-semibold text-gray-700 mb-2 text-sm flex items-center">
+              <i class="fas fa-users text-amber-500 mr-2"></i> Classe *
+            </label>
+            <select name="classe" required class="form-field-modern">
+              <option value="">--- Choisir une classe ---</option>
+              {% for classe in classes %}
+                <option value="{{ classe.id }}">{{ classe.nom_classe }}</option>
+              {% endfor %}
+            </select>
+          </div>
+
+          <!-- Enseignant -->
+          <div class="form-group">
+            <label class="block font-semibold text-gray-700 mb-2 text-sm flex items-center">
+              <i class="fas fa-chalkboard-teacher text-amber-500 mr-2"></i> Enseignant *
+            </label>
+            <select name="enseignant" required class="form-field-modern">
+              <option value="">--- Choisir un enseignant ---</option>
+              {% for enseignant in enseignants %}
+                <option value="{{ enseignant.id }}">{{ enseignant.prenom }} {{ enseignant.nom }}</option>
+              {% endfor %}
+            </select>
+          </div>
+        </div>
+
+        <!-- LIGNE 2 -->
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+          <!-- Jour -->
+          <div class="form-group">
+            <label class="block font-semibold text-gray-700 mb-2 text-sm flex items-center">
+              <i class="fas fa-calendar-day text-amber-500 mr-2"></i> Jour *
+            </label>
+            <select name="jour" required class="form-field-modern">
+              {% for key, value in jours %}
+                <option value="{{ key }}">{{ value }}</option>
+              {% endfor %}
+            </select>
+          </div>
+
+          <!-- Heure début -->
+          <div class="form-group">
+            <label class="block font-semibold text-gray-700 mb-2 text-sm flex items-center">
+              <i class="fas fa-clock text-amber-500 mr-2"></i> Heure début *
+            </label>
+            <input type="time" name="heure_debut" required class="form-field-modern">
+          </div>
+
+          <!-- Heure fin -->
+          <div class="form-group">
+            <label class="block font-semibold text-gray-700 mb-2 text-sm flex items-center">
+              <i class="fas fa-clock text-amber-500 mr-2"></i> Heure fin *
+            </label>
+            <input type="time" name="heure_fin" required class="form-field-modern">
+          </div>
+        </div>
+
+        <!-- LIGNE 3 -->
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+          <!-- Salle -->
+          <div class="form-group">
+            <label class="block font-semibold text-gray-700 mb-2 text-sm flex items-center">
+              <i class="fas fa-door-open text-amber-500 mr-2"></i> Salle
+            </label>
+            <input type="text" name="salle" placeholder="Ex: Salle B3, Labo Informatique..." class="form-field-modern">
+          </div>
+
+          <!-- Année scolaire -->
+          <div class="form-group">
+            <label class="block font-semibold text-gray-700 mb-2 text-sm flex items-center">
+              <i class="fas fa-calendar-alt text-amber-500 mr-2"></i> Année scolaire *
+            </label>
+            <select name="annee_scolaire" required class="form-field-modern">
+              {% for key, value in annees %}
+                <option value="{{ key }}">{{ value }}</option>
+              {% endfor %}
+            </select>
+          </div>
+
+          <!-- Semestre -->
+          <div class="form-group">
+            <label class="block font-semibold text-gray-700 mb-2 text-sm flex items-center">
+              <i class="fas fa-calendar-week text-amber-500 mr-2"></i> Semestre
+            </label>
+            <input type="text" name="semestre" placeholder="Ex: 1er semestre, Semestre 2..." class="form-field-modern">
+          </div>
+        </div>
+
+        <!-- LIGNE 4 -->
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <!-- Statut -->
+          <div class="form-group">
+            <label class="block font-semibold text-gray-700 mb-2 text-sm flex items-center">
+              <i class="fas fa-info-circle text-amber-500 mr-2"></i> Statut *
+            </label>
+            <select name="statut" required class="form-field-modern">
+              {% for key, value in statuts %}
+                <option value="{{ key }}">{{ value }}</option>
+              {% endfor %}
+            </select>
+          </div>
+
+          <!-- Nombre d'heures total -->
+          <div class="form-group">
+            <label class="block font-semibold text-gray-700 mb-2 text-sm flex items-center">
+              <i class="fas fa-hourglass-half text-amber-500 mr-2"></i> Heures totales
+            </label>
+            <input type="number" name="nb_heures_total" min="0" class="form-field-modern" placeholder="Ex: 30, 45, 60...">
+          </div>
+        </div>
+
+        <!-- LIGNE 5 : Code du cours -->
+        <div class="form-group">
+          <label class="block font-semibold text-gray-700 mb-2 text-sm flex items-center">
+            <i class="fas fa-code text-amber-500 mr-2"></i> Code du cours (optionnel)
+          </label>
+          <input type="text" name="code_cours" class="form-field-modern" placeholder="Ex: CRS-2025-MATH01, PHYS-2024-S1...">
+        </div>
+
+        <!-- BOUTONS -->
+        <div class="flex flex-col sm:flex-row justify-end pt-6 gap-3 border-t border-gray-200">
+          <a href="{% url 'cours:cours' %}" 
+             class="inline-flex items-center justify-center px-6 py-3 bg-gray-500 hover:bg-gray-600 text-white font-semibold rounded-lg transition shadow-md transform hover:scale-105 text-sm">
+            <i class="fas fa-times mr-2"></i> Annuler
+          </a>
+          <button type="submit" 
+                  class="inline-flex items-center justify-center px-6 py-3 bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-600 hover:to-amber-700 text-white font-semibold rounded-lg transition shadow-md transform hover:scale-105 text-sm">
+            <i class="fas fa-save mr-2"></i> Enregistrer le cours
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+<!-- STYLES MODERNES -->
 <style>
 .form-group {
-    display: flex;
-    flex-direction: column;
-}
-.form-field-compact {
-    width: 100%;
-    padding: 0.5rem 0.75rem;
-    border: 1.5px solid #D1D5DB;
-    border-radius: 0.5rem;
-    outline: none;
-    transition: all 0.2s;
-    font-size: 0.875rem;
-    background-color: white;
-    height: 2.5rem;
-}
-.form-field-compact:focus {
-    border-color: #F59E0B;
-    box-shadow: 0 0 0 3px rgba(245, 158, 11, 0.15);
-}
-.btn-yellow-compact {
-    background: linear-gradient(to right, #F59E0B, #D97706);
-    color: white;
-    font-weight: 600;
-    padding: 0.5rem 1rem;
-    border-radius: 0.5rem;
-    transition: all 0.2s;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    border: none;
-    cursor: pointer;
-    text-decoration: none;
-    font-size: 0.875rem;
-    height: 2.5rem;
-}
-.btn-yellow-compact:hover { 
-    transform: scale(1.02); 
-    background: linear-gradient(to right, #D97706, #B45309); 
-    box-shadow: 0 2px 8px rgba(245, 158, 11, 0.3);
-}
-.btn-gray-compact {
-    background-color: #9CA3AF;
-    color: white;
-    font-weight: 600;
-    padding: 0.5rem 1rem;
-    border-radius: 0.5rem;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    transition: all 0.2s;
-    text-decoration: none;
-    border: none;
-    cursor: pointer;
-    font-size: 0.875rem;
-    height: 2.5rem;
-}
-.btn-gray-compact:hover { 
-    background-color: #6B7280; 
-    transform: scale(1.02); 
-    box-shadow: 0 2px 8px rgba(156, 163, 175, 0.3);
+  display: flex;
+  flex-direction: column;
 }
 
-/* Responsive adjustments pour version compacte */
-@media (max-width: 640px) {
-    .form-field-compact {
-        padding: 0.4rem 0.6rem;
-        font-size: 0.8rem;
-        height: 2.25rem;
-    }
-    .btn-yellow-compact, .btn-gray-compact {
-        padding: 0.4rem 0.8rem;
-        font-size: 0.8rem;
-        height: 2.25rem;
-    }
+.form-field-modern {
+  width: 100%;
+  padding: 0.75rem 1rem;
+  border: 2px solid #e5e7eb;
+  border-radius: 0.75rem;
+  outline: none;
+  transition: all 0.3s ease;
+  font-size: 0.875rem;
+  background-color: white;
+  color: #374151;
+}
+
+.form-field-modern:focus {
+  border-color: #f59e0b;
+  box-shadow: 0 0 0 3px rgba(245, 158, 11, 0.1);
+  background-color: white;
+}
+
+.form-field-modern::placeholder {
+  color: #9ca3af;
+}
+
+/* Style pour les selects */
+.form-field-modern {
+  appearance: none;
+  background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%236b7280' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='M6 8l4 4 4-4'/%3e%3c/svg%3e");
+  background-position: right 1rem center;
+  background-repeat: no-repeat;
+  background-size: 1.25em 1.25em;
+  padding-right: 2.5rem;
+}
+
+/* Responsive design */
+@media (max-width: 768px) {
+  .grid-cols-3 {
+    grid-template-columns: 1fr;
+  }
+  
+  .grid-cols-2 {
+    grid-template-columns: 1fr;
+  }
+  
+  .p-6 {
+    padding: 1rem;
+  }
+  
+  .gap-4 {
+    gap: 1rem;
+  }
+}
+
+/* Animation pour les boutons */
+.bg-gradient-to-r {
+  transition: all 0.3s ease;
+}
+
+.bg-gradient-to-r:hover {
+  transform: translateY(-1px);
 }
 </style>
+
+<script>
+// Script pour améliorer l'expérience utilisateur
+document.addEventListener('DOMContentLoaded', function() {
+  // Focus sur le premier champ
+  const firstField = document.querySelector('.form-field-modern');
+  if (firstField) {
+    firstField.focus();
+  }
+
+  // Validation des heures
+  const heureDebut = document.querySelector('input[name="heure_debut"]');
+  const heureFin = document.querySelector('input[name="heure_fin"]');
+
+  if (heureDebut && heureFin) {
+    heureFin.addEventListener('change', function() {
+      if (heureDebut.value && heureFin.value) {
+        if (heureFin.value <= heureDebut.value) {
+          alert('L\'heure de fin doit être après l\'heure de début');
+          heureFin.value = '';
+          heureFin.focus();
+        }
+      }
+    });
+  }
+
+  // Animation des champs au focus
+  const fields = document.querySelectorAll('.form-field-modern');
+  fields.forEach(field => {
+    field.addEventListener('focus', function() {
+      this.parentElement.classList.add('field-focused');
+    });
+    
+    field.addEventListener('blur', function() {
+      this.parentElement.classList.remove('field-focused');
+    });
+  });
+});
+</script>
 {% endblock %}
