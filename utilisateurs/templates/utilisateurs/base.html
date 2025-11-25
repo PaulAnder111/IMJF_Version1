@@ -12,6 +12,542 @@
     <meta name="csrf-token" content="{{ csrf_token }}">
 
     <style>
+        :root {
+            --bg-primary: #f3f4f6;
+            --bg-secondary: #ffffff;
+            --bg-tertiary: #e5e7eb;
+            --text-primary: #0f011d;
+            --text-secondary: #4b5563;
+            --text-tertiary: #6b7280;
+            --border-color: rgba(217, 119, 6, 0.2);
+            --shadow-color: rgba(217, 119, 6, 0.1);
+            --accent-color: #f59e0b;
+            --accent-hover: #d97706;
+            --input-bg: #ffffff;
+            --input-border: #d1d5db;
+            --card-bg: #ffffff;
+            --table-header-bg: #f9fafb;
+            --table-row-hover: #f3f4f6;
+            --modal-overlay: rgba(0, 0, 0, 0.6);
+            --success-color: #10b981;
+            --danger-color: #ef4444;
+            --warning-color: #f59e0b;
+            --info-color: #3b82f6;
+        }
+
+        body.dark-mode {
+            --bg-primary: #111827;
+            --bg-secondary: #1f2937;
+            --bg-tertiary: #374151;
+            --text-primary: #fbbf24;  /* Menm koulè or ak sidebar la */
+            --text-secondary: #fcd34d; /* Menm koulè or ak sidebar la */
+            --text-tertiary: #f59e0b;  /* Menm koulè or ak sidebar la */
+            --border-color: rgba(251, 191, 36, 0.3);
+            --shadow-color: rgba(0, 0, 0, 0.4);
+            --accent-color: #fbbf24;
+            --accent-hover: #fcd34d;
+            --input-bg: #374151;
+            --input-border: #4b5563;
+            --card-bg: #1f2937;
+            --table-header-bg: #374151;
+            --table-row-hover: #374151;
+            --modal-overlay: rgba(0, 0, 0, 0.8);
+            --success-color: #34d399;
+            --danger-color: #f87171;
+            --warning-color: #fbbf24;
+            --info-color: #60a5fa;
+        }
+
+        /* ===== AJOU: Asire tout tèks an mod sombre gen menm koulè or ak sidebar ===== */
+        body.dark-mode {
+            color: var(--text-primary) !important;
+        }
+
+        body.dark-mode h1,
+        body.dark-mode h2,
+        body.dark-mode h3,
+        body.dark-mode h4,
+        body.dark-mode h5,
+        body.dark-mode h6 {
+            color: var(--text-primary) !important;
+        }
+
+        body.dark-mode p {
+            color: var(--text-primary) !important;
+        }
+
+        body.dark-mode .text-gray-300,
+        body.dark-mode .text-gray-400,
+        body.dark-mode .text-gray-500,
+        body.dark-mode .text-gray-600,
+        body.dark-mode .text-gray-700,
+        body.dark-mode .text-gray-800,
+        body.dark-mode .text-gray-900 {
+            color: var(--text-primary) !important;
+        }
+
+        body.dark-mode * {
+            color: var(--text-primary);
+        }
+
+        body.dark-mode input,
+        body.dark-mode select,
+        body.dark-mode textarea {
+            color: var(--text-primary) !important;
+        }
+
+        body.dark-mode .modal-content {
+            color: var(--text-primary) !important;
+        }
+
+        body.dark-mode table {
+            color: var(--text-primary) !important;
+        }
+
+        body.dark-mode thead th {
+            color: var(--text-primary) !important;
+        }
+
+        body.dark-mode tbody td {
+            color: var(--text-primary) !important;
+        }
+
+        body.dark-mode button:not([class*="bg-"]) {
+            color: var(--text-primary) !important;
+        }
+
+        /* ===== BODY & CONTAINERS ===== */
+        body {
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            transition: background-color 0.3s ease, color 0.3s ease;
+        }
+
+        /* ===== CARDS ===== */
+        .card,
+        .bg-white,
+        .bg-gray-50,
+        .bg-gray-100,
+        [class*="bg-white"],
+        [class*="bg-gray-"] {
+            background-color: var(--card-bg) !important;
+            color: var(--text-primary) !important;
+            border-color: var(--border-color) !important;
+            box-shadow: 0 1px 3px var(--shadow-color) !important;
+            transition: all 0.3s ease !important;
+        }
+
+        body.dark-mode .card,
+        body.dark-mode .bg-white,
+        body.dark-mode .bg-gray-50,
+        body.dark-mode .bg-gray-100 {
+            background-color: var(--card-bg) !important;
+            border: 1px solid var(--border-color) !important;
+        }
+
+        /* ===== TABLES ===== */
+        table {
+            background-color: var(--card-bg);
+            border-color: var(--border-color);
+            transition: all 0.3s ease;
+        }
+
+        thead,
+        thead th,
+        .table-header {
+            background-color: var(--table-header-bg) !important;
+            color: var(--text-primary) !important;
+            border-color: var(--border-color) !important;
+        }
+
+        tbody tr {
+            background-color: var(--card-bg);
+            border-color: var(--border-color);
+            color: var(--text-primary);
+            transition: background-color 0.2s ease;
+        }
+
+        tbody tr:hover {
+            background-color: var(--table-row-hover) !important;
+        }
+
+        tbody td {
+            border-color: var(--border-color) !important;
+            color: var(--text-primary) !important;
+        }
+
+        /* ===== INPUTS & FORMS ===== */
+        input[type="text"],
+        input[type="email"],
+        input[type="password"],
+        input[type="number"],
+        input[type="date"],
+        input[type="tel"],
+        input[type="search"],
+        input[type="url"],
+        select,
+        textarea {
+            background-color: var(--input-bg) !important;
+            color: var(--text-primary) !important;
+            border-color: var(--input-border) !important;
+            transition: all 0.3s ease !important;
+        }
+
+        input::placeholder,
+        textarea::placeholder {
+            color: var(--text-tertiary) !important;
+        }
+
+        input:focus,
+        select:focus,
+        textarea:focus {
+            border-color: var(--accent-color) !important;
+            ring-color: var(--accent-color) !important;
+            background-color: var(--input-bg) !important;
+        }
+
+        /* ===== BUTTONS ===== */
+        .btn,
+        button:not(.bg-gradient-to-r):not(.bg-gradient-to-br):not([class*="bg-red"]):not([class*="bg-green"]):not([class*="bg-blue"]):not([class*="bg-yellow"]) {
+            transition: all 0.3s ease !important;
+        }
+
+        /* Boutons avec fond blanc/gris */
+        .bg-white,
+        .bg-gray-100,
+        .bg-gray-200 {
+            background-color: var(--card-bg) !important;
+            color: var(--text-primary) !important;
+            border-color: var(--border-color) !important;
+        }
+
+        .bg-white:hover,
+        .bg-gray-100:hover,
+        .bg-gray-200:hover {
+            background-color: var(--table-row-hover) !important;
+        }
+
+        /* Texte des boutons */
+        .text-gray-700,
+        .text-gray-800,
+        .text-gray-900 {
+            color: var(--text-primary) !important;
+        }
+
+        .text-gray-500,
+        .text-gray-600 {
+            color: var(--text-secondary) !important;
+        }
+
+        .text-gray-400 {
+            color: var(--text-tertiary) !important;
+        }
+
+        /* ===== MODALS ===== */
+        .modal,
+        .modal-content,
+        [class*="modal"] {
+            background-color: var(--card-bg) !important;
+            color: var(--text-primary) !important;
+            border-color: var(--border-color) !important;
+        }
+
+        .modal-overlay,
+        [class*="modal-bg"] {
+            background-color: var(--modal-overlay) !important;
+            backdrop-filter: blur(4px) !important;
+        }
+
+        /* ===== DROPDOWNS ===== */
+        .dropdown-menu,
+        [role="menu"],
+        .select-options {
+            background-color: var(--card-bg) !important;
+            color: var(--text-primary) !important;
+            border-color: var(--border-color) !important;
+            box-shadow: 0 10px 25px var(--shadow-color) !important;
+        }
+
+        .dropdown-item:hover,
+        [role="menuitem"]:hover {
+            background-color: var(--table-row-hover) !important;
+        }
+
+        /* ===== BADGES & PILLS ===== */
+        .badge,
+        .pill,
+        .tag {
+            background-color: var(--bg-tertiary) !important;
+            color: var(--text-primary) !important;
+            border-color: var(--border-color) !important;
+        }
+
+        /* ===== BORDERS ===== */
+        .border,
+        .border-gray-200,
+        .border-gray-300,
+        .border-gray-400 {
+            border-color: var(--border-color) !important;
+        }
+
+        /* ===== DIVIDERS ===== */
+        hr,
+        .divider {
+            border-color: var(--border-color) !important;
+            opacity: 0.5;
+        }
+
+        /* ===== ALERTS ===== */
+        .alert {
+            border-color: var(--border-color) !important;
+            background-color: var(--card-bg) !important;
+        }
+
+        /* ===== BREADCRUMBS ===== */
+        .breadcrumb {
+            background-color: var(--card-bg) !important;
+            color: var(--text-secondary) !important;
+        }
+
+        .breadcrumb a {
+            color: var(--accent-color) !important;
+        }
+
+        /* ===== PAGINATION ===== */
+        .pagination button,
+        .pagination a {
+            background-color: var(--card-bg) !important;
+            color: var(--text-primary) !important;
+            border-color: var(--border-color) !important;
+        }
+
+        .pagination button:hover,
+        .pagination a:hover {
+            background-color: var(--table-row-hover) !important;
+        }
+
+        .pagination .active {
+            background-color: var(--accent-color) !important;
+            color: white !important;
+        }
+
+        /* ===== ACCORDIONS ===== */
+        .accordion-header {
+            background-color: var(--card-bg) !important;
+            color: var(--text-primary) !important;
+            border-color: var(--border-color) !important;
+        }
+
+        .accordion-body {
+            background-color: var(--bg-secondary) !important;
+            color: var(--text-primary) !important;
+        }
+
+        /* ===== TOOLTIPS ===== */
+        .tooltip {
+            background-color: var(--bg-tertiary) !important;
+            color: var(--text-primary) !important;
+            border-color: var(--border-color) !important;
+        }
+
+        /* ===== PROGRESS BARS ===== */
+        .progress {
+            background-color: var(--bg-tertiary) !important;
+        }
+
+        /* ===== LABELS ===== */
+        label {
+            color: var(--text-primary) !important;
+        }
+
+        /* ===== LISTE & ITEMS ===== */
+        li,
+        .list-item {
+            color: var(--text-primary) !important;
+        }
+
+        /* ===== HEADERS (h1-h6) ===== */
+        h1, h2, h3, h4, h5, h6 {
+            color: var(--text-primary) !important;
+        }
+
+        /* ===== PARAGRAPHS ===== */
+        p {
+            color: var(--text-primary) !important;
+        }
+
+        /* ===== LINKS ===== */
+        a:not(.btn):not([class*="bg-"]) {
+            color: var(--accent-color) !important;
+        }
+
+        a:not(.btn):not([class*="bg-"]):hover {
+            color: var(--accent-hover) !important;
+        }
+
+        /* ===== ICONS ===== */
+        .text-yellow-600,
+        .text-yellow-500,
+        .text-amber-600 {
+            color: var(--accent-color) !important;
+        }
+
+        /* ===== SCROLLBARS ===== */
+        ::-webkit-scrollbar {
+            width: 10px;
+            height: 10px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: var(--bg-tertiary);
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: var(--accent-color);
+            border-radius: 5px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: var(--accent-hover);
+        }
+
+        /* ===== SHADOWS ===== */
+        .shadow,
+        .shadow-sm,
+        .shadow-md,
+        .shadow-lg,
+        .shadow-xl,
+        .shadow-2xl {
+            box-shadow: 0 4px 6px var(--shadow-color) !important;
+        }
+
+        /* ===== SELECT CUSTOM ===== */
+        select {
+            background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%23f59e0b' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='M6 8l4 4 4-4'/%3e%3c/svg%3e");
+            background-position: right 0.5rem center;
+            background-repeat: no-repeat;
+            background-size: 1.5em 1.5em;
+        }
+
+        body.dark-mode select {
+            background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%23fbbf24' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='M6 8l4 4 4-4'/%3e%3c/svg%3e");
+        }
+
+        /* ===== RESPONSIVE UTILITIES ===== */
+        @media (max-width: 640px) {
+            /* Mobile: Ajuster les paddings */
+            .card,
+            .modal-content {
+                padding: 1rem !important;
+            }
+
+            /* Réduire la taille des tableaux */
+            table {
+                font-size: 0.875rem !important;
+            }
+
+            thead th,
+            tbody td {
+                padding: 0.5rem !important;
+            }
+
+            /* Boutons plus petits */
+            button,
+            .btn {
+                padding: 0.5rem 1rem !important;
+                font-size: 0.875rem !important;
+            }
+
+            /* Inputs plus compacts */
+            input,
+            select,
+            textarea {
+                padding: 0.5rem !important;
+                font-size: 0.875rem !important;
+            }
+        }
+
+        @media (max-width: 768px) {
+            /* Tablet: Ajustements intermédiaires */
+            .card {
+                margin-bottom: 1rem !important;
+            }
+
+            /* Tables responsive */
+            table {
+                display: block;
+                overflow-x: auto;
+                white-space: nowrap;
+            }
+        }
+
+        @media (min-width: 769px) and (max-width: 1024px) {
+            /* Desktop small */
+            .container {
+                max-width: 90% !important;
+            }
+        }
+
+        /* ===== ANIMATIONS ===== */
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(-10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .fade-in {
+            animation: fadeIn 0.3s ease-out;
+        }
+
+        /* ===== PRINT STYLES ===== */
+        @media print {
+            body {
+                background: white !important;
+                color: black !important;
+            }
+            
+            .sidebar,
+            header,
+            .no-print {
+                display: none !important;
+            }
+        }
+
+        /* ===== ÉTATS HOVER UNIVERSELS ===== */
+        button:hover:not(:disabled),
+        a:hover,
+        .hover-effect:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 4px 8px var(--shadow-color);
+            transition: all 0.2s ease;
+        }
+
+        /* ===== DISABLED STATES ===== */
+        button:disabled,
+        input:disabled,
+        select:disabled,
+        textarea:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        /* ===== FOCUS STATES ===== */
+        *:focus {
+            outline: 2px solid var(--accent-color);
+            outline-offset: 2px;
+        }
+
+        button:focus,
+        a:focus {
+            outline: 2px solid var(--accent-color);
+        }
+
+        /* ===== SMOOTH TRANSITIONS GLOBALES ===== */
+        * {
+            transition: background-color 0.3s ease, 
+                        color 0.3s ease, 
+                        border-color 0.3s ease,
+                        box-shadow 0.3s ease;
+        }
         /* Sidebar & content transition */
         .sidebar-transition { transition: all 0.3s ease-in-out; }
         .sidebar-collapsed { width: 80px; }
@@ -79,7 +615,7 @@
         /* Dark Mode - Gray & Gold */
         body.dark-mode { 
             background: linear-gradient(135deg, #111827 0%, #1f2937 100%);
-            color: #f3f4f6; 
+            color: #fbbf24; /* Menm koulè or ak sidebar la */
         }
         body.dark-mode .sidebar-dark { 
             background: rgba(31, 41, 55, 0.8);
@@ -94,7 +630,7 @@
             box-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
         }
         body.dark-mode .menu-item-dark { 
-            color: #fbbf24;
+            color: #fbbf24; /* Menm koulè or ak tout lòt tèks yo */
             font-weight: 500;
         }
         body.dark-mode .menu-item-dark:hover { 
@@ -107,18 +643,18 @@
             border-left: 3px solid #fbbf24;
         }
         body.dark-mode .menu-icon-dark { 
-            color: #fbbf24;
+            color: #fbbf24; /* Menm koulè or ak tout lòt tèks yo */
         }
         body.dark-mode .menu-separator { 
             border-color: rgba(251, 191, 36, 0.2); 
         }
         body.dark-mode .modal-content { 
             background-color: #1f2937; 
-            color: #f3f4f6;
+            color: #fbbf24; /* Menm koulè or ak tout lòt tèks yo */
             border: 1px solid rgba(251, 191, 36, 0.2);
         }
         body.dark-mode .logo-text {
-            color: #fbbf24;
+            color: #fbbf24; /* Menm koulè or ak tout lòt tèks yo */
         }
 
         /* Avatar */
@@ -439,7 +975,7 @@
                         {% endif %}
                     </div>
                     <div class="user-info-text text-center">
-                        <p class="font-bold text-gray-800 dark:text-gray-200 text-lg">{{ request.user.get_full_name|default:request.user.username }}</p>
+                        <p class="font-bold text-gray-800 dark:text-gray-200">{{ request.user.get_full_name|default:request.user.username }}</p>
                         <p class="text-sm text-yellow-600 dark:text-yellow-400 font-semibold">
                             {{ request.user.role|default:"Utilisateur" }}
                         </p>

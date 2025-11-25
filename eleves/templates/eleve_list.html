@@ -4,554 +4,411 @@
 {% block title %}Gestion des Élèves - IMJF{% endblock %}
 
 {% block content %}
-<div class="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100">
-    <!-- Messages Block -->
-    <div class="px-4 sm:px-6 py-4">
-        {% include "messages_block.html" %}
+
+<!-- Messages Block -->
+{% include "messages_block.html" %}
+
+<!-- SECTION HEADER AVEC GRADIENT (GRIS FONSE → OR) -->
+<div class="bg-gradient-to-r from-gray-800 to-amber-500 py-4 px-3 sm:px-6 text-white shadow-md mb-6 rounded-lg">
+  <div class="max-w-7xl mx-auto flex flex-col sm:flex-row justify-between items-center gap-2">
+    <div class="text-center sm:text-left">
+      <h1 class="text-2xl font-bold mb-1">Gestion des Élèves</h1>
+      <p class="text-white/80 text-sm">Gérez facilement tous les élèves de l'établissement</p>
     </div>
     
-    <!-- HEADER REDUIT AVEC GRIS ET OR -->
-    <div class="bg-gradient-to-r from-gray-700 via-gray-600 to-yellow-500 shadow-lg rounded-xl mb-6 overflow-hidden">
-        <div class="px-4 sm:px-6 py-4 flex flex-col md:flex-row justify-between items-center">
-            <div class="mb-3 md:mb-0 text-center md:text-left">
-                <h1 class="text-xl sm:text-2xl font-bold text-white flex items-center justify-center md:justify-start">
-                    <i class="fas fa-user-graduate mr-2 sm:mr-3 text-2xl sm:text-3xl"></i>
-                    Gestion des Élèves
-                </h1>
-                <p class="text-gray-200 mt-1 text-xs sm:text-sm">Gérez tous les élèves de l'établissement</p>
-            </div>
-            <div class="flex flex-col sm:flex-row gap-2 sm:gap-3">
-                <!-- Bouton Élèves Archivés -->
-                <a href="{% url 'eleves:eleve_archives' %}"
-                   class="inline-flex items-center justify-center bg-gray-600 hover:bg-gray-700 text-white font-medium px-3 sm:px-4 py-2 rounded-lg shadow transform hover:scale-105 transition duration-300 text-xs sm:text-sm">
-                    <i class="fas fa-archive mr-1 sm:mr-2 text-sm"></i> Élèves Archivés
-                </a>
-                
-                <!-- Bouton Ajouter Élève - Cache pour  ARCHIVE -->
-               {% if request.user.role != 'archives' %}
-                 <a href="{% url 'eleves:add_eleves' %}"
-                   class="inline-flex items-center justify-center bg-yellow-500 hover:bg-yellow-600 text-gray-900 font-medium px-3 sm:px-4 py-2 rounded-lg shadow transform hover:scale-105 transition duration-300 text-xs sm:text-sm">
-                    <i class="fas fa-plus-circle mr-1 sm:mr-2 text-sm"></i> Ajouter Élève
-                </a>
-                {% endif %}
-            </div>
-        </div>
+    <!-- Bouton Élèves Archivés -->
+    <div class="flex flex-col sm:flex-row gap-2">
+      <a href="{% url 'eleves:eleve_archives' %}"
+         class="inline-flex items-center px-4 py-2 bg-white/20 text-white font-semibold rounded-lg shadow-md hover:bg-white/30 transform hover:scale-105 transition-all duration-300 ease-in-out text-sm border border-white/30">
+        <i class="fas fa-archive mr-2 text-sm"></i> Élèves Archivés
+      </a>
+      
+      <!-- Bouton Ajouter Élève - Cache pour ARCHIVE -->
+      {% if request.user.role != 'archives' %}
+      <a href="{% url 'eleves:add_eleves' %}"
+         class="inline-flex items-center px-4 py-2 bg-white text-amber-600 font-semibold rounded-lg shadow-md hover:shadow-lg hover:bg-amber-50 transform hover:scale-105 transition-all duration-300 ease-in-out text-sm">
+        <i class="fas fa-plus-circle mr-2 text-sm"></i> Ajouter Élève
+      </a>
+      {% endif %}
     </div>
-
-    <!-- STATISTIQUES -->
-    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 mb-6">
-        <!-- Total Élèves -->
-        <div class="bg-white rounded-xl shadow-lg p-4 transform hover:scale-105 transition-all duration-300">
-            <div class="flex items-center justify-between">
-                <div>
-                    <p class="text-xs sm:text-sm text-gray-600 font-semibold mb-1">Total Élèves</p>
-                    <p class="text-xl sm:text-2xl font-bold text-gray-800">{{ total_eleves|default:"0" }}</p>
-                </div>
-                <div class="w-10 h-10 sm:w-12 sm:h-12 bg-gradient-to-br from-blue-400 to-blue-600 rounded-full flex items-center justify-center shadow">
-                    <i class="fas fa-users text-white text-sm sm:text-lg"></i>
-                </div>
-            </div>
-            <p class="text-xs text-blue-600 mt-2 font-medium">
-                <i class="fas fa-graduation-cap mr-1"></i> Inscrits
-            </p>
-        </div>
-
-        <!-- Actifs -->
-        <div class="bg-white rounded-xl shadow-lg p-4 transform hover:scale-105 transition-all duration-300">
-            <div class="flex items-center justify-between">
-                <div>
-                    <p class="text-xs sm:text-sm text-gray-600 font-semibold mb-1">Actifs</p>
-                    <p class="text-xl sm:text-2xl font-bold text-gray-800">{{ eleves_actifs|default:"0" }}</p>
-                </div>
-                <div class="w-10 h-10 sm:w-12 sm:h-12 bg-gradient-to-br from-green-400 to-green-600 rounded-full flex items-center justify-center shadow">
-                    <i class="fas fa-check-circle text-white text-sm sm:text-lg"></i>
-                </div>
-            </div>
-            <p class="text-xs text-green-600 mt-2 font-medium">
-                <i class="fas fa-circle text-green-500 mr-1"></i> En cours
-            </p>
-        </div>
-
-        <!-- Suspendus -->
-        <div class="bg-white rounded-xl shadow-lg p-4 transform hover:scale-105 transition-all duration-300">
-            <div class="flex items-center justify-between">
-                <div>
-                    <p class="text-xs sm:text-sm text-gray-600 font-semibold mb-1">Suspendus</p>
-                    <p class="text-xl sm:text-2xl font-bold text-gray-800">{{ eleves_suspendus|default:"0" }}</p>
-                </div>
-                <div class="w-10 h-10 sm:w-12 sm:h-12 bg-gradient-to-br from-yellow-400 to-yellow-600 rounded-full flex items-center justify-center shadow">
-                    <i class="fas fa-pause-circle text-white text-sm sm:text-lg"></i>
-                </div>
-            </div>
-            <p class="text-xs text-yellow-600 mt-2 font-medium">
-                <i class="fas fa-exclamation-triangle mr-1"></i> Temporaire
-            </p>
-        </div>
-
-        <!-- Radiés -->
-        <div class="bg-white rounded-xl shadow-lg p-4 transform hover:scale-105 transition-all duration-300">
-            <div class="flex items-center justify-between">
-                <div>
-                    <p class="text-xs sm:text-sm text-gray-600 font-semibold mb-1">Radiés</p>
-                    <p class="text-xl sm:text-2xl font-bold text-gray-800">{{ eleves_radies|default:"0" }}</p>
-                </div>
-                <div class="w-10 h-10 sm:w-12 sm:h-12 bg-gradient-to-br from-red-400 to-red-600 rounded-full flex items-center justify-center shadow">
-                    <i class="fas fa-user-times text-white text-sm sm:text-lg"></i>
-                </div>
-            </div>
-            <p class="text-xs text-red-600 mt-2 font-medium">
-                <i class="fas fa-ban mr-1"></i> Exclus
-            </p>
-        </div>
-    </div>
-
-    <!-- RECHERCHE ET FILTRES -->
-    <div class="bg-white rounded-xl shadow-lg p-4 sm:p-6 mb-6">
-        <form method="GET" action="" class="flex flex-col lg:flex-row gap-3 sm:gap-4">
-            <!-- Barre de recherche automatique -->
-            <div class="flex-1 relative">
-                <div class="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
-                    <i class="fas fa-search text-gray-400 text-sm"></i>
-                </div>
-                <input 
-                    type="text" 
-                    name="search" 
-                    id="searchInput"
-                    value="{{ request.GET.search }}"
-                    placeholder="Rechercher par nom, prénom, matricule..." 
-                    class="w-full pl-10 pr-4 py-2 sm:py-3 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-yellow-500 focus:border-transparent bg-white text-gray-900 text-sm"
-                >
-            </div>
-
-            <!-- Filtre par statut -->
-            <div class="relative">
-                <div class="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
-                    <i class="fas fa-filter text-gray-400 text-sm"></i>
-                </div>
-                <select 
-                    name="statut" 
-                    id="statutSelect"
-                    class="w-full lg:w-40 pl-10 pr-8 py-2 sm:py-3 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-yellow-500 focus:border-transparent bg-white text-gray-900 text-sm appearance-none cursor-pointer"
-                >
-                    <option value="">Tous les statuts</option>
-                    <option value="actif" {% if request.GET.statut == 'actif' %}selected{% endif %}>Actif</option>
-                    <option value="suspendu" {% if request.GET.statut == 'suspendu' %}selected{% endif %}>Suspendu</option>
-                    <option value="radié" {% if request.GET.statut == 'radié' %}selected{% endif %}>Radié</option>
-                </select>
-                <div class="absolute inset-y-0 right-0 flex items-center pr-2 pointer-events-none">
-                    <i class="fas fa-chevron-down text-gray-400 text-sm"></i>
-                </div>
-            </div>
-
-            <!-- Filtre par classe -->
-            <div class="relative">
-                <div class="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
-                    <i class="fas fa-school text-gray-400 text-sm"></i>
-                </div>
-                <select 
-                    name="classe" 
-                    id="classeSelect"
-                    class="w-full lg:w-48 pl-10 pr-8 py-2 sm:py-3 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-yellow-500 focus:border-transparent bg-white text-gray-900 text-sm appearance-none cursor-pointer"
-                >
-                    <option value="">Toutes les classes</option>
-                    {% for classe in classes %}
-                        <option value="{{ classe.id }}" {% if request.GET.classe == classe.id|stringformat:"s" %}selected{% endif %}>
-                            {{ classe.nom_classe }}
-                        </option>
-                    {% endfor %}
-                </select>
-                <div class="absolute inset-y-0 right-0 flex items-center pr-2 pointer-events-none">
-                    <i class="fas fa-chevron-down text-gray-400 text-sm"></i>
-                </div>
-            </div>
-
-            <!-- Bouton reset -->
-            {% if request.GET.search or request.GET.statut or request.GET.classe %}
-            <a href="{% url 'eleves:eleve_list' %}" 
-               class="inline-flex items-center justify-center px-4 py-2 sm:py-3 bg-gray-500 hover:bg-gray-600 text-white font-medium rounded-lg transition shadow text-sm">
-                <i class="fas fa-redo mr-2 text-sm"></i> Réinitialiser
-            </a>
-            {% endif %}
-        </form>
-    </div>
-
-    <!-- TABLEAU -->
-    {% if eleves %}
-    <div class="bg-white rounded-xl shadow-lg overflow-hidden">
-        <div class="overflow-x-auto">
-            <table class="w-full">
-                <thead class="bg-gradient-to-r from-gray-800 to-gray-900 text-white">
-                    <tr>
-                        <th class="px-3 sm:px-4 py-3 text-left text-xs font-bold uppercase tracking-wider">
-                            <i class="fas fa-id-badge mr-1 sm:mr-2"></i>Matricule
-                        </th>
-                        <th class="px-3 sm:px-4 py-3 text-left text-xs font-bold uppercase tracking-wider">
-                            <i class="fas fa-user mr-1 sm:mr-2"></i>Nom & Prénom
-                        </th>
-                        <th class="px-3 sm:px-4 py-3 text-left text-xs font-bold uppercase tracking-wider">
-                            <i class="fas fa-venus-mars mr-1 sm:mr-2"></i>Sexe
-                        </th>
-                        <th class="px-3 sm:px-4 py-3 text-left text-xs font-bold uppercase tracking-wider">
-                            <i class="fas fa-school mr-1 sm:mr-2"></i>Classe
-                        </th>
-                        <th class="px-3 sm:px-4 py-3 text-left text-xs font-bold uppercase tracking-wider">
-                            <i class="fas fa-calendar-alt mr-1 sm:mr-2"></i>Date Naiss.
-                        </th>
-                        <th class="px-3 sm:px-4 py-3 text-left text-xs font-bold uppercase tracking-wider">
-                            <i class="fas fa-circle mr-1 sm:mr-2"></i>Statut
-                        </th>
-                        <th class="px-3 sm:px-4 py-3 text-center text-xs font-bold uppercase tracking-wider">
-                            <i class="fas fa-cog mr-1 sm:mr-2"></i>Actions
-                        </th>
-                    </tr>
-                </thead>
-                <tbody class="divide-y divide-gray-200">
-                    {% for eleve in eleves %}
-                    <tr class="hover:bg-gray-50 transition-colors duration-200">
-                        <td class="px-3 sm:px-4 py-3 whitespace-nowrap">
-                            <span class="text-xs font-mono font-bold text-gray-900 bg-gray-100 px-2 py-1 rounded-full">
-                                {{ eleve.matricule }}
-                            </span>
-                        </td>
-                        <td class="px-3 sm:px-4 py-3 whitespace-nowrap">
-                            <div class="flex items-center">
-                                <div class="flex-shrink-0 h-8 w-8 sm:h-10 sm:w-10">
-                                    {% if eleve.photo and eleve.photo.name != 'eleves/photos/default_avatar.png' %}
-                                        <!-- Si gen yon foto uploaded, montre li -->
-                                        <img class="h-8 w-8 sm:h-10 sm:w-10 rounded-full object-cover border-2 border-yellow-500" src="{{ eleve.photo.url }}" alt="">
-                                    {% else %}
-                                        <!-- Si pa gen foto, montre div ak inisyal yo -->
-                                        <div class="h-8 w-8 sm:h-10 sm:w-10 rounded-full bg-gradient-to-br 
-                                            {% if eleve.sexe == 'M' %}from-blue-500 to-blue-600{% else %}from-pink-500 to-pink-600{% endif %} 
-                                            flex items-center justify-center text-white font-bold text-xs sm:text-sm border-2 
-                                            {% if eleve.sexe == 'M' %}border-blue-400{% else %}border-pink-400{% endif %}">
-                                            {{ eleve.prenom.0|upper }}{{ eleve.nom.0|upper }}
-                                        </div>
-                                    {% endif %}
-                                </div>
-                                <div class="ml-2 sm:ml-4">
-                                    <div class="text-xs sm:text-sm font-bold text-gray-900">
-                                        {{ eleve.nom|upper }} {{ eleve.prenom|title }}
-                                    </div>
-                                    <div class="text-xs text-gray-500">
-                                        <i class="fas fa-phone text-green-500 mr-1"></i>{{ eleve.telephone_tuteur|default:"N/A" }}
-                                    </div>
-                                </div>
-                            </div>
-                        </td>
-                        <td class="px-3 sm:px-4 py-3 whitespace-nowrap">
-                            {% if eleve.sexe == 'M' %}
-                                <span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
-                                    <i class="fas fa-mars mr-1"></i> M
-                                </span>
-                            {% else %}
-                                <span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-pink-100 text-pink-800">
-                                    <i class="fas fa-venus mr-1"></i> F
-                                </span>
-                            {% endif %}
-                        </td>
-                        <td class="px-3 sm:px-4 py-3 whitespace-nowrap">
-                            {% if eleve.classe_actuelle %}
-                                <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-bold bg-indigo-100 text-indigo-800">
-                                    <i class="fas fa-chalkboard mr-1"></i>{{ eleve.classe_actuelle.nom_classe }}
-                                </span>
-                            {% else %}
-                                <span class="text-gray-400 italic text-xs">Non affecté</span>
-                            {% endif %}
-                        </td>
-                        <td class="px-3 sm:px-4 py-3 whitespace-nowrap text-xs sm:text-sm text-gray-700">
-                            <i class="far fa-calendar text-blue-500 mr-1"></i>
-                            {{ eleve.date_naissance|date:"d/m/Y"|default:"—" }}
-                        </td>
-                        <td class="px-3 sm:px-4 py-3 whitespace-nowrap">
-                            {% if eleve.statut == 'actif' %}
-                                <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-bold bg-green-100 text-green-800">
-                                    <i class="fas fa-check-circle mr-1"></i> Actif
-                                </span>
-                            {% elif eleve.statut == 'suspendu' %}
-                                <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-bold bg-yellow-100 text-yellow-800">
-                                    <i class="fas fa-pause-circle mr-1"></i> Suspendu
-                                </span>
-                            {% elif eleve.statut == 'radié' %}
-                                <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-bold bg-red-100 text-red-800">
-                                    <i class="fas fa-user-times mr-1"></i> Radié
-                                </span>
-                            {% else %}
-                                <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-bold bg-gray-100 text-gray-800">
-                                    <i class="fas fa-question-circle mr-1"></i> {{ eleve.statut|title }}
-                                </span>
-                            {% endif %}
-                        </td>
-                        <td class="px-3 sm:px-4 py-3 whitespace-nowrap text-center">
-                            <div class="flex justify-center gap-1 sm:gap-2">
-                                <!-- Détails - Visible pour tous -->
-                                <a href="{% url 'eleves:eleves_detail' eleve.id %}"
-                                   class="inline-flex items-center justify-center w-7 h-7 sm:w-8 sm:h-8 text-gray-600 hover:text-white bg-gray-100 hover:bg-gray-700 rounded-lg transition-all duration-200 shadow hover:shadow-lg transform hover:scale-110"
-                                   title="Voir Détails">
-                                    <i class="fas fa-eye text-xs sm:text-sm"></i>
-                                </a>
-                                
-                                <!-- Modifier - Cache pour ARCHIVE -->
-                                {% if request.user.role != 'archives' %}
-                                <a href="{% url 'eleves:eleve_update' eleve.id %}"
-                                   class="inline-flex items-center justify-center w-7 h-7 sm:w-8 sm:h-8 text-blue-600 hover:text-white bg-blue-100 hover:bg-blue-600 rounded-lg transition-all duration-200 shadow hover:shadow-lg transform hover:scale-110"
-                                   title="Modifier">
-                                    <i class="fas fa-edit text-xs sm:text-sm"></i>
-                                </a>
-                                {% endif %}
-                                
-                                <!-- Archiver - Cache pour SECRETAIRE et ARCHIVE -->
-                                {% if request.user.role == 'ADMIN' or request.user.role == 'directeur' %}
-                                <form action="{% url 'eleves:eleve_archiver' eleve.id %}" method="POST" class="inline">
-                                    {% csrf_token %}
-                                    <button type="submit"
-                                       onclick="return confirm('Voulez-vous vraiment archiver cet élève?')"
-                                       class="inline-flex items-center justify-center w-7 h-7 sm:w-8 sm:h-8 text-red-600 hover:text-white bg-red-100 hover:bg-red-600 rounded-lg transition-all duration-200 shadow hover:shadow-lg transform hover:scale-110"
-                                       title="Archiver">
-                                        <i class="fas fa-archive text-xs sm:text-sm"></i>
-                                    </button>
-                                </form>
-                                {% endif %}
-                            </div>
-                        </td>
-                    </tr>
-                    {% endfor %}
-                </tbody>
-            </table>
-        </div>
-    </div>
-
-    <!-- PAGINATION -->
-    {% if eleves.has_other_pages %}
-    <div class="mt-6 flex flex-col sm:flex-row justify-between items-center gap-3 bg-white rounded-xl shadow-lg p-4">
-        <div class="text-xs sm:text-sm text-gray-700">
-            Affichage de <span class="font-bold">{{ eleves.start_index }}</span> à 
-            <span class="font-bold">{{ eleves.end_index }}</span> sur 
-            <span class="font-bold">{{ eleves.paginator.count }}</span> élèves
-        </div>
-        
-        <div class="flex items-center gap-1 sm:gap-2">
-            {% if eleves.has_previous %}
-                <a href="?page=1{% if request.GET.search %}&search={{ request.GET.search }}{% endif %}{% if request.GET.statut %}&statut={{ request.GET.statut }}{% endif %}{% if request.GET.classe %}&classe={{ request.GET.classe }}{% endif %}" 
-                   class="px-2 sm:px-3 py-1 sm:py-2 bg-gray-200 hover:bg-gray-300 text-gray-700 rounded-lg transition shadow text-xs">
-                    <i class="fas fa-angle-double-left"></i>
-                </a>
-                <a href="?page={{ eleves.previous_page_number }}{% if request.GET.search %}&search={{ request.GET.search }}{% endif %}{% if request.GET.statut %}&statut={{ request.GET.statut }}{% endif %}{% if request.GET.classe %}&classe={{ request.GET.classe }}{% endif %}" 
-                   class="px-3 sm:px-4 py-1 sm:py-2 bg-yellow-500 hover:bg-yellow-600 text-white rounded-lg shadow transition font-medium text-xs sm:text-sm">
-                    <i class="fas fa-chevron-left mr-1"></i> Préc.
-                </a>
-            {% else %}
-                <span class="px-2 sm:px-3 py-1 sm:py-2 bg-gray-300 text-gray-500 rounded-lg cursor-not-allowed text-xs">
-                    <i class="fas fa-angle-double-left"></i>
-                </span>
-                <span class="px-3 sm:px-4 py-1 sm:py-2 bg-gray-300 text-gray-500 rounded-lg cursor-not-allowed text-xs sm:text-sm">
-                    <i class="fas fa-chevron-left mr-1"></i> Préc.
-                </span>
-            {% endif %}
-
-            <span class="px-3 sm:px-4 py-1 sm:py-2 bg-gradient-to-r from-yellow-500 to-yellow-600 text-white rounded-lg shadow font-bold text-xs sm:text-sm">
-                {{ eleves.number }} / {{ eleves.paginator.num_pages }}
-            </span>
-
-            {% if eleves.has_next %}
-                <a href="?page={{ eleves.next_page_number }}{% if request.GET.search %}&search={{ request.GET.search }}{% endif %}{% if request.GET.statut %}&statut={{ request.GET.statut }}{% endif %}{% if request.GET.classe %}&classe={{ request.GET.classe }}{% endif %}" 
-                   class="px-3 sm:px-4 py-1 sm:py-2 bg-yellow-500 hover:bg-yellow-600 text-white rounded-lg shadow transition font-medium text-xs sm:text-sm">
-                    Suiv. <i class="fas fa-chevron-right ml-1"></i>
-                </a>
-                <a href="?page={{ eleves.paginator.num_pages }}{% if request.GET.search %}&search={{ request.GET.search }}{% endif %}{% if request.GET.statut %}&statut={{ request.GET.statut }}{% endif %}{% if request.GET.classe %}&classe={{ request.GET.classe }}{% endif %}" 
-                   class="px-2 sm:px-3 py-1 sm:py-2 bg-gray-200 hover:bg-gray-300 text-gray-700 rounded-lg transition shadow text-xs">
-                    <i class="fas fa-angle-double-right"></i>
-                </a>
-            {% else %}
-                <span class="px-3 sm:px-4 py-1 sm:py-2 bg-gray-300 text-gray-500 rounded-lg cursor-not-allowed text-xs sm:text-sm">
-                    Suiv. <i class="fas fa-chevron-right ml-1"></i>
-                </span>
-                <span class="px-2 sm:px-3 py-1 sm:py-2 bg-gray-300 text-gray-500 rounded-lg cursor-not-allowed text-xs">
-                    <i class="fas fa-angle-double-right"></i>
-                </span>
-            {% endif %}
-        </div>
-    </div>
-    {% endif %}
-
-    {% else %}
-    <!-- MESSAGE VIDE -->
-    <div class="bg-white rounded-2xl shadow-xl p-6 sm:p-8 text-center">
-        <div class="w-16 h-16 sm:w-20 sm:h-20 mx-auto mb-4 bg-gradient-to-br from-gray-200 to-gray-300 rounded-full flex items-center justify-center">
-            <i class="fas fa-user-graduate text-2xl sm:text-3xl text-gray-400"></i>
-        </div>
-        <h3 class="text-lg sm:text-xl font-bold text-gray-700 mb-2">Aucun élève trouvé</h3>
-        <p class="text-gray-500 text-sm sm:text-base mb-4">
-            {% if request.GET.search or request.GET.statut or request.GET.classe %}
-                Aucun résultat ne correspond à votre recherche.
-            {% else %}
-                La liste des élèves est vide pour le moment.
-            {% endif %}
-        </p>
-        <div class="flex flex-col sm:flex-row gap-2 justify-center">
-            <a href="{% url 'eleves:eleve_list' %}" 
-               class="inline-flex items-center justify-center bg-gray-500 hover:bg-gray-600 text-white font-medium px-4 py-2 rounded-lg transition shadow text-sm">
-                <i class="fas fa-redo mr-2"></i> Actualiser
-            </a>
-            
-            <!-- Bouton Ajouter dans état vide - Cache pour SECRETAIRE et ARCHIVE -->
-            {% if request.user.role == 'admin' or request.user.role == 'directeur' %}
-            <a href="{% url 'eleves:add_eleves' %}"
-               class="inline-flex items-center justify-center bg-yellow-500 hover:bg-yellow-600 text-gray-900 font-medium px-4 py-2 rounded-lg shadow transform hover:scale-105 transition duration-300 text-sm">
-                <i class="fas fa-plus-circle mr-2"></i> Ajouter Élève
-            </a>
-            {% endif %}
-        </div>
-    </div>
-    {% endif %}
+  </div>
 </div>
 
-<!-- Style pour assurer la compatibilité avec la sidebar -->
-<style>
-@media (min-width: 1024px) {
-    .min-h-screen {
-        min-height: calc(100vh - 4rem);
-    }
-}
+<!-- Statistiques avec dégradés -->
+<div class="grid grid-cols-1 sm:grid-cols-4 gap-4 mb-6">
+  <div class="bg-gradient-to-r from-gray-700 to-amber-500 text-white p-4 rounded-lg shadow flex flex-col items-center">
+    <p class="text-sm opacity-90">Total Élèves</p>
+    <p class="text-2xl font-bold">{{ total_eleves|default:"0" }}</p>
+  </div>
+  <div class="bg-gradient-to-r from-green-400 to-green-600 text-white p-4 rounded-lg shadow flex flex-col items-center">
+    <p class="text-sm opacity-90">Actifs</p>
+    <p class="text-2xl font-bold">{{ eleves_actifs|default:"0" }}</p>
+  </div>
+  <div class="bg-gradient-to-r from-yellow-400 to-yellow-600 text-white p-4 rounded-lg shadow flex flex-col items-center">
+    <p class="text-sm opacity-90">Suspendus</p>
+    <p class="text-2xl font-bold">{{ eleves_suspendus|default:"0" }}</p>
+  </div>
+  <div class="bg-gradient-to-r from-red-400 to-red-600 text-white p-4 rounded-lg shadow flex flex-col items-center">
+    <p class="text-sm opacity-90">Radiés</p>
+    <p class="text-2xl font-bold">{{ eleves_radies|default:"0" }}</p>
+  </div>
+</div>
 
-/* Responsive pour mobile */
-@media (max-width: 768px) {
-    .px-4 {
-        padding-left: 1rem;
-        padding-right: 1rem;
-    }
-    
-    .gap-3 {
-        gap: 0.75rem;
-    }
-    
-    .text-xl {
-        font-size: 1.25rem;
-    }
-    
-    /* Ajustements pour les cartes statistiques sur mobile */
-    .p-4 {
-        padding: 1rem;
-    }
-    
-    .w-10.h-10 {
-        width: 2.5rem;
-        height: 2.5rem;
-    }
-    
-    /* Ajustements pour le tableau sur mobile */
-    .overflow-x-auto {
-        font-size: 0.75rem;
-    }
-    
-    .px-3.py-3 {
-        padding-left: 0.5rem;
-        padding-right: 0.5rem;
-        padding-top: 0.75rem;
-        padding-bottom: 0.75rem;
-    }
-    
-    .w-7.h-7 {
-        width: 1.75rem;
-        height: 1.75rem;
-    }
-}
+<!-- 🔍 Bar de recherche et filtres -->
+<div class="bg-white rounded-2xl shadow-lg p-4 sm:p-6 mb-6 border border-yellow-200">
+  <form method="GET" action="" class="flex flex-col lg:flex-row gap-3 sm:gap-4">
+    <!-- Barre de recherche automatique -->
+    <div class="flex-1 relative">
+      <div class="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
+        <i class="fas fa-search text-gray-400 text-sm"></i>
+      </div>
+      <input 
+        type="text" 
+        name="search" 
+        id="searchInput"
+        value="{{ request.GET.search }}"
+        placeholder="Rechercher par nom, prénom, matricule..." 
+        class="w-full pl-10 pr-4 py-3 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-yellow-500 focus:border-transparent bg-white text-gray-900 text-sm"
+      >
+    </div>
 
-/* Ajustements pour très petits écrans */
-@media (max-width: 640px) {
-    .grid-cols-2 {
-        grid-template-columns: repeat(1, minmax(0, 1fr));
-    }
-    
-    .text-lg {
-        font-size: 1rem;
-    }
-    
-    /* Réduire l'espacement dans l'en-tête */
-    .py-4 {
-        padding-top: 1rem;
-        padding-bottom: 1rem;
-    }
-    
-    /* Ajuster les boutons d'action */
-    .flex.justify-center.gap-1 {
-        gap: 0.25rem;
-    }
-    
-    .w-7.h-7 {
-        width: 1.5rem;
-        height: 1.5rem;
-    }
-    
-    /* Ajuster la recherche */
-    .flex-col.lg\:flex-row {
-        flex-direction: column;
-    }
-    
-    .gap-3 {
-        gap: 0.75rem;
-    }
-}
+    <!-- Filtre par statut -->
+    <div class="relative">
+      <div class="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
+        <i class="fas fa-filter text-gray-400 text-sm"></i>
+      </div>
+      <select 
+        name="statut" 
+        id="statutSelect"
+        class="w-full lg:w-40 pl-10 pr-8 py-3 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-yellow-500 focus:border-transparent bg-white text-gray-900 text-sm appearance-none cursor-pointer"
+      >
+        <option value="">Tous les statuts</option>
+        <option value="actif" {% if request.GET.statut == 'actif' %}selected{% endif %}>Actif</option>
+        <option value="suspendu" {% if request.GET.statut == 'suspendu' %}selected{% endif %}>Suspendu</option>
+        <option value="radié" {% if request.GET.statut == 'radié' %}selected{% endif %}>Radié</option>
+      </select>
+      <div class="absolute inset-y-0 right-0 flex items-center pr-2 pointer-events-none">
+        <i class="fas fa-chevron-down text-gray-400 text-sm"></i>
+      </div>
+    </div>
 
-/* Assurer que le contenu ne chevauche pas la sidebar */
-.min-h-screen {
-    position: relative;
-    z-index: 1;
-}
-</style>
+    <!-- Filtre par classe -->
+    <div class="relative">
+      <div class="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
+        <i class="fas fa-school text-gray-400 text-sm"></i>
+      </div>
+      <select 
+        name="classe" 
+        id="classeSelect"
+        class="w-full lg:w-48 pl-10 pr-8 py-3 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-yellow-500 focus:border-transparent bg-white text-gray-900 text-sm appearance-none cursor-pointer"
+      >
+        <option value="">Toutes les classes</option>
+        {% for classe in classes %}
+          <option value="{{ classe.id }}" {% if request.GET.classe == classe.id|stringformat:"s" %}selected{% endif %}>
+            {{ classe.nom_classe }}
+          </option>
+        {% endfor %}
+      </select>
+      <div class="absolute inset-y-0 right-0 flex items-center pr-2 pointer-events-none">
+        <i class="fas fa-chevron-down text-gray-400 text-sm"></i>
+      </div>
+    </div>
+
+    <!-- Bouton reset -->
+    {% if request.GET.search or request.GET.statut or request.GET.classe %}
+    <a href="{% url 'eleves:eleve_list' %}" 
+       class="inline-flex items-center justify-center px-4 py-3 bg-gray-500 hover:bg-gray-600 text-white font-medium rounded-lg transition shadow text-sm">
+      <i class="fas fa-redo mr-2 text-sm"></i> Réinitialiser
+    </a>
+    {% endif %}
+  </form>
+</div>
+
+<!-- TABLEAU DES ÉLÈVES -->
+<div class="bg-white rounded-2xl shadow-lg overflow-hidden border border-yellow-200">
+  <div class="overflow-x-auto">
+    <table class="w-full min-w-full" id="eleves-table">
+      <thead class="bg-gradient-to-r from-amber-100 to-yellow-100 border-b border-yellow-300">
+        <tr>
+          <th class="px-4 py-3 text-left text-xs font-bold text-gray-700 uppercase tracking-wider">Matricule</th>
+          <th class="px-4 py-3 text-left text-xs font-bold text-gray-700 uppercase tracking-wider">Nom & Prénom</th>
+          <th class="px-4 py-3 text-left text-xs font-bold text-gray-700 uppercase tracking-wider">Sexe</th>
+          <th class="px-4 py-3 text-left text-xs font-bold text-gray-700 uppercase tracking-wider">Classe</th>
+          <th class="px-4 py-3 text-left text-xs font-bold text-gray-700 uppercase tracking-wider">Date Naiss.</th>
+          <th class="px-4 py-3 text-left text-xs font-bold text-gray-700 uppercase tracking-wider">Statut</th>
+          <th class="px-4 py-3 text-center text-xs font-bold text-gray-700 uppercase tracking-wider">Actions</th>
+        </tr>
+      </thead>
+      <tbody class="divide-y divide-gray-200 bg-white">
+        {% for eleve in eleves %}
+        <tr id="eleve-row-{{ eleve.id }}" class="hover:bg-amber-50/50 transition-all duration-200 ease-in-out">
+          <td class="px-4 py-3 text-sm font-medium text-gray-900">
+            <span class="font-mono bg-gray-100 px-2 py-1 rounded-full text-xs">
+              {{ eleve.matricule }}
+            </span>
+          </td>
+          <td class="px-4 py-3">
+            <div class="flex items-center">
+              <div class="flex-shrink-0 h-10 w-10">
+                {% if eleve.photo and eleve.photo.name != 'eleves/photos/default_avatar.png' %}
+                  <img class="h-10 w-10 rounded-full object-cover border-2 border-yellow-500" src="{{ eleve.photo.url }}" alt="">
+                {% else %}
+                  <div class="h-10 w-10 rounded-full bg-gradient-to-br 
+                      {% if eleve.sexe == 'M' %}from-blue-500 to-blue-600{% else %}from-pink-500 to-pink-600{% endif %} 
+                      flex items-center justify-center text-white font-bold text-sm border-2 
+                      {% if eleve.sexe == 'M' %}border-blue-400{% else %}border-pink-400{% endif %}">
+                    {{ eleve.prenom.0|upper }}{{ eleve.nom.0|upper }}
+                  </div>
+                {% endif %}
+              </div>
+              <div class="ml-3">
+                <div class="text-sm font-medium text-gray-900">
+                  {{ eleve.nom|upper }} {{ eleve.prenom|title }}
+                </div>
+                <div class="text-xs text-gray-500">
+                  <i class="fas fa-phone text-green-500 mr-1"></i>{{ eleve.telephone_tuteur|default:"N/A" }}
+                </div>
+              </div>
+            </div>
+          </td>
+          <td class="px-4 py-3 text-sm text-gray-800">
+            {% if eleve.sexe == 'M' %}
+              <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold bg-blue-100 text-blue-800 border border-blue-200 shadow-sm">
+                <i class="fas fa-mars mr-1 text-xs"></i> Masculin
+              </span>
+            {% else %}
+              <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold bg-pink-100 text-pink-800 border border-pink-200 shadow-sm">
+                <i class="fas fa-venus mr-1 text-xs"></i> Féminin
+              </span>
+            {% endif %}
+          </td>
+          <td class="px-4 py-3 text-sm text-gray-800">
+            {% if eleve.classe_actuelle %}
+              <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold bg-indigo-100 text-indigo-800 border border-indigo-200 shadow-sm">
+                <i class="fas fa-chalkboard mr-1 text-xs"></i>{{ eleve.classe_actuelle.nom_classe }}
+              </span>
+            {% else %}
+              <span class="text-gray-400 italic text-sm">Non affecté</span>
+            {% endif %}
+          </td>
+          <td class="px-4 py-3 text-sm text-gray-800">
+            <i class="far fa-calendar text-blue-500 mr-1"></i>
+            {{ eleve.date_naissance|date:"d/m/Y"|default:"—" }}
+          </td>
+          <td class="px-4 py-3 text-sm">
+            {% if eleve.statut == 'actif' %}
+              <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold bg-green-100 text-green-800 border border-green-200 shadow-sm">
+                <span class="w-2 h-2 bg-green-500 rounded-full mr-2"></span>
+                Actif
+              </span>
+            {% elif eleve.statut == 'suspendu' %}
+              <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold bg-yellow-100 text-yellow-800 border border-yellow-200 shadow-sm">
+                <span class="w-2 h-2 bg-yellow-500 rounded-full mr-2"></span>
+                Suspendu
+              </span>
+            {% elif eleve.statut == 'radié' %}
+              <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold bg-red-100 text-red-800 border border-red-200 shadow-sm">
+                <span class="w-2 h-2 bg-red-500 rounded-full mr-2"></span>
+                Radié
+              </span>
+            {% else %}
+              <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold bg-gray-100 text-gray-800 border border-gray-200 shadow-sm">
+                <span class="w-2 h-2 bg-gray-500 rounded-full mr-2"></span>
+                {{ eleve.statut|title }}
+              </span>
+            {% endif %}
+          </td>
+          <td class="px-4 py-3">
+            <div class="flex items-center justify-center gap-2">
+              <!-- Bouton Voir - Visible pour tous -->
+              <a href="{% url 'eleves:eleves_detail' eleve.id %}" 
+                 class="p-2 bg-gradient-to-br from-green-400 to-green-600 text-white rounded-lg hover:from-green-500 hover:to-green-700 hover:scale-110 transform transition-all duration-200 shadow hover:shadow-md" 
+                 title="Voir détails">
+                <i class="fas fa-eye text-sm"></i>
+              </a>
+
+              <!-- Bouton Modifier - Caché pour archives -->
+              {% if request.user.role != 'archives' %}
+              <a href="{% url 'eleves:eleve_update' eleve.id %}" 
+                 class="p-2 bg-gradient-to-br from-blue-400 to-blue-600 text-white rounded-lg hover:from-blue-500 hover:to-blue-700 hover:scale-110 transform transition-all duration-200 shadow hover:shadow-md" 
+                 title="Modifier">
+                <i class="fas fa-edit text-sm"></i>
+              </a>
+              {% endif %}
+
+              <!-- Bouton Archiver - Visible seulement pour admin et directeur -->
+              {% if request.user.role == 'admin' or request.user.role == 'directeur' %}
+              <form action="{% url 'eleves:eleve_archiver' eleve.id %}" method="POST" class="inline">
+                {% csrf_token %}
+                <button type="submit"
+                   onclick="return confirm('Voulez-vous vraiment archiver cet élève?')"
+                   class="p-2 bg-gradient-to-br from-red-400 to-red-600 text-white rounded-lg hover:from-red-500 hover:to-red-700 hover:scale-110 transform transition-all duration-200 shadow hover:shadow-md" 
+                   title="Archiver">
+                  <i class="fas fa-archive text-sm"></i>
+                </button>
+              </form>
+              {% endif %}
+            </div>
+          </td>
+        </tr>
+        {% empty %}
+        <tr>
+          <td colspan="7" class="px-6 py-8 text-center text-gray-500">
+            <div class="flex flex-col items-center justify-center">
+              <i class="fas fa-user-graduate text-4xl text-gray-300 mb-3"></i>
+              <p class="text-lg font-medium text-gray-400">Aucun élève trouvé</p>
+              {% if request.GET.search or request.GET.statut or request.GET.classe %}
+                <p class="text-sm text-gray-500 mt-1">Aucun résultat ne correspond à votre recherche</p>
+              {% else %}
+                <p class="text-sm text-gray-500 mt-1">La liste des élèves est vide pour le moment</p>
+              {% endif %}
+              
+              <div class="flex flex-col sm:flex-row gap-2 mt-3">
+                <a href="{% url 'eleves:eleve_list' %}" 
+                   class="inline-flex items-center justify-center bg-gray-500 hover:bg-gray-600 text-white font-medium px-4 py-2 rounded-lg transition shadow text-sm">
+                  <i class="fas fa-redo mr-2"></i> Actualiser
+                </a>
+                
+                <!-- Bouton Ajouter dans état vide - Cache pour SECRETAIRE et ARCHIVE -->
+                {% if request.user.role == 'admin' or request.user.role == 'directeur' %}
+                <a href="{% url 'eleves:add_eleves' %}"
+                   class="inline-flex items-center justify-center bg-amber-600 hover:bg-amber-700 text-white font-medium px-4 py-2 rounded-lg shadow transform hover:scale-105 transition duration-300 text-sm">
+                  <i class="fas fa-plus-circle mr-2"></i> Ajouter Élève
+                </a>
+                {% endif %}
+              </div>
+            </div>
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<!-- Pagination -->
+{% if eleves.has_other_pages %}
+<div class="mt-6 flex justify-center">
+  <nav class="flex items-center space-x-2">
+    {% if eleves.has_previous %}
+    <a href="?page={{ eleves.previous_page_number }}{% if request.GET.search %}&search={{ request.GET.search }}{% endif %}{% if request.GET.statut %}&statut={{ request.GET.statut }}{% endif %}{% if request.GET.classe %}&classe={{ request.GET.classe }}{% endif %}" 
+       class="px-3 py-2 text-sm font-medium text-gray-500 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 hover:text-gray-700 transition-colors">
+      Précédent
+    </a>
+    {% endif %}
+
+    {% for num in eleves.paginator.page_range %}
+      {% if eleves.number == num %}
+      <span class="px-3 py-2 text-sm font-medium text-amber-600 bg-amber-50 border border-amber-200 rounded-lg">{{ num }}</span>
+      {% else %}
+      <a href="?page={{ num }}{% if request.GET.search %}&search={{ request.GET.search }}{% endif %}{% if request.GET.statut %}&statut={{ request.GET.statut }}{% endif %}{% if request.GET.classe %}&classe={{ request.GET.classe }}{% endif %}" 
+         class="px-3 py-2 text-sm font-medium text-gray-500 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 hover:text-gray-700 transition-colors">
+        {{ num }}
+      </a>
+      {% endif %}
+    {% endfor %}
+
+    {% if eleves.has_next %}
+    <a href="?page={{ eleves.next_page_number }}{% if request.GET.search %}&search={{ request.GET.search }}{% endif %}{% if request.GET.statut %}&statut={{ request.GET.statut }}{% endif %}{% if request.GET.classe %}&classe={{ request.GET.classe }}{% endif %}" 
+       class="px-3 py-2 text-sm font-medium text-gray-500 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 hover:text-gray-700 transition-colors">
+      Suivant
+    </a>
+    {% endif %}
+  </nav>
+</div>
+{% endif %}
 
 <!-- JavaScript pour recherche automatique -->
 <script>
-    // Recherche automatique au typing
-    let searchTimeout;
-    const searchInput = document.getElementById('searchInput');
-    const statutSelect = document.getElementById('statutSelect');
-    const classeSelect = document.getElementById('classeSelect');
+document.addEventListener('DOMContentLoaded', function() {
+  // Recherche automatique au typing
+  let searchTimeout;
+  const searchInput = document.getElementById('searchInput');
+  const statutSelect = document.getElementById('statutSelect');
+  const classeSelect = document.getElementById('classeSelect');
 
-    if (searchInput) {
-        searchInput.addEventListener('input', function() {
-            clearTimeout(searchTimeout);
-            searchTimeout = setTimeout(() => {
-                this.form.submit();
-            }, 500);
-        });
-    }
-
-    if (statutSelect) {
-        statutSelect.addEventListener('change', function() {
-            this.form.submit();
-        });
-    }
-
-    if (classeSelect) {
-        classeSelect.addEventListener('change', function() {
-            this.form.submit();
-        });
-    }
-
-    // Animation des cartes statistiques au scroll
-    const observerOptions = {
-        threshold: 0.1,
-        rootMargin: '0px 0px -100px 0px'
-    };
-
-    const observer = new IntersectionObserver(function(entries) {
-        entries.forEach(entry => {
-            if (entry.isIntersecting) {
-                entry.target.style.opacity = '0';
-                entry.target.style.transform = 'translateY(20px)';
-                setTimeout(() => {
-                    entry.target.style.transition = 'all 0.5s ease-out';
-                    entry.target.style.opacity = '1';
-                    entry.target.style.transform = 'translateY(0)';
-                }, 100);
-                observer.unobserve(entry.target);
-            }
-        });
-    }, observerOptions);
-
-    document.querySelectorAll('.grid > div').forEach(card => {
-        observer.observe(card);
+  if (searchInput) {
+    searchInput.addEventListener('input', function() {
+      clearTimeout(searchTimeout);
+      searchTimeout = setTimeout(() => {
+        this.form.submit();
+      }, 500);
     });
+  }
+
+  if (statutSelect) {
+    statutSelect.addEventListener('change', function() {
+      this.form.submit();
+    });
+  }
+
+  if (classeSelect) {
+    classeSelect.addEventListener('change', function() {
+      this.form.submit();
+    });
+  }
+
+  // Animation des cartes statistiques au scroll
+  const observerOptions = {
+    threshold: 0.1,
+    rootMargin: '0px 0px -100px 0px'
+  };
+
+  const observer = new IntersectionObserver(function(entries) {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) {
+        entry.target.style.opacity = '0';
+        entry.target.style.transform = 'translateY(20px)';
+        setTimeout(() => {
+          entry.target.style.transition = 'all 0.5s ease-out';
+          entry.target.style.opacity = '1';
+          entry.target.style.transform = 'translateY(0)';
+        }, 100);
+        observer.unobserve(entry.target);
+      }
+    });
+  }, observerOptions);
+
+  document.querySelectorAll('.grid > div').forEach(card => {
+    observer.observe(card);
+  });
+});
+
+// Animation pour les boutons
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+tr {
+  animation: fadeIn 0.3s ease-out;
+}
 </script>
+
+<!-- Style responsive supplémentaire -->
+<style>
+@media (max-width: 640px) {
+  #eleves-table th:nth-child(3),
+  #eleves-table td:nth-child(3),
+  #eleves-table th:nth-child(5),
+  #eleves-table td:nth-child(5) {
+    display: none;
+  }
+  
+  .px-4 {
+    padding-left: 0.5rem;
+    padding-right: 0.5rem;
+  }
+  
+  .py-3 {
+    padding-top: 0.5rem;
+    padding-bottom: 0.5rem;
+  }
+  
+  .grid-cols-4 {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+</style>
+
 {% endblock %}
