@@ -6,8 +6,56 @@ class Matiere(models.Model):
     code_matiere = models.CharField(
         max_length=20,
         unique=True,
+        blank=True,  # Fè li opsyonèl pou otomatikman mete li
         verbose_name="Code Matière"
     )
+    nom_matiere = models.CharField(
+        max_length=100,
+        unique=True,
+        verbose_name="Nom de la Matière"
+    )
+    heure_hebdomadaire = models.PositiveIntegerField(
+        default=0,
+        verbose_name="Heures Hebdomadaires"
+    )
+    statut = models.CharField(
+        max_length=20,
+        choices=[('actif', 'Actif'), ('inactif', 'Inactif')],
+        default='actif'
+    )
+
+    # ✅ Tracabilité
+    cree_par = models.ForeignKey(
+        settings.AUTH_USER_MODEL,  # <<< chanjman la
+        on_delete=models.SET_NULL,
+        null=True, blank=True,
+        related_name="matieres_cree"
+    )
+    modifier_par = models.ForeignKey(
+        settings.AUTH_USER_MODEL,  # <<< chanjman la tou
+        on_delete=models.SET_NULL,
+        null=True, blank=True,
+        related_name="matieres_modifie"
+    )
+
+    # --------------- CODE MATIERE OTOMATIK ---------------
+    def generate_code_matiere(self):
+        """
+        Code Matière format : MAT-2025-0001
+        """
+        from datetime import date
+        prefix = "MAT"
+        year = date.today().year
+        last_matiere = Matiere.objects.order_by('-id').first()
+        next_id = (last_matiere.id + 1) if last_matiere else 1
+        return f"{prefix}-{year}-{next_id:04d}"
+
+    def save(self, *args, **kwargs):
+        # Jenerasyon otomatik code_matiere si pa bay
+        if not self.code_matiere:
+            self.code_matiere = self.generate_code_matiere()
+        self.full_clean()  # Validation konplè
+        super().save(*args, **kwargs)
     nom_matiere = models.CharField(
         max_length=100,
         unique=True,

@@ -3,7 +3,7 @@
 from django import forms
 from django.core.exceptions import ValidationError
 from .models import Enseignant
-from core.validators import validate_phone_prefix  # Retire validate_unique_across_models
+from core.validators import validate_phone_prefix, format_phone_international  # Retire validate_unique_across_models
 
 class EnseignantForm(forms.ModelForm):
     class Meta:
@@ -121,4 +121,6 @@ class EnseignantForm(forms.ModelForm):
                 queryset = queryset.exclude(pk=self.instance.pk)
             if queryset.exists():
                 raise ValidationError("Un enseignant avec ce numéro de téléphone existe déjà.")
+            # Normalize storage to international format
+            return format_phone_international(telephone)
         return telephone

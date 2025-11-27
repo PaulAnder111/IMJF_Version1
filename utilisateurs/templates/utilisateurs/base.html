@@ -893,9 +893,12 @@
                         </div>
                         <div class="avatar-circle bg-gradient-to-br from-yellow-400 to-yellow-600 text-white hover:shadow-lg transition">
                             {% if request.user.photo %}
-                                <img src="{{ request.user.photo.url }}" alt="Avatar" class="w-full h-full object-cover rounded-full">
+                                <img src="{{ request.user.photo.url }}" alt="Avatar" class="w-full h-full object-cover rounded-full" onerror="this.style.display='none'; this.parentNode.querySelector('.initial-fallback').style.display='flex'">
+                                <div class="initial-fallback" style="display:none; align-items:center; justify-content:center; width:100%; height:100%;">
+                                    <span class="text-sm font-semibold">{{ request.user.initial }}</span>
+                                </div>
                             {% else %}
-                                <span class="text-lg">{{ request.user.first_name.0|default:"U" }}</span>
+                                <span class="text-sm font-semibold">{{ request.user.initial }}</span>
                             {% endif %}
                         </div>
                     </div>
@@ -905,9 +908,12 @@
                             <div class="flex items-center gap-3 mb-3">
                                 <div class="avatar-circle bg-gradient-to-br from-yellow-400 to-yellow-600 text-white">
                                     {% if request.user.photo %}
-                                        <img src="{{ request.user.photo.url }}" alt="Avatar" class="w-full h-full object-cover rounded-full">
+                                        <img src="{{ request.user.photo.url }}" alt="Avatar" class="w-full h-full object-cover rounded-full" onerror="this.style.display='none'; this.closest('.avatar-circle').querySelector('.initial-fallback').style.display='flex'">
+                                        <div class="initial-fallback" style="display:none; align-items:center; justify-content:center; width:100%; height:100%;">
+                                            <span class="text-sm font-semibold">{{ request.user.initial }}</span>
+                                        </div>
                                     {% else %}
-                                        <span class="text-lg">{{ request.user.first_name.0|default:"U" }}</span>
+                                        <span class="text-sm font-semibold">{{ request.user.initial }}</span>
                                     {% endif %}
                                 </div>
                                 <div>
@@ -963,16 +969,19 @@
     <!-- Sidebar -->
     <aside id="sidebar" class="sidebar-light fixed left-0 top-0 h-full pt-16 z-30 sidebar-transition sidebar-expanded overflow-y-auto">
         <nav class="h-full flex flex-col">
-            <!-- User Profile Section in Sidebar - Cachée pour admin -->
+            <!-- User Profile Section in Sidebar (hidden for admin users) -->
             {% if request.user.role != 'admin' %}
             <div class="sidebar-profile-container">
                 <div class="flex flex-col items-center justify-center gap-3">
                     <div class="avatar-circle bg-gradient-to-br from-yellow-400 to-yellow-600 text-white w-20 h-20 border-3 border-yellow-500">
-                        {% if request.user.photo %}
-                            <img src="{{ request.user.photo.url }}" alt="Avatar" class="w-full h-full object-cover rounded-full">
-                        {% else %}
-                            <span class="text-2xl">{{ request.user.first_name.0|default:"U" }}</span>
-                        {% endif %}
+                            {% if request.user.photo %}
+                                <img src="{{ request.user.photo.url }}" alt="Avatar" class="w-full h-full object-cover rounded-full" onerror="this.style.display='none'; this.closest('.w-20').querySelector('.initial-fallback').style.display='flex'">
+                                <div class="initial-fallback" style="display:none; align-items:center; justify-content:center; width:100%; height:100%;">
+                                    <span class="text-xl font-semibold">{{ request.user.initial }}</span>
+                                </div>
+                            {% else %}
+                                <span class="text-xl font-semibold">{{ request.user.initial }}</span>
+                            {% endif %}
                     </div>
                     <div class="user-info-text text-center">
                         <p class="font-bold text-gray-800 dark:text-gray-200">{{ request.user.get_full_name|default:request.user.username }}</p>
@@ -1082,6 +1091,9 @@
     <!-- Contenu principal -->
     <main id="mainContent" class="pt-20 content-shift content-expanded min-h-screen">
         <div class="p-4 md:p-6">
+            {# Messages globales: affichées sur toutes les pages via le base template #}
+            {% include "messages_block.html" %}
+
             {% block content %}
             <!-- Le contenu spécifique à chaque page ira ici -->
             {% endblock %}
@@ -1091,9 +1103,16 @@
     <!-- Modal Profil -->
     <div id="modalProfile" class="hidden fixed inset-0 modal-bg z-50 flex items-center justify-center p-4">
         <div class="modal-content rounded-2xl shadow-2xl w-full max-w-md p-6 transform transition-all">
-            <div class="flex items-center gap-3 mb-6">
-                <div class="w-12 h-12 bg-gradient-to-br from-yellow-400 to-yellow-600 rounded-full flex items-center justify-center">
-                    <i class="fas fa-user text-white text-xl"></i>
+            <div class="flex flex-col items-center gap-4 mb-6">
+                <div class="w-20 h-20 bg-gradient-to-br from-yellow-400 to-yellow-600 rounded-full flex items-center justify-center border-4 border-yellow-500">
+                    {% if request.user.photo %}
+                        <img src="{{ request.user.photo.url }}" alt="Avatar" class="w-full h-full object-cover rounded-full" onerror="this.style.display='none'; this.parentNode.querySelector('.initial-fallback').style.display='flex'">
+                        <div class="initial-fallback" style="display:none; align-items:center; justify-content:center; width:100%; height:100%;">
+                            <span class="text-3xl font-bold text-white">{{ request.user.initial }}</span>
+                        </div>
+                    {% else %}
+                        <span class="text-3xl font-bold text-white">{{ request.user.initial }}</span>
+                    {% endif %}
                 </div>
                 <h2 class="text-xl font-bold">Profil Utilisateur</h2>
             </div>
@@ -1140,8 +1159,17 @@
                 
                 <!-- Image preview -->
                 <div class="flex justify-center">
-                    <div class="w-32 h-32 rounded-full overflow-hidden border-4 border-yellow-500 shadow-xl">
-                        <img id="previewPhoto" src="{% if request.user.photo %}{{ request.user.photo.url }}{% else %}{% static 'images/default-avatar.png' %}{% endif %}" alt="Preview" class="w-full h-full object-cover">
+                    <div class="w-32 h-32 rounded-full overflow-hidden border-4 border-yellow-500 shadow-xl flex items-center justify-center bg-transparent">
+                        {% if request.user.photo %}
+                            <img id="previewPhoto" src="{{ request.user.photo.url }}" alt="Preview" class="w-full h-full object-cover" onerror="this.style.display='none'; this.parentNode.querySelector('.initial-fallback').style.display='flex'">
+                            <div class="initial-fallback" style="display:none; align-items:center; justify-content:center; width:100%; height:100%;">
+                                <span class="text-4xl font-bold text-white">{{ request.user.initial }}</span>
+                            </div>
+                        {% else %}
+                            <div class="w-full h-full bg-gradient-to-br from-yellow-400 to-yellow-600 flex items-center justify-center text-white text-4xl font-bold">
+                                {{ request.user.initial }}
+                            </div>
+                        {% endif %}
                     </div>
                 </div>
 

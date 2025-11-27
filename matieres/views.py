@@ -67,7 +67,7 @@ def matiere_update(request, pk):
             return redirect('matieres:matieres')
     else:
         form = MatiereForm(instance=matiere)
-    return render(request, 'matieres/modifier_matiere.html', {'form': form, 'titre': "Modifier une matière"})
+    return render(request, 'matieres/modifier_matiere.html', {'form': form, 'titre': "Modifier une matière", 'matiere': matiere})
 
 # --------------------------------DELETE MATIERE------------------------------- ---
 #---------------------------------              ----------------------------------

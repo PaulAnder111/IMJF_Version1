@@ -49,7 +49,6 @@ class CustomUser(AbstractUser, BaseModel):
         validators=[validate_image],
         blank=True,
         null=True,
-        default='utilisateurs/photos/default_avatar.png',
         verbose_name="Photo de profil"
     )
 
@@ -97,8 +96,21 @@ class CustomUser(AbstractUser, BaseModel):
 
     @property
     def initial(self):
-        """Retounen premye lèt non itilizatè a (pou inisyal avatar)."""
-        return (self.first_name[0] if self.first_name else self.username[0]).upper()
+        """Retounen premye lèt non ak prenom itilizatè a (pou inisyal avatar - style WhatsApp)."""
+        first_initial = self.first_name[0].upper() if self.first_name and self.first_name.strip() else ""
+        last_initial = self.last_name[0].upper() if self.last_name and self.last_name.strip() else ""
+        
+        # Return both initials if available
+        if first_initial and last_initial:
+            return f"{first_initial}{last_initial}"
+        elif first_initial:
+            return first_initial
+        elif last_initial:
+            return last_initial
+        elif self.username and self.username.strip():
+            return self.username[0].upper()
+        else:
+            return "U"  # Default fallback
 
 
 # ==========================================================
@@ -278,11 +290,29 @@ def create_default_admin(sender, **kwargs):
         from django.contrib.auth import get_user_model
         User = get_user_model()
 
+        admin_name = {'first_name': 'Joseph', 'last_name': 'Fedanoir'}
+
         if not User.objects.filter(role='admin').exists():
             User.objects.create_superuser(
                 username='Fedanoir',
                 email='institutionmixtejosephfedanoir@gmail.com',
                 password='@@fedanoir@@joseph@@2025@@!',
                 role='admin',
+                first_name=admin_name['first_name'],
+                last_name=admin_name['last_name'],
             )
             print("✅ Administrateur par défaut créé: Fedanoir / @@fedanoir@@joseph@@2025@@!")
+        else:
+            # If an admin user exists but doesn't have a first or last name, set sensible defaults
+            admin = User.objects.filter(role='admin').first()
+            if admin and (not admin.first_name or not admin.last_name):
+                changed = False
+                if not admin.first_name:
+                    admin.first_name = admin_name['first_name']
+                    changed = True
+                if not admin.last_name:
+                    admin.last_name = admin_name['last_name']
+                    changed = True
+                if changed:
+                    admin.save()
+                    print(f"✅ Administrateur ({admin.username}) mis à jour avec des noms par défaut.")

@@ -5,7 +5,7 @@
 {% block content %}
 
 <!-- Messages Block -->
-{% include "messages_block.html" %}
+{# messages handled globally by base.html #}
 
 <!-- SECTION HEADER AVEC GRADIENT (GRIS FONSE → OR) -->
 <div class="bg-gradient-to-r from-gray-800 to-amber-500 py-4 px-3 sm:px-6 text-white shadow-md mb-6 rounded-lg">
@@ -176,7 +176,11 @@
                   </svg>
                   Téléphone Tuteur *
                 </label>
-                <input type="text" name="telephone_tuteur" class="w-full px-3 py-2 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-amber-500 focus:border-transparent bg-white text-gray-900" placeholder="Numéro de téléphone du tuteur">
+                <div class="flex">
+                  <span class="inline-flex items-center px-3 rounded-l-lg border border-r-0 border-gray-300 bg-gray-100 text-gray-600 text-sm">+509</span>
+                  <input type="text" name="telephone_tuteur" id="id_telephone_tuteur" maxlength="8" pattern="[0-9]{8}"
+                    class="w-full px-3 py-2 border-2 border-gray-300 rounded-r-lg focus:ring-2 focus:ring-amber-500 focus:border-transparent bg-white text-gray-900" placeholder="XXXXXXXX">
+                </div>
               </div>
 
               <div>
@@ -373,6 +377,18 @@ document.addEventListener('DOMContentLoaded', function() {
                 }
                 
                 if (file.size > 5 * 1024 * 1024) {
+
+              // Téléphone tuteur: auto-normalisation (local 8-digit display)
+              const telTuteur = document.getElementById('id_telephone_tuteur');
+              if (telTuteur) {
+                // strip non-digits and keep last 8 digits on load
+                let v = telTuteur.value ? telTuteur.value.toString().replace(/\D/g, '') : '';
+                if (v.length > 8) telTuteur.value = v.slice(-8);
+
+                telTuteur.addEventListener('input', function(){
+                  this.value = this.value.replace(/\D/g, '').slice(0,8);
+                });
+              }
                     alert('L\'image est trop volumineuse. Taille maximale: 5MB');
                     this.value = '';
                     return;

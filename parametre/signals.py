@@ -109,16 +109,16 @@ def log_classe_delete(sender, instance, **kwargs):
 def log_matiere_save(sender, instance, created, **kwargs):
     if created:
         log_action("Matiere", instance, "Création",
-                   f"Matière {instance.nom} ajoutée")
+               f"Matière {instance.nom_matiere} ajoutée")
     else:
         log_action("Matiere", instance, "Modification",
-                   f"Matière {instance.nom} modifiée")
+               f"Matière {instance.nom_matiere} modifiée")
 
 
 @receiver(post_delete, sender=Matiere)
 def log_matiere_delete(sender, instance, **kwargs):
     log_action("Matiere", instance, "Suppression",
-               f"Matière {instance.nom} supprimée")
+               f"Matière {instance.nom_matiere} supprimée")
 
 
 # ------------ INSCRIPTION ------------

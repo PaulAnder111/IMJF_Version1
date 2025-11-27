@@ -30,4 +30,15 @@ class EleveForm(forms.ModelForm):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
+        # Limite les classes disponibles aux classes actives
         self.fields['classe_actuelle'].queryset = Classe.objects.filter(statut='actif')
+        # Supprime l'option vide automatique pour le champ classe_actuelle (ModelChoiceField)
+        if hasattr(self.fields['classe_actuelle'], 'empty_label'):
+            self.fields['classe_actuelle'].empty_label = None
+
+        # Pour le champ sexe (ChoiceField), retire toute option vide automatique
+        if 'sexe' in self.fields:
+            # Filtre les choices pour enlever l'éventuelle valeur vide
+            self.fields['sexe'].choices = [c for c in self.fields['sexe'].choices if c[0] != '']
+            # Assure que le champ est requis au niveau du formulaire
+            self.fields['sexe'].required = True

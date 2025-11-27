@@ -4,7 +4,7 @@
 {% block title %}Ajouter un Enseignant - SYGEE{% endblock %}
 
 {% block content %}
-{% include "messages_block.html" %}
+{# messages handled globally by base.html #}
 
 <!-- SECTION HEADER AVEC GRADIENT (GRIS FONSE → OR) -->
 <div class="bg-gradient-to-r from-gray-800 to-amber-500 py-4 px-3 sm:px-6 text-white shadow-md mb-6 rounded-lg">
@@ -101,7 +101,10 @@
                   </svg>
                   {{ form.sexe.label }} *
                 </label>
-                {{ form.sexe }}
+                <select name="sexe" required class="w-full px-3 py-2 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-amber-500 focus:border-transparent bg-white text-gray-900 text-sm">
+                  <option value="M" {% if form.sexe.value == 'M' %}selected{% endif %}>Masculin</option>
+                  <option value="F" {% if form.sexe.value == 'F' %}selected{% endif %}>Féminin</option>
+                </select>
               </div>
 
               <div>
@@ -153,7 +156,20 @@
                   </svg>
                   {{ form.telephone.label }} *
                 </label>
-                {{ form.telephone }}
+                <div class="flex">
+                  <span class="inline-flex items-center px-3 rounded-l-lg border border-r-0 border-gray-300 bg-gray-100 text-gray-600 text-sm">+509</span>
+                  <input type="text" name="telephone" id="id_telephone_enseignant" value="{{ form.telephone.value|default:'' }}" maxlength="8" pattern="[0-9]{8}" placeholder="XXXXXXXX"
+                       class="w-full px-3 py-2 border border-gray-300 rounded-r-lg focus:outline-none focus:ring-2 focus:ring-yellow-500 text-sm">
+                </div>
+                <script>
+                  (function(){
+                    var el = document.getElementById('id_telephone_enseignant');
+                    if(!el) return;
+                    var v = el.value ? el.value.toString().replace(/\D/g,'') : '';
+                    if(v.length>8) el.value = v.slice(-8);
+                    el.addEventListener('input', function(){ this.value = this.value.replace(/\D/g,'').slice(0,8); });
+                  })();
+                </script>
               </div>
 
               <div>

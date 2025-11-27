@@ -2,12 +2,21 @@
 from django import forms
 from django.contrib.auth.forms import UserCreationForm
 from .models import CustomUser
-from core.validators import validate_phone_prefix, validate_unique_across_models
+from core.validators import validate_phone_prefix, validate_unique_across_models, format_phone_international
 
 class CustomUserCreationForm(UserCreationForm):
     class Meta:
         model = CustomUser
         fields = ['username', 'first_name', 'last_name', 'email', 'telephone', 'role', 'photo']
+
+    def clean_telephone(self):
+        telephone = self.cleaned_data.get('telephone')
+        if telephone:
+            validate_phone_prefix(telephone)
+            validate_unique_across_models('telephone', telephone, instance=None)
+            # Format for storage
+            return format_phone_international(telephone)
+        return telephone
 
 class CustomUserUpdateForm(forms.ModelForm):
     class Meta:
@@ -35,4 +44,6 @@ class CustomUserUpdateForm(forms.ModelForm):
             validate_phone_prefix(telephone)
             # check uniqueness across the system
             validate_unique_across_models('telephone', telephone, instance=self.instance)
+            # Format to canonical international form
+            return format_phone_international(telephone)
         return telephone

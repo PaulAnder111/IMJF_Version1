@@ -16,7 +16,7 @@
 {% endblock %}
 
 {% block content %}
-{% include "messages_block.html" %}
+{# messages handled globally by base.html #}
 <div class="flex justify-center items-start min-h-[80vh] pt-10 pb-10 bg-gray-50 dark:bg-gray-900">
     <div class="w-full max-w-3xl bg-white dark:bg-gray-800 rounded-2xl shadow-lg p-8">
 
@@ -72,7 +72,7 @@
                     <div class="w-2/3">
                         {% if field.name == 'role' %}
                             <select name="{{ field.name }}" id="{{ field.id_for_label }}" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-gold">
-                                <option value="">Choisir un rôle</option>
+                                <!-- placeholder removed: role must be explicitly chosen -->
                                 <option value="admin">Administrateur</option>
                                 <option value="secretaire">Secrétaire</option>
                                 <option value="directeur">Directeur</option>
@@ -81,7 +81,7 @@
                         {% elif field.name == 'photo' %}
                             <input type="file" name="{{ field.name }}" id="{{ field.id_for_label }}" accept="image/*"
                                    class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-gold">
-                        {% elif field.name == 'phone' %}
+                        {% elif field.name == 'telephone' %}
                             <div class="flex">
                                 <span class="inline-flex items-center px-3 rounded-l-lg border border-r-0 border-gray-300 bg-gray-100 text-gray-600 text-sm">+509</span>
                                 <input type="text" name="{{ field.name }}" id="{{ field.id_for_label }}" maxlength="8" pattern="[0-9]{8}" placeholder="XXXXXXXX"
@@ -126,5 +126,16 @@
         border-color: #d4af37;
     }
 </style>
+
+<script>
+document.addEventListener('DOMContentLoaded', function(){
+    var tel = document.querySelector('input[name="telephone"]');
+    if(tel){
+        var val = tel.value ? tel.value.toString().replace(/\D/g,'') : '';
+        if(val.length>8) tel.value = val.slice(-8);
+        tel.addEventListener('input', function(){ this.value = this.value.replace(/\D/g,'').slice(0,8); });
+    }
+});
+</script>
 
 {% endblock %}

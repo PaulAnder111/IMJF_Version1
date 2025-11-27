@@ -4,7 +4,7 @@
 {% block title %}Liste des Cours - SYGEE{% endblock %}
 
 {% block content %}
-{% include "messages_block.html" %}
+{# messages handled globally by base.html #}
 
 <!-- SECTION HEADER AVEC GRADIENT (GRIS FONSE → OR) -->
 <div class="bg-gradient-to-r from-gray-800 to-amber-500 py-4 px-3 sm:px-6 text-white shadow-md mb-6 rounded-lg">
@@ -205,7 +205,7 @@
             <td class="px-6 py-4 whitespace-nowrap">
               <div class="flex items-center">
                 <div class="flex-shrink-0 h-8 w-8 bg-amber-50 rounded-full flex items-center justify-center text-amber-600 text-xs font-bold border border-amber-200">
-                  {{ cours.enseignant.nom.0 }}{{ cours.enseignant.prenom.0 }}
+                  {{ cours.enseignant.initial }}
                 </div>
                 <div class="ml-3">
                   <div class="text-sm font-medium text-gray-900">{{ cours.enseignant.nom }} {{ cours.enseignant.prenom }}</div>

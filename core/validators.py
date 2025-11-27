@@ -21,6 +21,32 @@ def _normalize_phone(value: str) -> str:
     return digits
 
 
+def format_phone_international(value: str) -> str:
+    """Return a canonical international phone string prefixed with +509.
+
+    Rules:
+    - Keep only digits
+    - If digits start with '509', remove that then use the last 8 digits
+    - If digits are local (8 digits) use them directly
+    - Return value in format: +509XXXXXXXX
+    """
+    digits = _normalize_phone(value)
+    if not digits:
+        return ''
+
+    # If it already contains the country code 509, strip it
+    if digits.startswith('509'):
+        local = digits[3:]
+    else:
+        # Take the last 8 digits as local (safe for small variations)
+        local = digits[-8:]
+
+    # Guarantee local part length 8 by left padding with zeros if unexpectedly short
+    local = local.zfill(8)
+
+    return f"+509{local}"
+
+
 def validate_phone_prefix(value: str):
     """Validate that the phone number belongs to allowed operators (Digicel/Natcom).
 

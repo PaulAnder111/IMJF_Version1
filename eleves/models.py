@@ -53,7 +53,6 @@ class Eleve(models.Model):
         upload_to='eleves/photos/',
         blank=True,
         null=True,
-        default='eleves/photos/default_avatar.png',
         verbose_name="Photo"
     )
     date_inscription = models.DateField(
@@ -67,3 +66,21 @@ class Eleve(models.Model):
 
     def __str__(self):
         return f"{self.prenom} {self.nom} - {self.matricule}"
+
+    @property
+    def initial(self):
+        """Retounen premye lèt non ak prenom eleve a (pou inisyal avatar - style WhatsApp)."""
+        first_initial = self.prenom[0].upper() if self.prenom and self.prenom.strip() else ""
+        last_initial = self.nom[0].upper() if self.nom and self.nom.strip() else ""
+        
+        # Return both initials if available
+        if first_initial and last_initial:
+            return f"{first_initial}{last_initial}"
+        elif first_initial:
+            return first_initial
+        elif last_initial:
+            return last_initial
+        elif self.matricule and self.matricule.strip():
+            return self.matricule[0].upper()
+        else:
+            return "E"  # Default fallback for Eleve

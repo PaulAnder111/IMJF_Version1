@@ -15,7 +15,7 @@
 {% endblock %}
 
 {% block content %}
-{% include "messages_block.html" %}
+{# messages handled globally by base.html #}
 <div class="flex justify-center items-start min-h-[80vh] pt-10 pb-10 bg-gray-50 dark:bg-gray-900">
     <div class="w-full max-w-2xl bg-white dark:bg-gray-800 rounded-2xl shadow-lg p-8">
 
@@ -68,10 +68,13 @@
                 <!-- Foto itilizatè -->
                 <div class="col-span-2 flex items-center space-x-4 mb-4">
                     {% if user.photo %}
-                        <img id="photoPreview" src="{{ user.photo.url }}" alt="Profil" class="w-16 h-16 rounded-full object-cover border border-gray-300">
+                        <img id="photoPreview" src="{{ user.photo.url }}" alt="Profil" class="w-16 h-16 rounded-full object-cover border border-gray-300" onerror="this.style.display='none'; this.parentNode.querySelector('.initial-fallback').style.display='flex'">
+                        <div class="initial-fallback" style="display:none; width:64px; height:64px; align-items:center; justify-content:center;">
+                            <span class="text-lg font-semibold">{{ user.initial }}</span>
+                        </div>
                     {% else %}
-                        <div id="photoPreview" class="w-16 h-16 bg-blue-600 rounded-full flex items-center justify-center text-white font-semibold text-lg">
-                            {{ user.username.0|upper }}
+                        <div id="photoPreview" class="w-16 h-16 bg-gradient-to-br from-blue-400 to-purple-500 rounded-full flex items-center justify-center text-white font-semibold text-sm">
+                            {{ user.initial }}
                         </div>
                     {% endif %}
                     <div class="flex-1">
@@ -146,9 +149,28 @@
                         <label for="{{ form.telephone.id_for_label }}" class="block text-gray-800 dark:text-gray-200 font-semibold mb-1">
                             Telefòn
                         </label>
-                        <input type="text" name="{{ form.telephone.name }}" id="{{ form.telephone.id_for_label }}"
-                               value="{{ form.telephone.value|default:user.telephone }}"
-                               class="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-gold {% if form.telephone.errors %}border-red-500{% endif %}">
+                        <div class="flex">
+                            <span class="inline-flex items-center px-3 rounded-l-lg border border-r-0 border-gray-300 bg-gray-100 text-gray-600 text-sm">+509</span>
+                            <input type="text" name="{{ form.telephone.name }}" id="{{ form.telephone.id_for_label }}"
+                                   value="{{ form.telephone.value|default:user.telephone }}"
+                                   maxlength="8" pattern="[0-9]{8}"
+                                   placeholder="XXXXXXXX"
+                                   class="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-r-lg focus:outline-none focus:ring-2 focus:ring-gold {% if form.telephone.errors %}border-red-500{% endif %}">
+                        </div>
+                        <script>
+                            // If value already contains +509 or 509, show only the local 8 digits in the input
+                            (function(){
+                                var el = document.getElementById('{{ form.telephone.id_for_label }}');
+                                if (!el) return;
+                                var v = el.value && el.value.toString().replace(/\s|\+|-/g, '');
+                                if (v && (v.startsWith('509') || v.startsWith('051') || v.length>8)){
+                                    // keep the last 8 digits
+                                    el.value = v.slice(-8);
+                                }
+                                // ensure only digits and max 8 while typing
+                                el.addEventListener('input', function(){ this.value = this.value.replace(/\D/g,'').slice(0,8); });
+                            })();
+                        </script>
                     </div>
                 </div>
 
@@ -161,7 +183,7 @@
                         </label>
                         <select name="{{ form.role.name }}" id="{{ form.role.id_for_label }}"
                                 class="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-gold {% if form.role.errors %}border-red-500{% endif %}">
-                            <option value="">Chwazi wòl</option>
+                            <!-- placeholder removed: role must be explicitly chosen -->
                             <option value="admin" {% if form.role.value == 'admin' or user.role == 'admin' %}selected{% endif %}>Administrateur</option>
                             <option value="directeur" {% if form.role.value == 'directeur' or user.role == 'directeur' %}selected{% endif %}>Directeur</option>
                             <option value="secretaire" {% if form.role.value == 'secretaire' or user.role == 'secretaire' %}selected{% endif %}>Secrétaire</option>

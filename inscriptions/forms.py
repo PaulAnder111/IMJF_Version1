@@ -4,7 +4,7 @@ from django.core.exceptions import ValidationError
 from .models import Inscription
 from classes.models import Classe
 import re
-from core.validators import validate_phone_prefix, validate_unique_across_models
+from core.validators import validate_phone_prefix, validate_unique_across_models, format_phone_international
 
 class InscriptionForm(forms.ModelForm):
     class Meta:
@@ -47,6 +47,9 @@ class InscriptionForm(forms.ModelForm):
                 validate_unique_across_models('telephone', telephone, instance=self.instance)
             except ValidationError as ve:
                 self.add_error('telephone_responsable', ve)
+            else:
+                # Format the telephone for storage
+                cleaned_data['telephone_responsable'] = format_phone_international(telephone)
 
         if email:
             try:
