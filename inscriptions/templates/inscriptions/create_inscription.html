@@ -28,7 +28,8 @@
 
     <!-- Form Section compacte et horizontale -->
     <div class="bg-white rounded-lg shadow-md border border-gray-200">
-        <form method="POST" enctype="multipart/form-data" id="inscriptionForm">
+        <!-- 👇 Ajoute autocomplete="off" sou fòm lan -->
+        <form method="POST" enctype="multipart/form-data" id="inscriptionForm" autocomplete="off">
             {% csrf_token %}
             
             {% if form.errors %}
@@ -59,7 +60,8 @@
                             <i class="fas fa-signature text-yellow-500 mr-1 text-xs"></i>
                             Nom <span class="text-red-500 ml-1">*</span>
                         </label>
-                        <input type="text" name="nom" id="id_nom" required
+                        <!-- 👇 Ajoute value="" -->
+                        <input type="text" name="nom" id="id_nom" value="" required
                             placeholder="JEAN"
                             class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-1 focus:ring-yellow-500 text-sm uppercase">
                     </div>
@@ -70,7 +72,8 @@
                             <i class="fas fa-signature text-yellow-500 mr-1 text-xs"></i>
                             Prénom <span class="text-red-500 ml-1">*</span>
                         </label>
-                        <input type="text" name="prenom" id="id_prenom" required
+                        <!-- 👇 Ajoute value="" -->
+                        <input type="text" name="prenom" id="id_prenom" value="" required
                             placeholder="Marie"
                             class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-1 focus:ring-yellow-500 text-sm capitalize">
                     </div>
@@ -81,7 +84,8 @@
                             <i class="fas fa-calendar-day text-yellow-500 mr-1 text-xs"></i>
                             Date Naissance <span class="text-red-500 ml-1">*</span>
                         </label>
-                        <input type="date" name="date_naissance" id="id_date_naissance" required
+                        <!-- 👇 Ajoute value="" -->
+                        <input type="date" name="date_naissance" id="id_date_naissance" value="" required
                             class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-1 focus:ring-yellow-500 text-sm">
                     </div>
 
@@ -91,9 +95,10 @@
                             <i class="fas fa-venus-mars text-yellow-500 mr-1 text-xs"></i>
                             Sexe <span class="text-red-500 ml-1">*</span>
                         </label>
-                        <select name="sexe" id="id_sexe" required
+                        <!-- 👇 Ajoute value="" -->
+                        <select name="sexe" id="id_sexe" value="" required
                             class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-1 focus:ring-yellow-500 text-sm">
-                            <!-- placeholder removed; select a sexe -->
+                            <option value="">-- Choisir --</option>
                             <option value="M">Masculin</option>
                             <option value="F">Féminin</option>
                         </select>
@@ -116,7 +121,8 @@
                             <i class="fas fa-layer-group text-yellow-500 mr-1 text-xs"></i>
                             Niveau <span class="text-red-500 ml-1">*</span>
                         </label>
-                        <input type="text" name="niveau" id="id_niveau" required
+                        <!-- 👇 Ajoute value="" -->
+                        <input type="text" name="niveau" id="id_niveau" value="" required
                             placeholder="6e année"
                             class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-1 focus:ring-yellow-500 text-sm">
                     </div>
@@ -127,9 +133,10 @@
                             <i class="fas fa-door-open text-yellow-500 mr-1 text-xs"></i>
                             Classe <span class="text-red-500 ml-1">*</span>
                         </label>
-                        <select name="classe" id="id_classe" required
+                        <!-- 👇 Ajoute value="" -->
+                        <select name="classe" id="id_classe" value="" required
                             class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-1 focus:ring-yellow-500 text-sm">
-                            <!-- placeholder removed; select a classe -->
+                            <option value="">-- Choisir une classe --</option>
                             {% for classe in classes %}
                                 <option value="{{ classe.id }}">{{ classe.nom_classe }}</option>
                             {% endfor %}
@@ -142,6 +149,7 @@
                             <i class="fas fa-calendar-alt text-yellow-500 mr-1 text-xs"></i>
                             Année Scolaire <span class="text-red-500 ml-1">*</span>
                         </label>
+                        <!-- 👇 Ajoute value="" (ou pa chanje si ou vle li prefere) -->
                         <input type="text" name="annee_scolaire" id="id_annee_scolaire" value="2025-2026" required
                             class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-1 focus:ring-yellow-500 text-sm">
                     </div>
@@ -152,8 +160,10 @@
                             <i class="fas fa-info-circle text-yellow-500 mr-1 text-xs"></i>
                             Statut <span class="text-red-500 ml-1">*</span>
                         </label>
-                        <select name="statut" id="id_statut" required
+                        <!-- 👇 Ajoute value="" -->
+                        <select name="statut" id="id_statut" value="" required
                             class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-1 focus:ring-yellow-500 text-sm">
+                            <option value="">-- Choisir --</option>
                             <option value="pre-inscrit">⏳ Pré-inscrit</option>
                             <option value="aktif">🟢 Actif</option>
                             <option value="refize">❌ Refusé</option>
@@ -177,7 +187,8 @@
                             <i class="fas fa-user text-yellow-500 mr-1 text-xs"></i>
                             Nom Responsable <span class="text-red-500 ml-1">*</span>
                         </label>
-                        <input type="text" name="personne_responsable" id="id_personne_responsable" required
+                        <!-- 👇 Ajoute value="" -->
+                        <input type="text" name="personne_responsable" id="id_personne_responsable" value="" required
                             placeholder="Jean BAPTISTE"
                             class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-1 focus:ring-yellow-500 text-sm">
                     </div>
@@ -188,7 +199,8 @@
                             <i class="fas fa-briefcase text-yellow-500 mr-1 text-xs"></i>
                             Profession <span class="text-red-500 ml-1">*</span>
                         </label>
-                        <input type="text" name="profession_responsable" id="id_profession_responsable" required
+                        <!-- 👇 Ajoute value="" -->
+                        <input type="text" name="profession_responsable" id="id_profession_responsable" value="" required
                             placeholder="Ingénieur"
                             class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-1 focus:ring-yellow-500 text-sm">
                     </div>
@@ -199,7 +211,8 @@
                             <i class="fas fa-phone text-yellow-500 mr-1 text-xs"></i>
                             Téléphone <span class="text-red-500 ml-1">*</span>
                         </label>
-                        <input type="tel" name="telephone_responsable" id="id_telephone_responsable" required
+                        <!-- 👇 Ajoute value="" -->
+                        <input type="tel" name="telephone_responsable" id="id_telephone_responsable" value="" required
                             placeholder="+509 1234-5678"
                             class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-1 focus:ring-yellow-500 text-sm">
                     </div>
@@ -210,7 +223,8 @@
                             <i class="fas fa-envelope text-yellow-500 mr-1 text-xs"></i>
                             Email (Optionnel)
                         </label>
-                        <input type="email" name="email_responsable" id="id_email_responsable"
+                        <!-- 👇 Ajoute value="" -->
+                        <input type="email" name="email_responsable" id="id_email_responsable" value=""
                             placeholder="email@exemple.com"
                             class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-1 focus:ring-yellow-500 text-sm">
                     </div>
@@ -225,7 +239,8 @@
                         <i class="fas fa-map-marker-alt text-yellow-500 mr-1 text-xs"></i>
                         Lieu de Naissance <span class="text-red-500 ml-1">*</span>
                     </label>
-                    <input type="text" name="lieu_naissance" id="id_lieu_naissance" required
+                    <!-- 👇 Ajoute value="" -->
+                    <input type="text" name="lieu_naissance" id="id_lieu_naissance" value="" required
                         placeholder="Port-au-Prince, Haïti"
                         class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-1 focus:ring-yellow-500 text-sm">
                 </div>
@@ -236,7 +251,8 @@
                         <i class="fas fa-school text-yellow-500 mr-1 text-xs"></i>
                         École d'origine (Optionnel)
                     </label>
-                    <input type="text" name="ecole_origine" id="id_ecole_origine"
+                    <!-- 👇 Ajoute value="" -->
+                    <input type="text" name="ecole_origine" id="id_ecole_origine" value=""
                         placeholder="École Sainte-Marie"
                         class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-1 focus:ring-yellow-500 text-sm">
                 </div>
@@ -247,7 +263,8 @@
                         <i class="fas fa-home text-yellow-500 mr-1 text-xs"></i>
                         Adresse Complète <span class="text-red-500 ml-1">*</span>
                     </label>
-                    <textarea name="adresse" id="id_adresse" rows="2" required
+                    <!-- 👇 Ajoute value="" -->
+                    <textarea name="adresse" id="id_adresse" rows="2" value="" required
                         class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-1 focus:ring-yellow-500 text-sm resize-vertical"
                         placeholder="123 Rue Jean-Jacques Dessalines, Delmas 33, Port-au-Prince"></textarea>
                 </div>
