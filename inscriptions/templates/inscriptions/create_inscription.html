@@ -62,7 +62,7 @@
                         </label>
                         <!-- 👇 Ajoute value="" -->
                         <input type="text" name="nom" id="id_nom" value="" required
-                            placeholder="JEAN"
+                            placeholder=""
                             class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-1 focus:ring-yellow-500 text-sm uppercase">
                     </div>
 
@@ -74,7 +74,7 @@
                         </label>
                         <!-- 👇 Ajoute value="" -->
                         <input type="text" name="prenom" id="id_prenom" value="" required
-                            placeholder="Marie"
+                            placeholder=""
                             class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-1 focus:ring-yellow-500 text-sm capitalize">
                     </div>
 
@@ -98,7 +98,7 @@
                         <!-- 👇 Ajoute value="" -->
                         <select name="sexe" id="id_sexe" value="" required
                             class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-1 focus:ring-yellow-500 text-sm">
-                            <option value="">-- Choisir --</option>
+                            <option value=""></option>
                             <option value="M">Masculin</option>
                             <option value="F">Féminin</option>
                         </select>
@@ -123,7 +123,7 @@
                         </label>
                         <!-- 👇 Ajoute value="" -->
                         <input type="text" name="niveau" id="id_niveau" value="" required
-                            placeholder="6e année"
+                            placeholder=""
                             class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-1 focus:ring-yellow-500 text-sm">
                     </div>
 
@@ -136,7 +136,7 @@
                         <!-- 👇 Ajoute value="" -->
                         <select name="classe" id="id_classe" value="" required
                             class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-1 focus:ring-yellow-500 text-sm">
-                            <option value="">-- Choisir une classe --</option>
+                            <option value=""></option>
                             {% for classe in classes %}
                                 <option value="{{ classe.id }}">{{ classe.nom_classe }}</option>
                             {% endfor %}
@@ -163,7 +163,7 @@
                         <!-- 👇 Ajoute value="" -->
                         <select name="statut" id="id_statut" value="" required
                             class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-1 focus:ring-yellow-500 text-sm">
-                            <option value="">-- Choisir --</option>
+                            <option value=""></option>
                             <option value="pre-inscrit">⏳ Pré-inscrit</option>
                             <option value="aktif">🟢 Actif</option>
                             <option value="refize">❌ Refusé</option>
@@ -189,7 +189,7 @@
                         </label>
                         <!-- 👇 Ajoute value="" -->
                         <input type="text" name="personne_responsable" id="id_personne_responsable" value="" required
-                            placeholder="Jean BAPTISTE"
+                            placeholder=""
                             class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-1 focus:ring-yellow-500 text-sm">
                     </div>
 
@@ -201,7 +201,7 @@
                         </label>
                         <!-- 👇 Ajoute value="" -->
                         <input type="text" name="profession_responsable" id="id_profession_responsable" value="" required
-                            placeholder="Ingénieur"
+                            placeholder=""
                             class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-1 focus:ring-yellow-500 text-sm">
                     </div>
 
@@ -213,7 +213,7 @@
                         </label>
                         <!-- 👇 Ajoute value="" -->
                         <input type="tel" name="telephone_responsable" id="id_telephone_responsable" value="" required
-                            placeholder="+509 1234-5678"
+                            placeholder=""
                             class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-1 focus:ring-yellow-500 text-sm">
                     </div>
 
@@ -225,7 +225,7 @@
                         </label>
                         <!-- 👇 Ajoute value="" -->
                         <input type="email" name="email_responsable" id="id_email_responsable" value=""
-                            placeholder="email@exemple.com"
+                            placeholder=""
                             class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-1 focus:ring-yellow-500 text-sm">
                     </div>
                 </div>
@@ -241,7 +241,7 @@
                     </label>
                     <!-- 👇 Ajoute value="" -->
                     <input type="text" name="lieu_naissance" id="id_lieu_naissance" value="" required
-                        placeholder="Port-au-Prince, Haïti"
+                        placeholder=""
                         class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-1 focus:ring-yellow-500 text-sm">
                 </div>
 
@@ -253,7 +253,7 @@
                     </label>
                     <!-- 👇 Ajoute value="" -->
                     <input type="text" name="ecole_origine" id="id_ecole_origine" value=""
-                        placeholder="École Sainte-Marie"
+                        placeholder=""
                         class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-1 focus:ring-yellow-500 text-sm">
                 </div>
 
@@ -266,7 +266,7 @@
                     <!-- 👇 Ajoute value="" -->
                     <textarea name="adresse" id="id_adresse" rows="2" value="" required
                         class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-1 focus:ring-yellow-500 text-sm resize-vertical"
-                        placeholder="123 Rue Jean-Jacques Dessalines, Delmas 33, Port-au-Prince"></textarea>
+                        placeholder=""></textarea>
                 </div>
             </div>
 
