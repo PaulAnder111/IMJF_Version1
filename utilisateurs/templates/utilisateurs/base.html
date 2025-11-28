@@ -1145,7 +1145,7 @@
         </div>
     </div>
 
-    <!-- Modal Changer Photo -->
+      <!-- Modal Changer Photo -->
     <div id="modalPhoto" class="hidden fixed inset-0 modal-bg z-50 flex items-center justify-center p-4">
         <div class="modal-content rounded-2xl shadow-2xl w-full max-w-md p-6 transform transition-all">
             <div class="flex items-center gap-3 mb-6">
@@ -1154,9 +1154,9 @@
                 </div>
                 <h2 class="text-xl font-bold">Changer Photo de Profil</h2>
             </div>
+            <!-- Ajoute enctype="multipart/form-data" -->
             <form method="POST" action="{% url 'utilisateurs:change_photo' %}" enctype="multipart/form-data" class="space-y-6" id="photoForm">
                 {% csrf_token %}
-                
                 <!-- Image preview -->
                 <div class="flex justify-center">
                     <div class="w-32 h-32 rounded-full overflow-hidden border-4 border-yellow-500 shadow-xl flex items-center justify-center bg-transparent">
@@ -1172,16 +1172,15 @@
                         {% endif %}
                     </div>
                 </div>
-
-                <!-- File input with icon -->
+                <!-- File input avec name="photo" -->
                 <div class="text-center">
                     <label for="photoInput" class="inline-flex items-center justify-center gap-3 cursor-pointer bg-gradient-to-r from-yellow-500 to-yellow-600 text-white px-6 py-3 rounded-lg hover:from-yellow-600 hover:to-yellow-700 transition shadow-lg font-semibold">
                         <i class="fas fa-upload text-lg"></i> Choisir une photo
                     </label>
+                    <!-- Ajoute name="photo" -->
                     <input type="file" name="photo" id="photoInput" accept="image/*" class="hidden">
                     <p class="text-xs text-gray-500 mt-2">Formats acceptés: JPG, PNG, JPEG (max 5MB)</p>
                 </div>
-
                 <div class="flex gap-3">
                     <button type="submit" class="flex-1 bg-gradient-to-r from-green-500 to-green-600 text-white px-6 py-3 rounded-lg hover:from-green-600 hover:to-green-700 transition shadow-lg font-semibold">
                         <i class="fas fa-check mr-2"></i>Mettre à jour
@@ -1193,7 +1192,6 @@
             </form>
         </div>
     </div>
-
     <!-- Modal Changer Mot de Passe -->
     <div id="modalPassword" class="hidden fixed inset-0 modal-bg z-50 flex items-center justify-center p-4">
         <div class="modal-content rounded-2xl shadow-2xl w-full max-w-md p-6 transform transition-all">
