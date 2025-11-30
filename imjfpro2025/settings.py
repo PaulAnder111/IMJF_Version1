@@ -11,6 +11,7 @@ Vèsyon sekirize ak konfigirasyon pou:
 from pathlib import Path
 import os
 from django.core.exceptions import ImproperlyConfigured
+from datetime import timedelta  # ✅ AJOUTE POU AXES_COOLOFF_TIME
 
 # ===============================================================
 # 1️⃣  CHEMEN BAZ PWOJÈ A
@@ -25,7 +26,7 @@ MEDIA_URL = '/media/'
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 
 STATIC_URL = 'static/'
-STATICFILES_DIRS = [BASE_DIR / 'static']  # Folder pou dev
+# STATICFILES_DIRS = [BASE_DIR / 'static']  # Folder pou dev
 #STATIC_ROOT = BASE_DIR / 'staticfiles'   # Pou prod + collectstatic
 
 
@@ -201,13 +202,13 @@ SECURE_CROSS_ORIGIN_EMBEDDER_POLICY = "require-corp"
 # ===============================================================
 # 1️⃣4️⃣  DJANGO-AXES (Anti brute-force login)
 # ===============================================================
-AXES_FAILURE_LIMIT = 5
-AXES_COOLOFF_TIME = 1  # 1 heure
-AXES_LOCKOUT_TEMPLATE = 'lockout.html'
+AXES_FAILURE_LIMIT = 10  # ✅ Ogmante limit: 10 tantativ avan blokaj
+AXES_COOLOFF_TIME = timedelta(minutes=1)  # Debloke apre 1 minit
+# AXES_LOCKOUT_TEMPLATE = None  # Oswa ou ka kreye 'lockout.html'
 AXES_ENABLED = True
 AXES_HANDLER = 'axes.handlers.database.AxesDatabaseHandler'
-AXES_RESET_ON_SUCCESS = True
-AXES_LOCKOUT_PARAMETERS = ["ip_address", "username"]
+AXES_RESET_ON_SUCCESS = True  # Efase konte echwe apre siksè
+AXES_LOCKOUT_PARAMETERS = ["username"]  # ✅ Jis bloke selon username (pa IP)
 
 
 # ===============================================================
@@ -247,3 +248,9 @@ LOGGING = {
 FILE_UPLOAD_MAX_MEMORY_SIZE = 5242880  # 5MB
 DATA_UPLOAD_MAX_MEMORY_SIZE = 5242880  # 5MB
 DATA_UPLOAD_MAX_NUMBER_FIELDS = 1000
+
+
+# ===============================================================
+# 1️⃣7️⃣  DEFAULT PRIMARY KEY (bon pratik Django 3.2+)
+# ===============================================================
+DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
