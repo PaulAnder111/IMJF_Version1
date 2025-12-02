@@ -1,0 +1,407 @@
+{% extends "utilisateurs/base.html" %}
+
+{% block title %}Exportation Élèves - SYGEE{% endblock %}
+
+{% block content %}
+<style>
+    @media print {
+        body * {
+            visibility: hidden;
+        }
+        #print-section, #print-section * {
+            visibility: visible;
+        }
+        #print-section {
+            position: absolute;
+            left: 0;
+            top: 0;
+            width: 100%;
+            padding: 20px;
+            background: white;
+        }
+        .no-print {
+            display: none !important;
+        }
+    }
+</style>
+
+<!-- HEADER SENP -->
+<div class="bg-gradient-to-r from-gray-900 to-gray-800 py-6 px-4 text-white mb-8">
+    <div class="max-w-7xl mx-auto">
+        <div class="text-center">
+            <h1 class="text-2xl font-bold mb-2">Exportation des Élèves</h1>
+            <p class="text-gray-300">Sélectionnez une classe et exportez les données</p>
+        </div>
+    </div>
+</div>
+
+<div class="max-w-6xl mx-auto px-4">
+    <!-- CARD PRINCIPAL AVEC OPTIONS -->
+    <div class="bg-white rounded-xl shadow-md border border-gray-200 p-6 mb-8">
+        <!-- Sélection de classe -->
+        <div class="mb-8">
+            <h2 class="text-lg font-semibold text-gray-800 mb-4">1. Sélectionnez une classe</h2>
+            <div class="flex flex-col md:flex-row gap-4">
+                <select id="classe-select" class="flex-1 px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                    <option value="">Toutes les classes de classes de </option>
+                    {% for classe in classes %}
+                        <option value="{{ classe.id }}">{{ classe.nom_classe }} ({{ classe.niveau }})</option>
+                    {% endfor %}
+                </select>
+                
+                <button id="filter-btn" class="px-6 py-3 bg-blue-600 text-white font-medium rounded-lg hover:bg-blue-700 transition-colors">
+                    Filtrer
+                </button>
+            </div>
+        </div>
+
+     <!-- Statistiques -->
+<div class="mb-8">
+    <h2 class="text-lg font-semibold text-gray-800 mb-4">2. Statistiques</h2>
+    <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+        <div class="bg-blue-50 p-4 rounded-lg border border-blue-100">
+            <p class="text-sm text-blue-600">Total élèves</p>
+            <p id="total-count" class="text-2xl font-bold text-gray-800">{{ total_count }}</p>
+        </div>
+        <div class="bg-green-50 p-4 rounded-lg border border-green-100">
+            <p class="text-sm text-green-600">Actifs</p>
+            <p id="actif-count" class="text-2xl font-bold text-gray-800">{{ actif_count }}</p>
+        </div>
+        <div class="bg-yellow-50 p-4 rounded-lg border border-yellow-100">
+            <p class="text-sm text-yellow-600">Suspendus</p>
+            <p id="suspendu-count" class="text-2xl font-bold text-gray-800">{{ suspendu_count }}</p>
+        </div>
+        <div class="bg-red-50 p-4 rounded-lg border border-red-100">
+            <p class="text-sm text-red-600">Radiés</p>
+            <p id="radie-count" class="text-2xl font-bold text-gray-800">{{ radie_count }}</p>
+        </div>
+    </div>
+</div>
+
+        <!-- Options d'exportation -->
+        <div>
+            <h2 class="text-lg font-semibold text-gray-800 mb-4">3. Options d'exportation</h2>
+            <div class="flex flex-col sm:flex-row gap-4">
+                <!-- Export PDF -->
+                <button id="export-pdf-btn" class="flex-1 px-6 py-3 bg-gray-800 text-white font-medium rounded-lg hover:bg-gray-900 transition-colors flex items-center justify-center gap-2">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+                    </svg>
+                    Exporter PDF
+                </button>
+                
+                <!-- Imprimer -->
+                <button id="print-btn" class="flex-1 px-6 py-3 bg-blue-600 text-white font-medium rounded-lg hover:bg-blue-700 transition-colors flex items-center justify-center gap-2">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"/>
+                    </svg>
+                    Imprimer
+                </button>
+                
+                <!-- Fermer -->
+                <a href="{% url 'eleves:eleve_list' %}" class="flex-1 px-6 py-3 bg-gray-200 text-gray-800 font-medium rounded-lg hover:bg-gray-300 transition-colors flex items-center justify-center gap-2">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+                    </svg>
+                    Fermer
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <!-- TABLEAU DES ÉLÈVES -->
+    <div class="bg-white rounded-xl shadow-md border border-gray-200 overflow-hidden">
+        <div class="px-6 py-4 border-b border-gray-200 bg-gray-50">
+            <h3 id="table-title" class="font-semibold text-gray-800">Liste des élèves</h3>
+        </div>
+        
+        <div class="overflow-x-auto">
+            <table class="min-w-full divide-y divide-gray-200">
+                <thead class="bg-gray-50">
+                    <tr>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-700 uppercase tracking-wider">Nom</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-700 uppercase tracking-wider">Prénom</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-700 uppercase tracking-wider">Date Nais.</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-700 uppercase tracking-wider">Sexe</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-700 uppercase tracking-wider">Classe</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-700 uppercase tracking-wider">Matricule</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-700 uppercase tracking-wider">Statut</th>
+                    </tr>
+                </thead>
+                <tbody id="eleves-tbody" class="bg-white divide-y divide-gray-200">
+                    {% for eleve in eleves %}
+                    <tr class="hover:bg-gray-50" data-classe="{{ eleve.classe_actuelle.id|default:'' }}">
+                        <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">{{ eleve.nom }}</td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{{ eleve.prenom }}</td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{{ eleve.date_naissance|date:"d/m/Y" }}</td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                            {% if eleve.sexe == 'M' %}M{% else %}F{% endif %}
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                            {{ eleve.classe_actuelle.nom_classe|default:"-" }}
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm font-mono text-gray-900">{{ eleve.matricule }}</td>
+                        <td class="px-6 py-4 whitespace-nowrap">
+                            <span class="px-2 py-1 text-xs rounded-full 
+                                {% if eleve.statut == 'actif' %}bg-green-100 text-green-800
+                                {% elif eleve.statut == 'suspendu' %}bg-yellow-100 text-yellow-800
+                                {% else %}bg-red-100 text-red-800{% endif %}">
+                                {{ eleve.statut|title }}
+                            </span>
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="7" class="px-6 py-8 text-center text-gray-500">
+                            Aucun élève trouvé
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- Informations pour impression -->
+    <div class="mt-6 text-sm text-gray-600 text-center">
+        <p>Année académique: <span class="font-medium">{{ annee_actuelle.nom|default:"Non définie" }}</span></p>
+        <p class="mt-1">Document généré le <span id="current-date"></span></p>
+    </div>
+</div>
+
+<!-- SECTION POUR IMPRESSION/PDF (Cachée) -->
+<div id="print-section" class="hidden" style="display: none;">
+    <!-- Entête simple pour impression -->
+    <div style="margin-bottom: 30px; border-bottom: 2px solid #333; padding-bottom: 15px;">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+            <div>
+                <h1 style="font-size: 24px; font-weight: bold; margin: 0; color: #000;">INSTITUT MIXTE JEAN-FRANÇOIS</h1>
+                <p style="margin: 5px 0 0 0; color: #666;">123, Avenue de l'Éducation • Port-au-Prince, Haïti</p>
+                <p style="margin: 2px 0; color: #666;">Tél: (509) 2222-4444 • Email: contact@imjf.edu.ht</p>
+            </div>
+            <div style="text-align: right;">
+                <div style="background: #f8f9fa; padding: 10px; border-radius: 5px; border: 1px solid #ddd;">
+                    <p style="margin: 0; font-size: 14px; color: #666;">Année académique</p>
+                    <p style="margin: 0; font-size: 18px; font-weight: bold; color: #000;">{{ annee_actuelle.nom|default:"2024-2025" }}</p>
+                </div>
+            </div>
+        </div>
+        
+        <div style="margin-top: 15px;">
+            <h2 id="print-title" style="font-size: 20px; font-weight: bold; text-align: center; margin: 0; color: #000;">
+                Liste des élèves - Toutes les classes
+            </h2>
+            <p style="text-align: center; margin: 5px 0; color: #666;">Document généré le <span id="print-date"></span></p>
+        </div>
+    </div>
+
+    <!-- Tableau pour impression -->
+    <table style="width: 100%; border-collapse: collapse; margin-top: 20px;">
+        <thead>
+            <tr style="background-color: #f8f9fa; border-bottom: 2px solid #333;">
+                <th style="padding: 10px; text-align: left; border: 1px solid #ddd; font-weight: bold;">Nom</th>
+                <th style="padding: 10px; text-align: left; border: 1px solid #ddd; font-weight: bold;">Prénom</th>
+                <th style="padding: 10px; text-align: left; border: 1px solid #ddd; font-weight: bold;">Date Nais.</th>
+                <th style="padding: 10px; text-align: left; border: 1px solid #ddd; font-weight: bold;">Sexe</th>
+                <th style="padding: 10px; text-align: left; border: 1px solid #ddd; font-weight: bold;">Classe</th>
+                <th style="padding: 10px; text-align: left; border: 1px solid #ddd; font-weight: bold;">Matricule</th>
+                <th style="padding: 10px; text-align: left; border: 1px solid #ddd; font-weight: bold;">Statut</th>
+            </tr>
+        </thead>
+        <tbody id="print-tbody">
+            <!-- Rempli par JavaScript -->
+        </tbody>
+    </table>
+
+    <!-- Pied de page -->
+    <div style="margin-top: 40px; padding-top: 20px; border-top: 1px solid #ddd;">
+        <div style="display: flex; justify-content: space-between;">
+            <div style="width: 50%;">
+                <p style="font-size: 12px; color: #666; margin-bottom: 5px;">Signature et cachet de la Direction</p>
+                <div style="height: 50px; border-top: 1px solid #333;"></div>
+            </div>
+            <div style="text-align: right;">
+                <p style="font-size: 12px; color: #666;">Date d'impression: <span id="print-signature-date"></span></p>
+                <p style="font-size: 10px; color: #999; margin-top: 20px;">© IMJF - Document confidentiel</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Bibliothèques -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const now = new Date();
+        const dateStr = now.toLocaleDateString('fr-FR', {
+            day: '2-digit',
+            month: '2-digit',
+            year: 'numeric',
+            hour: '2-digit',
+            minute: '2-digit'
+        });
+        
+        document.getElementById('current-date').textContent = dateStr;
+        document.getElementById('print-date').textContent = dateStr;
+        document.getElementById('print-signature-date').textContent = now.toLocaleDateString('fr-FR');
+
+        // Données des élèves
+        const elevesData = [
+            {% for eleve in eleves %}
+            {
+                id: "{{ eleve.id }}",
+                nom: "{{ eleve.nom }}",
+                prenom: "{{ eleve.prenom }}",
+                date_naissance: "{{ eleve.date_naissance|date:'d/m/Y' }}",
+                sexe: "{{ eleve.sexe }}",
+                classe: "{{ eleve.classe_actuelle.nom_classe|default:'Non affecté' }}",
+                matricule: "{{ eleve.matricule }}",
+                statut: "{{ eleve.statut }}",
+                classe_id: "{{ eleve.classe_actuelle.id|default:'' }}"
+            },
+            {% endfor %}
+        ];
+
+        // Filtrer par classe
+        document.getElementById('filter-btn').addEventListener('click', function() {
+            const classeSelect = document.getElementById('classe-select');
+            const selectedClasseId = classeSelect.value;
+            const tbody = document.getElementById('eleves-tbody');
+            const rows = tbody.querySelectorAll('tr[data-classe]');
+            
+            let visibleCount = 0;
+            let actifCount = 0;
+            let suspenduCount = 0;
+            let radieCount = 0;
+
+            rows.forEach(row => {
+                const rowClasseId = row.getAttribute('data-classe');
+                const shouldShow = !selectedClasseId || rowClasseId === selectedClasseId;
+                
+                if (shouldShow) {
+                    row.style.display = '';
+                    visibleCount++;
+                    
+                    // Compter par statut
+                    const statusCell = row.querySelector('td:nth-child(7) span');
+                    if (statusCell) {
+                        const status = statusCell.textContent.toLowerCase();
+                        if (status.includes('actif')) actifCount++;
+                        else if (status.includes('suspendu')) suspenduCount++;
+                        else if (status.includes('radié')) radieCount++;
+                    }
+                } else {
+                    row.style.display = 'none';
+                }
+            });
+
+            // Mettre à jour les statistiques
+            document.getElementById('total-count').textContent = visibleCount;
+            document.getElementById('actif-count').textContent = actifCount;
+            document.getElementById('suspendu-count').textContent = suspenduCount;
+            document.getElementById('radie-count').textContent = radieCount;
+
+            // Mettre à jour le titre
+            const selectedOption = classeSelect.options[classeSelect.selectedIndex];
+            const className = selectedOption.text || 'Toutes les classes';
+            document.getElementById('table-title').textContent = `Liste des élèves - ${className}`;
+            document.getElementById('print-title').textContent = `Liste des élèves - ${className}`;
+
+            // Préparer les données pour l'impression
+            preparePrintData(selectedClasseId);
+        });
+
+        function preparePrintData(classeId = null) {
+            const printTbody = document.getElementById('print-tbody');
+            printTbody.innerHTML = '';
+
+            const filteredData = classeId 
+                ? elevesData.filter(e => e.classe_id === classeId)
+                : elevesData;
+
+            filteredData.forEach(eleve => {
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td style="padding: 8px; border: 1px solid #ddd;">${eleve.nom}</td>
+                    <td style="padding: 8px; border: 1px solid #ddd;">${eleve.prenom}</td>
+                    <td style="padding: 8px; border: 1px solid #ddd;">${eleve.date_naissance}</td>
+                    <td style="padding: 8px; border: 1px solid #ddd; text-align: center;">${eleve.sexe === 'M' ? 'M' : 'F'}</td>
+                    <td style="padding: 8px; border: 1px solid #ddd;">${eleve.classe}</td>
+                    <td style="padding: 8px; border: 1px solid #ddd;">${eleve.matricule}</td>
+                    <td style="padding: 8px; border: 1px solid #ddd;">${capitalizeFirst(eleve.statut)}</td>
+                `;
+                printTbody.appendChild(row);
+            });
+        }
+
+        function capitalizeFirst(string) {
+            return string.charAt(0).toUpperCase() + string.slice(1);
+        }
+
+        // Initialiser les données
+        preparePrintData();
+
+        // Bouton Imprimer
+        document.getElementById('print-btn').addEventListener('click', function() {
+            window.print();
+        });
+
+        // Bouton Exporter PDF - FIXED
+        document.getElementById('export-pdf-btn').addEventListener('click', async function() {
+            const btn = this;
+            const originalText = btn.innerHTML;
+            btn.innerHTML = '<span>Génération PDF...</span>';
+            btn.disabled = true;
+
+            try {
+                // Afficher la section d'impression
+                const printSection = document.getElementById('print-section');
+                printSection.style.display = 'block';
+
+                // Capturer avec html2canvas
+                const canvas = await html2canvas(printSection, {
+                    scale: 2,
+                    useCORS: true,
+                    logging: false,
+                    backgroundColor: '#ffffff'
+                });
+
+                // Cacher la section
+                printSection.style.display = 'none';
+
+                // Créer PDF
+                const pdf = new jspdf.jsPDF('p', 'mm', 'a4');
+                const imgWidth = 210;
+                const imgHeight = canvas.height * imgWidth / canvas.width;
+
+                pdf.addImage(canvas.toDataURL('image/png'), 'PNG', 0, 0, imgWidth, imgHeight);
+                
+                // Télécharger
+                const classeSelect = document.getElementById('classe-select');
+                const selectedOption = classeSelect.options[classeSelect.selectedIndex];
+                const className = selectedOption.text.replace(/\s+/g, '-') || 'toutes-classes';
+                pdf.save(`liste-eleves-${className}-${now.toISOString().split('T')[0]}.pdf`);
+
+            } catch (error) {
+                console.error('Erreur PDF:', error);
+                alert('Erreur lors de la génération du PDF: ' + error.message);
+            } finally {
+                // Restaurer le bouton
+                btn.innerHTML = originalText;
+                btn.disabled = false;
+                printSection.style.display = 'none';
+            }
+        });
+
+        // Filtrage initial si paramètre dans URL
+        const urlParams = new URLSearchParams(window.location.search);
+        const classeParam = urlParams.get('classe');
+        if (classeParam) {
+            document.getElementById('classe-select').value = classeParam;
+            document.getElementById('filter-btn').click();
+        }
+    });
+</script>
+{% endblock %}

@@ -87,6 +87,7 @@ INSTALLED_APPS = [
     'enseignants',
     'cours',
     'core',
+    'annee_scolaire',
     'matieres',
     'classes',
     'inscriptions',
@@ -137,6 +138,8 @@ TEMPLATES = [
                 'django.template.context_processors.request',
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
+                
+                'annee_scolaire.context_processors.annee_scolaire_actuelle',
             ],
         },
     },

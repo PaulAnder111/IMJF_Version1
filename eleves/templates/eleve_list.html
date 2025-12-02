@@ -22,6 +22,13 @@
          class="inline-flex items-center px-4 py-2 bg-white/20 text-white font-semibold rounded-lg shadow-md hover:bg-white/30 transform hover:scale-105 transition-all duration-300 ease-in-out text-sm border border-white/30">
         <i class="fas fa-archive mr-2 text-sm"></i> Élèves Archivés
       </a>
+
+        <!-- Bouton Exporter (Nouveau) -->
+      <a href="{% url 'eleves:export_modal' %}"
+         class="inline-flex items-center px-4 py-2 bg-gradient-to-r from-green-500 to-green-600 text-white font-semibold rounded-lg shadow-md hover:from-green-600 hover:to-green-700 transform hover:scale-105 transition-all duration-300 ease-in-out text-sm">
+        <i class="fas fa-file-export mr-2 text-sm"></i> Exporter
+      </a>
+      
       
       <!-- Bouton Ajouter Élève - Cache pour ARCHIVE -->
       {% if request.user.role != 'archives' %}
@@ -34,23 +41,57 @@
   </div>
 </div>
 
+<!-- ALERTE ANNEE SCOLAIRE AJOUTEE ICI -->
+{% if annee_actuelle %}
+<div class="mb-6 bg-gradient-to-r from-green-500 to-green-600 text-white p-4 rounded-lg shadow-lg border-l-4 border-green-400">
+  <div class="flex items-center justify-between">
+    <div class="flex items-center">
+      <i class="fas fa-calendar-alt text-2xl mr-3"></i>
+      <div>
+        <h3 class="font-bold text-lg">Année Scolaire Active</h3>
+        <p class="text-green-100">Affichage des élèves pour l'année <strong>{{ annee_actuelle.nom }}</strong></p>
+      </div>
+    </div>
+    <span class="bg-white text-green-600 px-3 py-1 rounded-full text-sm font-bold flex items-center">
+      <i class="fas fa-star mr-1"></i> Actuelle
+    </span>
+  </div>
+</div>
+{% else %}
+<div class="mb-6 bg-gradient-to-r from-red-500 to-red-600 text-white p-4 rounded-lg shadow-lg border-l-4 border-red-400">
+  <div class="flex items-center">
+    <i class="fas fa-exclamation-triangle text-2xl mr-3"></i>
+    <div>
+      <h3 class="font-bold text-lg">Aucune Année Scolaire Active</h3>
+      <p class="text-red-100">Veuillez sélectionner une année scolaire dans le sélecteur en haut de la page</p>
+    </div>
+  </div>
+</div>
+{% endif %}
+
 <!-- Statistiques avec dégradés -->
 <div class="grid grid-cols-1 sm:grid-cols-4 gap-4 mb-6">
   <div class="bg-gradient-to-r from-gray-700 to-amber-500 text-white p-4 rounded-lg shadow flex flex-col items-center">
     <p class="text-sm opacity-90">Total Élèves</p>
     <p class="text-2xl font-bold">{{ total_eleves|default:"0" }}</p>
+    {% if annee_actuelle %}
+    <p class="text-xs opacity-80 mt-1">{{ annee_actuelle.nom }}</p>
+    {% endif %}
   </div>
   <div class="bg-gradient-to-r from-green-400 to-green-600 text-white p-4 rounded-lg shadow flex flex-col items-center">
     <p class="text-sm opacity-90">Actifs</p>
     <p class="text-2xl font-bold">{{ eleves_actifs|default:"0" }}</p>
+    <p class="text-xs opacity-80 mt-1">{{ eleves_actifs|default:"0" }} élèves</p>
   </div>
   <div class="bg-gradient-to-r from-yellow-400 to-yellow-600 text-white p-4 rounded-lg shadow flex flex-col items-center">
     <p class="text-sm opacity-90">Suspendus</p>
     <p class="text-2xl font-bold">{{ eleves_suspendus|default:"0" }}</p>
+    <p class="text-xs opacity-80 mt-1">{{ eleves_suspendus|default:"0" }} élèves</p>
   </div>
   <div class="bg-gradient-to-r from-red-400 to-red-600 text-white p-4 rounded-lg shadow flex flex-col items-center">
     <p class="text-sm opacity-90">Radiés</p>
     <p class="text-2xl font-bold">{{ eleves_radies|default:"0" }}</p>
+    <p class="text-xs opacity-80 mt-1">{{ eleves_radies|default:"0" }} élèves</p>
   </div>
 </div>
 
@@ -134,6 +175,7 @@
           <th class="px-4 py-3 text-left text-xs font-bold text-gray-700 uppercase tracking-wider">Nom & Prénom</th>
           <th class="px-4 py-3 text-left text-xs font-bold text-gray-700 uppercase tracking-wider">Sexe</th>
           <th class="px-4 py-3 text-left text-xs font-bold text-gray-700 uppercase tracking-wider">Classe</th>
+          <th class="px-4 py-3 text-left text-xs font-bold text-gray-700 uppercase tracking-wider">Année Scolaire</th>
           <th class="px-4 py-3 text-left text-xs font-bold text-gray-700 uppercase tracking-wider">Date Naiss.</th>
           <th class="px-4 py-3 text-left text-xs font-bold text-gray-700 uppercase tracking-wider">Statut</th>
           <th class="px-4 py-3 text-center text-xs font-bold text-gray-700 uppercase tracking-wider">Actions</th>
@@ -198,6 +240,15 @@
             {% endif %}
           </td>
           <td class="px-4 py-3 text-sm text-gray-800">
+            {% if eleve.annee_scolaire %}
+              <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold bg-purple-100 text-purple-800 border border-purple-200 shadow-sm">
+                <i class="fas fa-calendar-alt mr-1 text-xs"></i>{{ eleve.annee_scolaire.nom }}
+              </span>
+            {% else %}
+              <span class="text-gray-400 italic text-sm">Non définie</span>
+            {% endif %}
+          </td>
+          <td class="px-4 py-3 text-sm text-gray-800">
             <i class="far fa-calendar text-blue-500 mr-1"></i>
             {{ eleve.date_naissance|date:"d/m/Y"|default:"—" }}
           </td>
@@ -259,14 +310,20 @@
         </tr>
         {% empty %}
         <tr>
-          <td colspan="7" class="px-6 py-8 text-center text-gray-500">
+          <td colspan="8" class="px-6 py-8 text-center text-gray-500">
             <div class="flex flex-col items-center justify-center">
               <i class="fas fa-user-graduate text-4xl text-gray-300 mb-3"></i>
               <p class="text-lg font-medium text-gray-400">Aucun élève trouvé</p>
               {% if request.GET.search or request.GET.statut or request.GET.classe %}
                 <p class="text-sm text-gray-500 mt-1">Aucun résultat ne correspond à votre recherche</p>
               {% else %}
-                <p class="text-sm text-gray-500 mt-1">La liste des élèves est vide pour le moment</p>
+                <p class="text-sm text-gray-500 mt-1">
+                  {% if annee_actuelle %}
+                    Aucun élève inscrit pour l'année {{ annee_actuelle.nom }}
+                  {% else %}
+                    La liste des élèves est vide pour le moment
+                  {% endif %}
+                </p>
               {% endif %}
               
               <div class="flex flex-col sm:flex-row gap-2 mt-3">
@@ -397,7 +454,9 @@ tr {
   #eleves-table th:nth-child(3),
   #eleves-table td:nth-child(3),
   #eleves-table th:nth-child(5),
-  #eleves-table td:nth-child(5) {
+  #eleves-table td:nth-child(5),
+  #eleves-table th:nth-child(6),
+  #eleves-table td:nth-child(6) {
     display: none;
   }
   

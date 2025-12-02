@@ -1,8 +1,10 @@
+# eleves/models.py
 from django.db import models
 from django.utils import timezone
-
-from classes import forms
 from classes.models import Classe
+from annee_scolaire.models import AnneeScolaire  # Import depi nouvo aplikasyon
+
+# Retire modèl AnneeScolaire ki te la deja
 
 class HistoriqueEleve(models.Model):
     ACTIONS = [
@@ -20,13 +22,22 @@ class HistoriqueEleve(models.Model):
     description = models.TextField()
     date_action = models.DateTimeField(default=timezone.now)
     effectue_par = models.ForeignKey('utilisateurs.CustomUser', on_delete=models.SET_NULL, null=True, blank=True)
+    annee_scolaire = models.ForeignKey(
+        AnneeScolaire, 
+        on_delete=models.CASCADE,
+        default=AnneeScolaire.get_annee_courante
+    )
 
     def __str__(self):
         return f"{self.eleve.nom} - {self.get_action_display()} ({self.date_action.strftime('%Y-%m-%d')})"
     
+    def save(self, *args, **kwargs):
+        if not self.annee_scolaire_id:
+            self.annee_scolaire = AnneeScolaire.get_annee_courante()
+        super().save(*args, **kwargs)
 
 class Eleve(models.Model):
-    matricule = models.CharField(max_length=50, unique=True, verbose_name="Matricule")
+    matricule = models.CharField(max_length=50, verbose_name="Matricule")
     nom = models.CharField(max_length=100)
     prenom = models.CharField(max_length=100)
     date_naissance = models.DateField()
@@ -56,24 +67,37 @@ class Eleve(models.Model):
         verbose_name="Photo"
     )
     date_inscription = models.DateField(
-        default=timezone.now,  # ← Sa pral evite erè a
+        default=timezone.now,
         verbose_name="Date d'inscription"
+    )
+    annee_scolaire = models.ForeignKey(
+        AnneeScolaire,
+        on_delete=models.CASCADE,
+        verbose_name="Année scolaire",
+        null=True,
+        blank=True,
+        related_name='eleves'
     )
 
     class Meta:
         verbose_name = "Élève"
         verbose_name_plural = "Élèves"
+        unique_together = ['matricule', 'annee_scolaire']
 
     def __str__(self):
         return f"{self.prenom} {self.nom} - {self.matricule}"
 
+    def save(self, *args, **kwargs):
+        if not self.annee_scolaire_id:
+            self.annee_scolaire = AnneeScolaire.get_annee_courante()
+        super().save(*args, **kwargs)
+
     @property
     def initial(self):
-        """Retounen premye lèt non ak prenom eleve a (pou inisyal avatar - style WhatsApp)."""
+        """Retounen premye lèt non ak prenom eleve a"""
         first_initial = self.prenom[0].upper() if self.prenom and self.prenom.strip() else ""
         last_initial = self.nom[0].upper() if self.nom and self.nom.strip() else ""
         
-        # Return both initials if available
         if first_initial and last_initial:
             return f"{first_initial}{last_initial}"
         elif first_initial:
@@ -83,4 +107,4 @@ class Eleve(models.Model):
         elif self.matricule and self.matricule.strip():
             return self.matricule[0].upper()
         else:
-            return "E"  # Default fallback for Eleve
+            return "E"

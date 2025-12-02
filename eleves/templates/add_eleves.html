@@ -22,11 +22,53 @@
   </div>
 </div>
 
+<!-- ALERTE ANNEE SCOLAIRE AJOUTEE ICI -->
+{% if annee_actuelle %}
+<div class="mb-6 bg-gradient-to-r from-green-500 to-green-600 text-white p-4 rounded-lg shadow-lg border-l-4 border-green-400">
+  <div class="flex items-center justify-between">
+    <div class="flex items-center">
+      <i class="fas fa-calendar-alt text-2xl mr-3"></i>
+      <div>
+        <h3 class="font-bold text-lg">les eleves pour l'Année Scolaire Active</h3>
+        <p class="text-green-100">L'élève sera automatiquement Enregistré pour l'année <strong>{{ annee_actuelle.nom }}</strong></p>
+      </div>
+    </div>
+    <span class="bg-white text-green-600 px-3 py-1 rounded-full text-sm font-bold flex items-center">
+      <i class="fas fa-star mr-1"></i> {{ annee_actuelle.nom }}
+    </span>
+  </div>
+</div>
+{% else %}
+<div class="mb-6 bg-gradient-to-r from-red-500 to-red-600 text-white p-4 rounded-lg shadow-lg border-l-4 border-red-400">
+  <div class="flex items-center">
+    <i class="fas fa-exclamation-triangle text-2xl mr-3"></i>
+    <div>
+      <h3 class="font-bold text-lg">Aucune Année Scolaire Active</h3>
+      <p class="text-red-100">Impossible d'ajouter un élève. Veuillez d'abord sélectionner une année scolaire active dans le sélecteur en haut de la page.</p>
+    </div>
+  </div>
+</div>
+{% endif %}
+
 <div class="max-w-7xl mx-auto px-4">
   <!-- Form Card -->
   <div class="bg-white rounded-2xl shadow-lg overflow-hidden border border-yellow-200">
     <div class="p-6">
-      <form method="POST" enctype="multipart/form-data" class="space-y-6">
+      
+      <!-- Message d'alerte si pas d'année scolaire -->
+      {% if not annee_actuelle %}
+      <div class="bg-red-50 border border-red-200 rounded-lg p-4 mb-6">
+        <div class="flex items-center">
+          <i class="fas fa-ban text-red-500 mr-3 text-xl"></i>
+          <div>
+            <p class="text-red-800 font-semibold">Action bloquée</p>
+            <p class="text-red-600 text-sm">Vous ne pouvez pas ajouter d'élève sans année scolaire active.</p>
+          </div>
+        </div>
+      </div>
+      {% endif %}
+
+      <form method="POST" enctype="multipart/form-data" class="space-y-6" {% if not annee_actuelle %}onsubmit="return false;"{% endif %}>
         {% csrf_token %}
 
         <!-- Layout horizontal pour toutes les informations -->
@@ -95,6 +137,22 @@
             </h3>
 
             <div class="space-y-4">
+              <!-- Badge Annee Scolaire -->
+              {% if annee_actuelle %}
+              <div class="bg-green-50 border border-green-200 rounded-lg p-3 mb-4">
+                <div class="flex items-center justify-between">
+                  <div class="flex items-center">
+                    <i class="fas fa-calendar-check text-green-500 mr-2"></i>
+                    <span class="text-green-800 font-semibold text-sm">Année Scolaire</span>
+                  </div>
+                  <span class="bg-green-100 text-green-700 px-2 py-1 rounded-full text-xs font-bold">
+                    {{ annee_actuelle.nom }}
+                  </span>
+                </div>
+                <p class="text-green-600 text-xs mt-1">Assignée automatiquement</p>
+              </div>
+              {% endif %}
+
               <div>
                 <label class="flex items-center text-sm font-semibold text-gray-700 mb-2">
                   <svg class="w-4 h-4 mr-2 text-amber-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -225,11 +283,16 @@
             Annuler
           </a>
           <button type="submit" 
-                  class="inline-flex items-center justify-center bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-600 hover:to-amber-700 text-white font-bold px-6 py-3 rounded-lg shadow transition-all duration-300 transform hover:scale-105 text-center text-sm">
+                  class="inline-flex items-center justify-center bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-600 hover:to-amber-700 text-white font-bold px-6 py-3 rounded-lg shadow transition-all duration-300 transform hover:scale-105 text-center text-sm {% if not annee_actuelle %}opacity-50 cursor-not-allowed{% endif %}"
+                  {% if not annee_actuelle %}disabled{% endif %}>
             <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
             </svg>
-            Enregistrer l'Élève
+            {% if annee_actuelle %}
+              Enregistrer l'Élève
+            {% else %}
+              Action Bloquée
+            {% endif %}
           </button>
         </div>
       </form>
@@ -316,6 +379,16 @@ label {
 label svg {
     flex-shrink: 0;
 }
+
+/* Style pour le bouton désactivé */
+button:disabled {
+    cursor: not-allowed;
+    transform: none !important;
+}
+
+button:disabled:hover {
+    transform: none !important;
+}
 </style>
 
 <script>
@@ -377,23 +450,33 @@ document.addEventListener('DOMContentLoaded', function() {
                 }
                 
                 if (file.size > 5 * 1024 * 1024) {
-
-              // Téléphone tuteur: auto-normalisation (local 8-digit display)
-              const telTuteur = document.getElementById('id_telephone_tuteur');
-              if (telTuteur) {
-                // strip non-digits and keep last 8 digits on load
-                let v = telTuteur.value ? telTuteur.value.toString().replace(/\D/g, '') : '';
-                if (v.length > 8) telTuteur.value = v.slice(-8);
-
-                telTuteur.addEventListener('input', function(){
-                  this.value = this.value.replace(/\D/g, '').slice(0,8);
-                });
-              }
                     alert('L\'image est trop volumineuse. Taille maximale: 5MB');
                     this.value = '';
                     return;
                 }
             }
+        });
+    }
+
+    // Téléphone tuteur: auto-normalisation (local 8-digit display)
+    const telTuteur = document.getElementById('id_telephone_tuteur');
+    if (telTuteur) {
+        // strip non-digits and keep last 8 digits on load
+        let v = telTuteur.value ? telTuteur.value.toString().replace(/\D/g, '') : '';
+        if (v.length > 8) telTuteur.value = v.slice(-8);
+
+        telTuteur.addEventListener('input', function(){
+            this.value = this.value.replace(/\D/g, '').slice(0,8);
+        });
+    }
+
+    // Empêcher la soumission du formulaire si pas d'année scolaire
+    const form = document.querySelector('form');
+    if (form && !{{ annee_actuelle|yesno:"true,false" }}) {
+        form.addEventListener('submit', function(e) {
+            e.preventDefault();
+            alert('Impossible d\'ajouter un élève sans année scolaire active. Veuillez sélectionner une année scolaire dans le sélecteur en haut de la page.');
+            return false;
         });
     }
 });

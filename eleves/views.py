@@ -9,67 +9,75 @@ from utilisateurs.decorators import role_required
 from .forms import EleveForm
 from .models import Eleve, HistoriqueEleve
 from classes.models import Classe
+from annee_scolaire.models import AnneeScolaire
+import random
 
 
-import csv
-from django.http import HttpResponse
+
+# -------------------- PAGE D'EXPORTATION --------------------
+@login_required
+def exportation_eleves(request):
+    classe_id = request.GET.get('classe')
+
+    try:
+        annee_actuelle = AnneeScolaire.objects.get(est_annee_courante=True)
+    except AnneeScolaire.DoesNotExist:
+        annee_actuelle = None
+
+    base_eleves = Eleve.objects.select_related(
+        'classe_actuelle', 
+        'annee_scolaire'
+    )
+
+    # 🔥 AJOUTER LE MÊME FILTRE QUE DANS LA LISTE
+    if annee_actuelle:
+        base_eleves = base_eleves.filter(annee_scolaire=annee_actuelle)
+
+    if classe_id:
+        eleves = base_eleves.filter(classe_actuelle__id=classe_id)
+    else:
+        eleves = base_eleves
+
+    eleves = eleves.order_by('nom', 'prenom')
+
+    total_count = eleves.count()
+    actif_count = eleves.filter(statut='actif').count()
+    suspendu_count = eleves.filter(statut='suspendu').count()
+    radie_count = eleves.filter(statut='radié').count()
+
+    classes = Classe.objects.filter(statut='actif').order_by('nom_classe')
+
+    return render(request, 'export_modal.html', {
+        'eleves': eleves,
+        'classes': classes,
+        'annee_actuelle': annee_actuelle,
+        'total_count': total_count,
+        'actif_count': actif_count,
+        'suspendu_count': suspendu_count,
+        'radie_count': radie_count,
+    })
 
 
-# -------------------- EXPORT CSV --------------------
-def export_eleve_csv(request, pk):
-    eleve = get_object_or_404(Eleve, pk=pk)
-    
-    response = HttpResponse(content_type='text/csv')
-    response['Content-Disposition'] = f'attachment; filename="eleve_{eleve.matricule}.csv"'
-    
-    writer = csv.writer(response)
-    
-    writer.writerow(['SYGEE - Fiche Élève'])
-    writer.writerow([])
-    
-    writer.writerow(['INFORMATIONS PERSONNELLES'])
-    writer.writerow(['Nom', 'Prénom', 'Matricule', 'Date de naissance', 'Lieu de naissance', 'Sexe', 'Adresse'])
-    writer.writerow([
-        eleve.nom, 
-        eleve.prenom, 
-        eleve.matricule, 
-        eleve.date_naissance.strftime('%d/%m/%Y') if eleve.date_naissance else '',
-        eleve.lieu_naissance or 'Non renseigné',
-        eleve.get_sexe_display() if hasattr(eleve, 'get_sexe_display') else eleve.sexe,
-        eleve.adresse or 'Non renseigné'
-    ])
-    writer.writerow([])
-    
-    writer.writerow(['INFORMATIONS ACADÉMIQUES'])
-    writer.writerow(['Niveau', 'Classe actuelle', 'Statut', 'Date inscription'])
-    writer.writerow([
-        eleve.niveau or 'Non renseigné',
-        str(eleve.classe_actuelle) if eleve.classe_actuelle else 'Non affecté',
-        eleve.get_statut_display() if hasattr(eleve, 'get_statut_display') else eleve.statut,
-        eleve.date_inscription.strftime('%d/%m/%Y') if eleve.date_inscription else ''
-    ])
-    writer.writerow([])
-    
-    writer.writerow(['INFORMATIONS DE CONTACT'])
-    writer.writerow(['Téléphone', 'Email', 'Nom parent', 'Téléphone parent'])
-    writer.writerow([
-        getattr(eleve, 'telephone', 'Non renseigné'),
-        getattr(eleve, 'email', 'Non renseigné'),
-        getattr(eleve, 'nom_parent', 'Non renseigné'),
-        getattr(eleve, 'telephone_parent', 'Non renseigné')
-    ])
-    
-    return response
 
-
-# -------------------- LISTE OPTIMIZÉE --------------------
+# -------------------- LISTE OPTIMIZÉE AVEC ANNEE SCOLAIRE --------------------
 @login_required
 def eleves_list(request):
     search_query = request.GET.get('search', '')
     statut_filter = request.GET.get('statut', '')
     classe_filter = request.GET.get('classe', '')
 
-    eleves = Eleve.objects.select_related('classe_actuelle')
+    # === KORIKSYON: Chanje 'est_actuelle' pou 'est_annee_courante' ===
+    try:
+        annee_actuelle = AnneeScolaire.objects.get(est_annee_courante=True)
+    except AnneeScolaire.DoesNotExist:
+        annee_actuelle = None
+        messages.warning(request, "Aucune année scolaire active. Veuillez en sélectionner une.")
+
+    # Filtrer par annee scolaire si li egziste
+    if annee_actuelle:
+        eleves = Eleve.objects.select_related('classe_actuelle').filter(annee_scolaire=annee_actuelle)
+    else:
+        eleves = Eleve.objects.select_related('classe_actuelle')
 
     if search_query:
         eleves = eleves.filter(Q(nom__icontains=search_query) | Q(prenom__icontains=search_query))
@@ -82,11 +90,12 @@ def eleves_list(request):
     page_number = request.GET.get('page')
     page_obj = paginator.get_page(page_number)
 
-    # --- Statistik nan yon sèl requèt + caching ---
-    cache_key_stats = "eleves_stats"
+    # --- Statistik ak cache ki konsidere annee scolaire ---
+    cache_key_stats = f"eleves_stats_{annee_actuelle.id if annee_actuelle else 'no_annee'}"
     stats = cache.get(cache_key_stats)
     if stats is None:
-        stats = Eleve.objects.aggregate(
+        base_queryset = eleves  # Deja filtre par annee scolaire si egziste
+        stats = base_queryset.aggregate(
             total=Count('id'),
             actifs=Count('id', filter=Q(statut='actif')),
             suspendus=Count('id', filter=Q(statut='suspendu')),
@@ -111,6 +120,7 @@ def eleves_list(request):
         'search_query': search_query,
         'statut_filter': statut_filter,
         'classe_filter': classe_filter,
+        'annee_actuelle': annee_actuelle,
     })
 
 
@@ -118,17 +128,36 @@ def eleves_list(request):
 @login_required
 def eleve_detail(request, pk):
     eleve = get_object_or_404(
-        Eleve.objects.select_related('classe_actuelle', 'utilisateur'),
-        pk=pk
+        Eleve.objects.select_related('classe_actuelle', 'annee_scolaire'),  # 👈 Chanje isit la
+         pk=pk
     )
     historique = HistoriqueEleve.objects.filter(eleve=eleve).select_related('effectue_par').order_by('-date_action')
-    return render(request, 'eleves_detail.html', {'eleve': eleve, 'historique': historique})
+    
+    # KORIKSYON: Chanje 'est_actuelle' pou 'est_annee_courante'
+    try:
+        annee_actuelle = AnneeScolaire.objects.get(est_annee_courante=True)
+    except AnneeScolaire.DoesNotExist:
+        annee_actuelle = None
+        
+    return render(request, 'eleves_detail.html', {
+        'eleve': eleve, 
+        'historique': historique,
+        'annee_actuelle': annee_actuelle
+    })
 
 
-# -------------------- AJOUTER --------------------
+# -------------------- AJOUTER AVEC ANNEE SCOLAIRE --------------------
 @role_required(['admin', 'directeur', 'secretaire'])
 def ajouter_eleve(request):
     classes = Classe.objects.filter(statut='actif').order_by('nom_classe')
+    
+    # KORIKSYON: Chanje 'est_actuelle' pou 'est_annee_courante'
+    try:
+        annee_actuelle = AnneeScolaire.objects.get(est_annee_courante=True)
+    except AnneeScolaire.DoesNotExist:
+        annee_actuelle = None
+        messages.error(request, "Aucune année scolaire active. Impossible d'ajouter un élève.")
+        return redirect('eleves:eleve_list')
     
     if request.method == 'POST':
         form = EleveForm(request.POST, request.FILES)
@@ -145,6 +174,10 @@ def ajouter_eleve(request):
                     return redirect('eleves:ajouter_eleve')
 
                 eleve = form.save(commit=False)
+                
+                # Asigne annee scolaire actuelle
+                eleve.annee_scolaire = annee_actuelle
+                
                 annee_courante = datetime.now().year
                 dernier_eleve = Eleve.objects.filter(
                     matricule__startswith=f"ELEVE{annee_courante}"
@@ -162,11 +195,11 @@ def ajouter_eleve(request):
                 HistoriqueEleve.objects.create(
                     eleve=eleve,
                     action='inscription',
-                    description=f"Nouvelle inscription dans la classe {eleve.classe_actuelle}",
+                    description=f"Nouvelle inscription dans la classe {eleve.classe_actuelle} pour l'année {annee_actuelle.nom}",
                     effectue_par=request.user
                 )
 
-                messages.success(request, f"L'élève {eleve.nom} {eleve.prenom} a été ajouté avec succès.")
+                messages.success(request, f"L'élève {eleve.nom} {eleve.prenom} a été ajouté avec succès pour l'année {annee_actuelle.nom}.")
                 return redirect('eleves:eleve_list')
 
             except Exception as e:
@@ -176,10 +209,14 @@ def ajouter_eleve(request):
     else:
         form = EleveForm()
 
-    return render(request, 'add_eleves.html', {'form': form, 'classes': classes})
+    return render(request, 'add_eleves.html', {
+        'form': form, 
+        'classes': classes,
+        'annee_actuelle': annee_actuelle
+    })
 
 
-# -------------------- MODIFIER (KOREKTE BUG REDIRECT) --------------------
+# -------------------- MODIFIER AVEC ANNEE SCOLAIRE --------------------
 @role_required(['admin', 'directeur', 'secretaire'])
 def eleve_update(request, pk):
     eleve = get_object_or_404(
@@ -188,6 +225,12 @@ def eleve_update(request, pk):
     )
     ancienne_classe = eleve.classe_actuelle
     classes = Classe.objects.filter(statut='actif').order_by('nom_classe')
+
+    # KORIKSYON: Chanje 'est_actuelle' pou 'est_annee_courante'
+    try:
+        annee_actuelle = AnneeScolaire.objects.get(est_annee_courante=True)
+    except AnneeScolaire.DoesNotExist:
+        annee_actuelle = None
 
     if request.method == 'POST':
         form = EleveForm(request.POST, request.FILES, instance=eleve)
@@ -204,7 +247,7 @@ def eleve_update(request, pk):
 
             eleve_modifie.save()
             messages.success(request, "✅ Les informations de l'élève ont été mises à jour.")
-            return redirect('eleves:eleve_list')  # 👈 BUG KOREKTE: pa gen `pk` nan URL lan
+            return redirect('eleves:eleve_list')
         else:
             messages.error(request, "Erreurs dans le formulaire.")
     else:
@@ -213,7 +256,8 @@ def eleve_update(request, pk):
     return render(request, 'eleve_update.html', {
         'form': form, 
         'eleve': eleve,
-        'classes': classes
+        'classes': classes,
+        'annee_actuelle': annee_actuelle
     })
 
 
@@ -226,7 +270,7 @@ def eleve_archiver(request, pk):
     else:
         eleve.statut = 'archive'
         eleve.save()
-        messages.success(request, f"L’élève {eleve.nom} {eleve.prenom} a été archivé.")
+        messages.success(request, f"L'élève {eleve.nom} {eleve.prenom} a été archivé.")
     return redirect('eleves:eleve_list')
 
 
@@ -237,7 +281,7 @@ def eleve_restaurer(request, pk):
     if eleve.statut == 'archive':
         eleve.statut = 'actif'
         eleve.save()
-        messages.success(request, f"✅ L’élève {eleve.nom} {eleve.prenom} a été restauré.")
+        messages.success(request, f"✅ L'élève {eleve.nom} {eleve.prenom} a été restauré.")
     return redirect('eleves:eleve_list')
 
 
@@ -245,7 +289,17 @@ def eleve_restaurer(request, pk):
 @login_required
 def eleve_archives(request):
     eleves = Eleve.objects.filter(statut='archive').select_related('classe_actuelle')
-    return render(request, 'eleve_archiver.html', {'eleves': eleves})
+    
+    # KORIKSYON: Chanje 'est_actuelle' pou 'est_annee_courante'
+    try:
+        annee_actuelle = AnneeScolaire.objects.get(est_annee_courante=True)
+    except AnneeScolaire.DoesNotExist:
+        annee_actuelle = None
+        
+    return render(request, 'eleve_archiver.html', {
+        'eleves': eleves,
+        'annee_actuelle': annee_actuelle
+    })
 
 
 # -------------------- SUPPRIMER --------------------
@@ -254,5 +308,5 @@ def eleve_delete(request, pk):
     eleve = get_object_or_404(Eleve, pk=pk)
     nom_complet = f"{eleve.nom} {eleve.prenom}"
     eleve.delete()
-    messages.success(request, f"L’élève {nom_complet} a été supprimé définitivement.")
+    messages.success(request, f"L'élève {nom_complet} a été supprimé définitivement.")
     return redirect('eleves:eleve_list')
