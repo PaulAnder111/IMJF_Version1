@@ -25,6 +25,34 @@
   </div>
 </div>
 
+<!-- ALERTE ANNEE SCOLAIRE AJOUTEE ICI -->
+{% if annee_actuelle %}
+<div class="mb-6 bg-gradient-to-r from-green-500 to-green-600 text-white p-4 rounded-lg shadow-lg border-l-4 border-green-400">
+  <div class="flex items-center justify-between">
+    <div class="flex items-center">
+      <i class="fas fa-calendar-alt text-2xl mr-3"></i>
+      <div>
+        <h3 class="font-bold text-lg">Année Scolaire Active</h3>
+        <p class="text-green-100">Affichage des élèves pour l'année <strong>{{ annee_actuelle.nom }}</strong></p>
+      </div>
+    </div>
+    <span class="bg-white text-green-600 px-3 py-1 rounded-full text-sm font-bold flex items-center">
+      <i class="fas fa-star mr-1"></i> Actuelle
+    </span>
+  </div>
+</div>
+{% else %}
+<div class="mb-6 bg-gradient-to-r from-red-500 to-red-600 text-white p-4 rounded-lg shadow-lg border-l-4 border-red-400">
+  <div class="flex items-center">
+    <i class="fas fa-exclamation-triangle text-2xl mr-3"></i>
+    <div>
+      <h3 class="font-bold text-lg">Aucune Année Scolaire Active</h3>
+      <p class="text-red-100">Veuillez sélectionner une année scolaire dans le sélecteur en haut de la page</p>
+    </div>
+  </div>
+</div>
+{% endif %}
+
 <!-- Statistiques avec dégradés -->
 <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-6">
   <div class="bg-gradient-to-r from-gray-700 to-amber-500 text-white p-4 rounded-lg shadow flex flex-col items-center">

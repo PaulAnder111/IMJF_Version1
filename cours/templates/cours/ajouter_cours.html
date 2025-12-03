@@ -4,9 +4,7 @@
 {% block title %}Ajouter un Cours - SYGEE{% endblock %}
 
 {% block content %}
-{# messages handled globally by base.html #}
 
-<!-- SECTION HEADER AVEC GRADIENT (GRIS FONSE → OR) -->
 <div class="bg-gradient-to-r from-gray-800 to-amber-500 py-4 px-3 sm:px-6 text-white shadow-md mb-6 rounded-lg">
   <div class="max-w-7xl mx-auto flex flex-col sm:flex-row justify-between items-center gap-2">
     <div class="text-center sm:text-left">
@@ -21,9 +19,9 @@
 </div>
 
 <div class="max-w-7xl mx-auto px-4">
-  <!-- CARTE DU FORMULAIRE -->
+
   <div class="bg-white rounded-2xl shadow-lg overflow-hidden border border-amber-200">
-    <!-- En-tête de la carte -->
+
     <div class="bg-gradient-to-r from-amber-500 to-amber-600 px-6 py-4">
       <h2 class="text-xl font-bold text-white flex items-center">
         <i class="fas fa-book-open mr-3 text-white"></i> Informations du cours
@@ -31,266 +29,237 @@
       <p class="text-white/80 text-sm mt-1">Remplissez les informations pour créer un nouveau cours</p>
     </div>
 
-    <!-- Formulaire -->
     <div class="p-6">
       <form method="POST" class="space-y-6">
         {% csrf_token %}
 
         <!-- LIGNE 1 -->
         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-          <!-- Matière -->
+
           <div class="form-group">
-            <label class="block font-semibold text-gray-700 mb-2 text-sm flex items-center">
-              <i class="fas fa-book text-amber-500 mr-2"></i> Matière *
-            </label>
-            <select name="matiere" required class="form-field-modern">
-              <!-- placeholder removed; choose a matière -->
-              {% for matiere in matieres %}
-                <option value="{{ matiere.id }}">{{ matiere.nom_matiere }}</option>
-              {% endfor %}
-            </select>
+            <label class="label">Matière *</label>
+            <div class="select-wrap">
+              <select name="matiere" required class="select-modern">
+                {% for matiere in matieres %}
+                  <option value="{{ matiere.id }}">{{ matiere.nom_matiere }}</option>
+                {% endfor %}
+              </select>
+            </div>
           </div>
 
-          <!-- Classe -->
           <div class="form-group">
-            <label class="block font-semibold text-gray-700 mb-2 text-sm flex items-center">
-              <i class="fas fa-users text-amber-500 mr-2"></i> Classe *
-            </label>
-            <select name="classe" required class="form-field-modern">
-              <!-- placeholder removed; choose a classe -->
-              {% for classe in classes %}
-                <option value="{{ classe.id }}">{{ classe.nom_classe }}</option>
-              {% endfor %}
-            </select>
+            <label class="label">Classe *</label>
+            <div class="select-wrap">
+              <select name="classe" required class="select-modern">
+                {% for classe in classes %}
+                  <option value="{{ classe.id }}">{{ classe.nom_classe }}</option>
+                {% endfor %}
+              </select>
+            </div>
           </div>
 
-          <!-- Enseignant -->
           <div class="form-group">
-            <label class="block font-semibold text-gray-700 mb-2 text-sm flex items-center">
-              <i class="fas fa-chalkboard-teacher text-amber-500 mr-2"></i> Enseignant *
-            </label>
-            <select name="enseignant" required class="form-field-modern">
-              <!-- placeholder removed; choose an enseignant -->
-              {% for enseignant in enseignants %}
-                <option value="{{ enseignant.id }}">{{ enseignant.prenom }} {{ enseignant.nom }}</option>
-              {% endfor %}
-            </select>
+            <label class="label">Enseignant *</label>
+            <div class="select-wrap">
+              <select name="enseignant" required class="select-modern">
+                {% for enseignant in enseignants %}
+                  <option value="{{ enseignant.id }}">{{ enseignant.prenom }} {{ enseignant.nom }}</option>
+                {% endfor %}
+              </select>
+            </div>
           </div>
         </div>
 
         <!-- LIGNE 2 -->
         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-          <!-- Jour -->
+
           <div class="form-group">
-            <label class="block font-semibold text-gray-700 mb-2 text-sm flex items-center">
-              <i class="fas fa-calendar-day text-amber-500 mr-2"></i> Jour *
-            </label>
-            <select name="jour" required class="form-field-modern">
-              {% for key, value in jours %}
-                <option value="{{ key }}">{{ value }}</option>
-              {% endfor %}
-            </select>
+            <label class="label">Jour *</label>
+            <div class="select-wrap">
+              <select name="jour" required class="select-modern">
+                {% for key, value in jours %}
+                  <option value="{{ key }}">{{ value }}</option>
+                {% endfor %}
+              </select>
+            </div>
           </div>
 
           <!-- Heure début -->
           <div class="form-group">
-            <label class="block font-semibold text-gray-700 mb-2 text-sm flex items-center">
-              <i class="fas fa-clock text-amber-500 mr-2"></i> Heure début *
-            </label>
+            <label class="label">Heure début *</label>
             <input type="time" name="heure_debut" required class="form-field-modern">
           </div>
 
           <!-- Heure fin -->
           <div class="form-group">
-            <label class="block font-semibold text-gray-700 mb-2 text-sm flex items-center">
-              <i class="fas fa-clock text-amber-500 mr-2"></i> Heure fin *
-            </label>
+            <label class="label">Heure fin *</label>
             <input type="time" name="heure_fin" required class="form-field-modern">
           </div>
         </div>
 
         <!-- LIGNE 3 -->
         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-          <!-- Salle -->
+
           <div class="form-group">
-            <label class="block font-semibold text-gray-700 mb-2 text-sm flex items-center">
-              <i class="fas fa-door-open text-amber-500 mr-2"></i> Salle
-            </label>
-            <input type="text" name="salle" placeholder="Ex: Salle B3, Labo Informatique..." class="form-field-modern">
+            <label class="label">Salle</label>
+            <input type="text" name="salle" placeholder="Ex: Salle B3" class="form-field-modern">
           </div>
 
-          <!-- Année scolaire -->
           <div class="form-group">
-            <label class="block font-semibold text-gray-700 mb-2 text-sm flex items-center">
-              <i class="fas fa-calendar-alt text-amber-500 mr-2"></i> Année scolaire *
-            </label>
-            <select name="annee_scolaire" required class="form-field-modern">
-              {% for key, value in annees %}
-                <option value="{{ key }}">{{ value }}</option>
-              {% endfor %}
-            </select>
+            <label class="label">Année scolaire</label>
+            <div class="select-wrap">
+              <select name="annee_scolaire" class="select-modern">
+                <option value="">Sélectionner une année</option>
+                {% for annee in annees_scolaires %}
+                  <option value="{{ annee.id }}" {% if annee.id == annee_active.id %}selected{% endif %}>
+                    {{ annee.nom }}
+                  </option>
+                {% endfor %}
+              </select>
+            </div>
           </div>
 
-          <!-- Semestre -->
           <div class="form-group">
-            <label class="block font-semibold text-gray-700 mb-2 text-sm flex items-center">
-              <i class="fas fa-calendar-week text-amber-500 mr-2"></i> Semestre
-            </label>
-            <input type="text" name="semestre" placeholder="Ex: 1er semestre, Semestre 2..." class="form-field-modern">
+            <label class="label">Semestre</label>
+            <input type="text" name="semestre" placeholder="Ex: 1er semestre" class="form-field-modern">
           </div>
         </div>
 
         <!-- LIGNE 4 -->
         <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <!-- Statut -->
           <div class="form-group">
-            <label class="block font-semibold text-gray-700 mb-2 text-sm flex items-center">
-              <i class="fas fa-info-circle text-amber-500 mr-2"></i> Statut *
-            </label>
-            <select name="statut" required class="form-field-modern">
-              {% for key, value in statuts %}
-                <option value="{{ key }}">{{ value }}</option>
-              {% endfor %}
-            </select>
+            <label class="label">Statut *</label>
+            <div class="select-wrap">
+              <select name="statut" required class="select-modern">
+                {% for key, value in statuts %}
+                  <option value="{{ key }}">{{ value }}</option>
+                {% endfor %}
+              </select>
+            </div>
           </div>
 
-          <!-- Nombre d'heures total -->
           <div class="form-group">
-            <label class="block font-semibold text-gray-700 mb-2 text-sm flex items-center">
-              <i class="fas fa-hourglass-half text-amber-500 mr-2"></i> Heures totales
-            </label>
-            <input type="number" name="nb_heures_total" min="0" class="form-field-modern" placeholder="Ex: 30, 45, 60...">
+            <label class="label">Heures totales</label>
+            <input type="number" name="nb_heures_total" min="0" class="form-field-modern">
           </div>
         </div>
 
-        <!-- LIGNE 5 : Code du cours -->
         <div class="form-group">
-          <label class="block font-semibold text-gray-700 mb-2 text-sm flex items-center">
-            <i class="fas fa-code text-amber-500 mr-2"></i> Code du cours (optionnel)
-          </label>
-          <input type="text" name="code_cours" class="form-field-modern" placeholder="Ex: CRS-2025-MATH01, PHYS-2024-S1...">
+          <label class="label">Code du cours</label>
+          <input type="text" name="code_cours" class="form-field-modern" placeholder="Ex: CRS-2025-MATH01">
         </div>
 
-        <!-- BOUTONS -->
         <div class="flex flex-col sm:flex-row justify-end pt-6 gap-3 border-t border-gray-200">
-          <a href="{% url 'cours:cours' %}" 
-             class="inline-flex items-center justify-center px-6 py-3 bg-gray-500 hover:bg-gray-600 text-white font-semibold rounded-lg transition shadow-md transform hover:scale-105 text-sm">
+          <a href="{% url 'cours:cours' %}" class="btn-cancel">
             <i class="fas fa-times mr-2"></i> Annuler
           </a>
-          <button type="submit" 
-                  class="inline-flex items-center justify-center px-6 py-3 bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-600 hover:to-amber-700 text-white font-semibold rounded-lg transition shadow-md transform hover:scale-105 text-sm">
+
+          <button type="submit" class="btn-save">
             <i class="fas fa-save mr-2"></i> Enregistrer le cours
           </button>
         </div>
+
       </form>
     </div>
   </div>
 </div>
 
-<!-- STYLES MODERNES -->
 <style>
-.form-group {
-  display: flex;
-  flex-direction: column;
+.label {
+  font-weight: 600;
+  color: #374151;
+  margin-bottom: 0.4rem;
+  font-size: 0.875rem;
 }
 
+.select-wrap {
+  position: relative;
+}
+.select-wrap::after {
+  content: "\f078";
+  font-family: "Font Awesome 5 Free";
+  font-weight: 900;
+  position: absolute;
+  right: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+  font-size: 12px;
+  color: #6b7280;
+  pointer-events: none;
+}
+
+.select-modern {
+  appearance: none;
+  width: 100%;
+  padding: 0.75rem 2.5rem 0.75rem 1rem;
+  border: 2px solid #e5e7eb;
+  border-radius: 0.75rem;
+  background-color: white;
+  color: #374151;
+  transition: 0.3s ease;
+}
+
+.select-modern:focus {
+  border-color: #f59e0b;
+  box-shadow: 0 0 0 3px rgba(245, 158, 11, 0.2);
+}
+
+/* 🟧 FIX TOTAL POU HEURE YO */
+/* Retire ":" yo */
+input[type="time"]::-webkit-datetime-edit-text {
+    color: transparent;
+}
+
+/* Montre èdtan + minit sèlman */
+input[type="time"]::-webkit-datetime-edit-hour-field,
+input[type="time"]::-webkit-datetime-edit-minute-field {
+    color: #374151;
+    padding: 0 2px;
+    font-weight: 600;
+}
+
+/* Mete picker icon lan */
+input[type="time"]::-webkit-calendar-picker-indicator {
+    opacity: 1 !important;
+    cursor: pointer;
+    width: 20px;
+    height: 20px;
+    filter: invert(40%) sepia(40%) saturate(700%) hue-rotate(10deg);
+    margin-right: 8px;
+}
+
+/* Bloc spinner Firefox */
+input[type="time"] {
+    -moz-appearance: textfield;
+}
+
+/* Base input style */
 .form-field-modern {
   width: 100%;
   padding: 0.75rem 1rem;
   border: 2px solid #e5e7eb;
   border-radius: 0.75rem;
-  outline: none;
-  transition: all 0.3s ease;
-  font-size: 0.875rem;
-  background-color: white;
-  color: #374151;
+  transition: all 0.3s;
 }
-
 .form-field-modern:focus {
   border-color: #f59e0b;
-  box-shadow: 0 0 0 3px rgba(245, 158, 11, 0.1);
-  background-color: white;
+  box-shadow: 0 0 0 3px rgba(245,158,11,0.2);
 }
 
-.form-field-modern::placeholder {
-  color: #9ca3af;
+.btn-cancel {
+  padding: 0.75rem 1.5rem;
+  background: #6b7280;
+  color: white;
+  font-weight: 600;
+  border-radius: 0.75rem;
 }
-
-/* Style pour les selects */
-.form-field-modern {
-  appearance: none;
-  background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%236b7280' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='M6 8l4 4 4-4'/%3e%3c/svg%3e");
-  background-position: right 1rem center;
-  background-repeat: no-repeat;
-  background-size: 1.25em 1.25em;
-  padding-right: 2.5rem;
-}
-
-/* Responsive design */
-@media (max-width: 768px) {
-  .grid-cols-3 {
-    grid-template-columns: 1fr;
-  }
-  
-  .grid-cols-2 {
-    grid-template-columns: 1fr;
-  }
-  
-  .p-6 {
-    padding: 1rem;
-  }
-  
-  .gap-4 {
-    gap: 1rem;
-  }
-}
-
-/* Animation pour les boutons */
-.bg-gradient-to-r {
-  transition: all 0.3s ease;
-}
-
-.bg-gradient-to-r:hover {
-  transform: translateY(-1px);
+.btn-save {
+  padding: 0.75rem 1.5rem;
+  background: linear-gradient(to right, #f59e0b, #d97706);
+  color: white;
+  font-weight: 600;
+  border-radius: 0.75rem;
 }
 </style>
 
-<script>
-// Script pour améliorer l'expérience utilisateur
-document.addEventListener('DOMContentLoaded', function() {
-  // Focus sur le premier champ
-  const firstField = document.querySelector('.form-field-modern');
-  if (firstField) {
-    firstField.focus();
-  }
-
-  // Validation des heures
-  const heureDebut = document.querySelector('input[name="heure_debut"]');
-  const heureFin = document.querySelector('input[name="heure_fin"]');
-
-  if (heureDebut && heureFin) {
-    heureFin.addEventListener('change', function() {
-      if (heureDebut.value && heureFin.value) {
-        if (heureFin.value <= heureDebut.value) {
-          alert('L\'heure de fin doit être après l\'heure de début');
-          heureFin.value = '';
-          heureFin.focus();
-        }
-      }
-    });
-  }
-
-  // Animation des champs au focus
-  const fields = document.querySelectorAll('.form-field-modern');
-  fields.forEach(field => {
-    field.addEventListener('focus', function() {
-      this.parentElement.classList.add('field-focused');
-    });
-    
-    field.addEventListener('blur', function() {
-      this.parentElement.classList.remove('field-focused');
-    });
-  });
-});
-</script>
 {% endblock %}

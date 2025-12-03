@@ -14,17 +14,55 @@
       <p class="text-white/80 text-sm">Gérez tous les cours de l'établissement</p>
     </div>
     
-    <!-- Bouton Ajouter - Cache pour SECRETAIRE et ARCHIVE -->
-    {% if request.user.role == 'admin' or request.user.role == 'directeur' %}
-    <a href="{% url 'cours:ajouter_cours' %}"
-       class="inline-flex items-center px-4 py-2 bg-white/20 text-white font-semibold rounded-lg shadow-md hover:bg-white/30 transform hover:scale-105 transition-all duration-300 ease-in-out text-sm border border-white/30">
-      <i class="fas fa-plus-circle mr-2"></i> Ajouter un Cours
-    </a>
-    {% endif %}
+    <!-- GROUPE DE BOUTONS ALIGNÉS -->
+    <div class="flex flex-wrap justify-center sm:justify-start gap-2">
+      <!-- Bouton Ajouter - Cache pour SECRETAIRE et ARCHIVE -->
+      {% if request.user.role == 'admin' or request.user.role == 'directeur' %}
+      <a href="{% url 'cours:ajouter_cours' %}"
+         class="inline-flex items-center px-4 py-2 bg-white/20 text-white font-semibold rounded-lg shadow-md hover:bg-white/30 transform hover:scale-105 transition-all duration-300 ease-in-out text-sm border border-white/30">
+        <i class="fas fa-plus-circle mr-2"></i> Ajouter un Cours
+      </a>
+      {% endif %}
+
+      <!-- Bouton Exporter - Visible pou TOUS -->
+      <a href="{% url 'cours:exporter_cours' %}"
+         class="inline-flex items-center px-4 py-2 bg-white/20 text-white font-semibold rounded-lg shadow-md hover:bg-white/30 transform hover:scale-105 transition-all duration-300 ease-in-out text-sm border border-white/30">
+        <i class="fas fa-file-export mr-2"></i> Exporter
+      </a>
+    </div>
   </div>
 </div>
 
 <div class="max-w-7xl mx-auto px-4">
+
+  <!-- ALERTE ANNEE SCOLAIRE AJOUTEE ICI -->
+{% if annee_actuelle %}
+<div class="mb-6 bg-gradient-to-r from-green-500 to-green-600 text-white p-4 rounded-lg shadow-lg border-l-4 border-green-400">
+  <div class="flex items-center justify-between">
+    <div class="flex items-center">
+      <i class="fas fa-calendar-alt text-2xl mr-3"></i>
+      <div>
+        <h3 class="font-bold text-lg">Année Scolaire Active</h3>
+        <p class="text-green-100"> <strong>{{ annee_actuelle.nom }}</strong></p>
+      </div>
+    </div>
+    <span class="bg-white text-green-600 px-3 py-1 rounded-full text-sm font-bold flex items-center">
+      <i class="fas fa-star mr-1"></i> Actuelle
+    </span>
+  </div>
+</div>
+{% else %}
+<div class="mb-6 bg-gradient-to-r from-red-500 to-red-600 text-white p-4 rounded-lg shadow-lg border-l-4 border-red-400">
+  <div class="flex items-center">
+    <i class="fas fa-exclamation-triangle text-2xl mr-3"></i>
+    <div>
+      <h3 class="font-bold text-lg">Aucune Année Scolaire Active</h3>
+      <p class="text-red-100">Veuillez sélectionner une année scolaire dans le sélecteur en haut de la page</p>
+    </div>
+  </div>
+</div>
+{% endif %}
+
   <!-- STATISTIQUES AVEC KOULE -->
   <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
     <!-- Total Cours -->
@@ -103,7 +141,7 @@
         <input 
           type="text" 
           id="searchInput"
-          placeholder="Rechercher par matière, enseignant, classe, jour..." 
+          placeholder="Rechercher par matière, enseignant, classe, jour, heure, salle..." 
           class="w-full pl-12 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-amber-500 focus:border-amber-500 text-gray-900 text-sm"
           onkeyup="filterTable()"
         >
@@ -185,21 +223,28 @@
         </thead>
         <tbody class="divide-y divide-gray-200" id="coursTable">
           {% for cours in cours %}
-          <tr class="hover:bg-gray-50 transition-colors duration-200 cours-row">
+          <tr class="hover:bg-gray-50 transition-colors duration-200 cours-row"
+              data-search-matiere="{{ cours.matiere.nom_matiere|default:cours.matiere }}"
+              data-search-classe="{{ cours.classe.nom_classe|default:cours.classe }}"
+              data-search-enseignant="{{ cours.enseignant.nom }} {{ cours.enseignant.prenom }}"
+              data-search-jour="{{ cours.jour }}"
+              data-search-heure="{{ cours.heure_debut }} {{ cours.heure_fin }}"
+              data-search-salle="{{ cours.salle|default:'' }}"
+              data-search-statut="{{ cours.statut }}">
             <td class="px-6 py-4 whitespace-nowrap">
               <div class="flex items-center">
                 <div class="flex-shrink-0 h-10 w-10 bg-amber-50 rounded-lg flex items-center justify-center border border-amber-200">
                   <i class="fas fa-book text-amber-500 text-sm"></i>
                 </div>
                 <div class="ml-4">
-                  <div class="text-sm font-semibold text-gray-900">{{ cours.matiere.nom|default:cours.matiere }}</div>
-                  <div class="text-xs text-gray-500">{{ cours.matiere.code|default:"" }}</div>
+                  <div class="text-sm font-semibold text-gray-900">{{ cours.matiere.nom_matiere|default:cours.matiere }}</div>
+                  <div class="text-xs text-gray-500">{{ cours.matiere.code_matiere|default:"" }}</div>
                 </div>
               </div>
             </td>
             <td class="px-6 py-4 whitespace-nowrap">
               <span class="text-sm font-medium text-gray-900 bg-blue-50 px-3 py-1 rounded-full border border-blue-200">
-                {{ cours.classe.nom|default:cours.classe }}
+                {{ cours.classe.nom_classe|default:cours.classe }}
               </span>
             </td>
             <td class="px-6 py-4 whitespace-nowrap">
@@ -242,7 +287,7 @@
             <td class="px-6 py-4 whitespace-nowrap text-center">
               <div class="flex justify-center gap-2">
                 <!-- Détails - Visible pour tous -->
-                <a href="#"
+                <a href="{% url 'cours:cours_detail' cours.id %}"
                    class="inline-flex items-center justify-center w-9 h-9 text-gray-600 hover:text-white bg-gray-100 hover:bg-gray-600 rounded-lg transition-all duration-200 shadow-sm hover:shadow-md transform hover:scale-110"
                    title="Voir Détails">
                   <i class="fas fa-eye"></i>
@@ -259,7 +304,7 @@
                 
                 <!-- Supprimer - Cache pour SECRETAIRE et ARCHIVE -->
                 {% if request.user.role == 'admin' or request.user.role == 'directeur' %}
-                <button onclick="confirmDelete('{{ cours.id }}', '{{ cours.matiere.nom|default:cours.matiere }}')"
+                <button onclick="confirmDelete('{{ cours.id }}', '{{ cours.matiere.nom_matiere|default:cours.matiere }}')"
                    class="inline-flex items-center justify-center w-9 h-9 text-red-600 hover:text-white bg-red-100 hover:bg-red-600 rounded-lg transition-all duration-200 shadow-sm hover:shadow-md transform hover:scale-110"
                    title="Supprimer">
                   <i class="fas fa-trash"></i>
@@ -301,27 +346,31 @@
 </div>
 
 <script>
-// Script pour la recherche et le filtrage
+// Script pou rechèch ak filtre (amelyore pou chache tout)
 function filterTable() {
-    const input = document.getElementById("searchInput").value.toLowerCase();
+    const searchTerm = document.getElementById("searchInput").value.toLowerCase();
     const statutFilter = document.getElementById("filterStatut").value.toLowerCase();
     const classeFilter = document.getElementById("filterClasse").value.toLowerCase();
     const rows = document.querySelectorAll("#coursTable .cours-row");
 
     rows.forEach(row => {
-        const cols = row.getElementsByTagName("td");
-        const matiere = cols[0].textContent.toLowerCase();
-        const classe = cols[1].textContent.toLowerCase();
-        const enseignant = cols[2].textContent.toLowerCase();
-        const jour = cols[3].textContent.toLowerCase();
-        const statut = cols[6].textContent.toLowerCase();
+        const matiere = (row.dataset.searchMatiere || '').toLowerCase();
+        const classe = (row.dataset.searchClasse || '').toLowerCase();
+        const enseignant = (row.dataset.searchEnseignant || '').toLowerCase();
+        const jour = (row.dataset.searchJour || '').toLowerCase();
+        const heure = (row.dataset.searchHeure || '').toLowerCase();
+        const salle = (row.dataset.searchSalle || '').toLowerCase();
+        const statut = (row.dataset.searchStatut || '').toLowerCase();
 
-        const matchesSearch = matiere.includes(input) || 
-                            classe.includes(input) || 
-                            enseignant.includes(input) || 
-                            jour.includes(input);
-        
-        const matchesStatut = statutFilter === "" || statut.includes(statutFilter);
+        const matchesSearch = searchTerm === "" || 
+            matiere.includes(searchTerm) || 
+            classe.includes(searchTerm) || 
+            enseignant.includes(searchTerm) || 
+            jour.includes(searchTerm) || 
+            heure.includes(searchTerm) || 
+            salle.includes(searchTerm);
+
+        const matchesStatut = statutFilter === "" || statut === statutFilter;
         const matchesClasse = classeFilter === "" || classe.includes(classeFilter);
 
         row.style.display = (matchesSearch && matchesStatut && matchesClasse) ? "" : "none";

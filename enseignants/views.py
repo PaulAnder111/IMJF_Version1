@@ -8,7 +8,38 @@ from utilisateurs.decorators import role_required
 from .forms import EnseignantForm
 from .models import Enseignant
 
+from .models import Enseignant
+from annee_scolaire.models import AnneeScolaire  # Adate si bezwen
 
+@login_required
+def exporter_enseignants(request):
+    try:
+        annee_actuelle = AnneeScolaire.objects.get(est_annee_courante=True)
+    except AnneeScolaire.DoesNotExist:
+        annee_actuelle = None
+
+    # Filtre si annee_actuelle
+    base_enseignants = Enseignant.objects.prefetch_related('matieres')
+    if annee_actuelle:
+        # Si w gen yon relasyon annee_scolaire nan Enseignant, itilize l
+        # Sinon, jis afiche tout
+        pass  # Ou kapab ajoute kondisyon si bezwen
+
+    enseignants = base_enseignants.order_by('nom', 'prenom')
+
+    total_count = enseignants.count()
+    actif_count = enseignants.filter(statut='actif').count()
+    conge_count = enseignants.filter(statut='conge').count()
+    inactif_count = enseignants.filter(statut='inactif').count()
+
+    return render(request, 'enseignants/exporter_enseignants.html', {
+        'enseignants': enseignants,
+        'annee_actuelle': annee_actuelle,
+        'total_count': total_count,
+        'actif_count': actif_count,
+        'conge_count': conge_count,
+        'inactif_count': inactif_count,
+    })
 # ======================================================
 # 🔹 LISTE
 # ======================================================
@@ -185,3 +216,43 @@ def enseignant_delete(request, pk):
     enseignant.delete()
     messages.success(request, f"🗑️ L'enseignant {enseignant.nom} {enseignant.prenom} a été supprimé définitivement.")
     return redirect('enseignants:enseignants')
+
+
+# -------------------- ARCHIVER UN ENSEIGNANT --------------------
+@role_required(['admin', 'directeur', 'secretaire'])
+def enseignant_archiver(request, pk):
+    enseignant = get_object_or_404(Enseignant, pk=pk)
+    if enseignant.statut == 'archive':
+        messages.warning(request, "Cet enseignant est déjà archivé.")
+    else:
+        enseignant.statut = 'archive'
+        enseignant.save()
+        messages.success(request, f"L'enseignant {enseignant.nom} {enseignant.prenom} a été archivé.")
+    return redirect('enseignants:enseignants')
+
+
+# -------------------- RESTAURER UN ENSEIGNANT --------------------
+@role_required(['admin', 'directeur'])
+def enseignant_restaurer(request, pk):
+    enseignant = get_object_or_404(Enseignant, pk=pk)
+    if enseignant.statut == 'archive':
+        enseignant.statut = 'actif'
+        enseignant.save()
+        messages.success(request, f"✅ L'enseignant {enseignant.nom} {enseignant.prenom} a été restauré.")
+    return redirect('enseignants:enseignants')
+
+
+# -------------------- LISTE DES ENSEIGNANTS ARCHIVES --------------------
+@login_required
+def enseignant_archives(request):
+    enseignants = Enseignant.objects.filter(statut='archive').prefetch_related('matieres')
+    
+    try:
+        annee_actuelle = AnneeScolaire.objects.get(est_annee_courante=True)
+    except AnneeScolaire.DoesNotExist:
+        annee_actuelle = None
+        
+    return render(request, 'enseignants/enseignant_archives.html', {
+        'enseignants': enseignants,
+        'annee_actuelle': annee_actuelle
+    })

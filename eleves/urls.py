@@ -13,4 +13,5 @@ urlpatterns = [
     path('export_modal/', views.exportation_eleves, name='export_modal'),
     path('archive/<int:pk>/', views.eleve_archiver, name='eleve_archiver'),  # archive un élève
     path('restaurer/<int:pk>/', views.eleve_restaurer, name='eleve_restaurer'),  # restaurer un élève
+    
 ]

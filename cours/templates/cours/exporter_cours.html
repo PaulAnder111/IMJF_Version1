@@ -1,0 +1,312 @@
+{% extends "utilisateurs/base.html" %}
+{% load static %}
+
+{% block title %}Exportation Cours - SYGEE{% endblock %}
+
+{% block content %}
+<style>
+    @media print {
+        body * {
+            visibility: hidden;
+        }
+        #print-section, #print-section * {
+            visibility: visible;
+        }
+        #print-section {
+            position: absolute;
+            left: 0;
+            top: 0;
+            width: 100%;
+            padding: 20px;
+            background: white;
+        }
+        .no-print {
+            display: none !important;
+        }
+    }
+</style>
+
+<!-- HEADER SENP -->
+<div class="bg-gradient-to-r from-gray-900 to-gray-800 py-6 px-4 text-white mb-8">
+    <div class="max-w-7xl mx-auto">
+        <div class="text-center">
+            <h1 class="text-2xl font-bold mb-2">Exportation des Cours</h1>
+            <p class="text-gray-300">Sélectionnez des options et exportez les données</p>
+        </div>
+    </div>
+</div>
+
+<div class="max-w-6xl mx-auto px-4">
+    <!-- CARD PRINCIPAL AVEC OPTIONS -->
+    <div class="bg-white rounded-xl shadow-md border border-gray-200 p-6 mb-8">
+        <!-- Statistiques -->
+        <div class="mb-8">
+            <h2 class="text-lg font-semibold text-gray-800 mb-4">Statistiques</h2>
+            <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+                <div class="bg-blue-50 p-4 rounded-lg border border-blue-100">
+                    <p class="text-sm text-blue-600">Total cours</p>
+                    <p id="total-count" class="text-2xl font-bold text-gray-800">{{ total_count }}</p>
+                </div>
+                <div class="bg-green-50 p-4 rounded-lg border border-green-100">
+                    <p class="text-sm text-green-600">Actifs</p>
+                    <p id="actif-count" class="text-2xl font-bold text-gray-800">{{ actif_count }}</p>
+                </div>
+                <div class="bg-red-50 p-4 rounded-lg border border-red-100">
+                    <p class="text-sm text-red-600">Inactifs</p>
+                    <p id="inactif-count" class="text-2xl font-bold text-gray-800">{{ inactif_count }}</p>
+                </div>
+                <div class="bg-amber-50 p-4 rounded-lg border border-amber-100">
+                    <p class="text-sm text-amber-600">Enseignants</p>
+                    <p id="enseignant-count" class="text-2xl font-bold text-gray-800">{{ enseignant_count }}</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Options d'exportation -->
+        <div>
+            <h2 class="text-lg font-semibold text-gray-800 mb-4">Options d'exportation</h2>
+            <div class="flex flex-col sm:flex-row gap-4">
+                <!-- Export PDF -->
+                <button id="export-pdf-btn" class="flex-1 px-6 py-3 bg-gray-800 text-white font-medium rounded-lg hover:bg-gray-900 transition-colors flex items-center justify-center gap-2">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+                    </svg>
+                    Exporter PDF
+                </button>
+                
+                <!-- Imprimer -->
+                <button id="print-btn" class="flex-1 px-6 py-3 bg-blue-600 text-white font-medium rounded-lg hover:bg-blue-700 transition-colors flex items-center justify-center gap-2">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"/>
+                    </svg>
+                    Imprimer
+                </button>
+                
+                <!-- Fermer -->
+                <a href="{% url 'cours:cours' %}" class="flex-1 px-6 py-3 bg-gray-200 text-gray-800 font-medium rounded-lg hover:bg-gray-300 transition-colors flex items-center justify-center gap-2">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+                    </svg>
+                    Fermer
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <!-- TABLEAU DES COURS -->
+    <div class="bg-white rounded-xl shadow-md border border-gray-200 overflow-hidden">
+        <div class="px-6 py-4 border-b border-gray-200 bg-gray-50">
+            <h3 class="font-semibold text-gray-800">Liste des cours</h3>
+        </div>
+        
+        <div class="overflow-x-auto">
+            <table class="min-w-full divide-y divide-gray-200">
+                <thead class="bg-gray-50">
+                    <tr>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-700 uppercase tracking-wider">Matière</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-700 uppercase tracking-wider">Classe</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-700 uppercase tracking-wider">Enseignant</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-700 uppercase tracking-wider">Jour</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-700 uppercase tracking-wider">Heures</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-700 uppercase tracking-wider">Salle</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-700 uppercase tracking-wider">Statut</th>
+                    </tr>
+                </thead>
+                <tbody id="cours-tbody" class="bg-white divide-y divide-gray-200">
+                    {% for cours in cours %}
+                    <tr class="hover:bg-gray-50">
+                        <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">{{ cours.matiere.nom_matiere|default:"Non spécifié" }}</td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{{ cours.classe.nom_classe|default:"Non affecté" }}</td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                            {{ cours.enseignant.nom }} {{ cours.enseignant.prenom|default:"Non attribué" }}
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{{ cours.jour }}</td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                            {{ cours.heure_debut }} → {{ cours.heure_fin }}
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{{ cours.salle|default:"—" }}</td>
+                        <td class="px-6 py-4 whitespace-nowrap">
+                            <span class="px-2 py-1 text-xs rounded-full 
+                                {% if cours.statut == 'actif' %}bg-green-100 text-green-800
+                                {% else %}bg-red-100 text-red-800{% endif %}">
+                                {{ cours.statut|title }}
+                            </span>
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="7" class="px-6 py-8 text-center text-gray-500">
+                            Aucun cours trouvé
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- Informations pour impression -->
+    <div class="mt-6 text-sm text-gray-600 text-center">
+        <p>Année académique: <span class="font-medium">{{ annee_actuelle.nom|default:"Non définie" }}</span></p>
+        <p class="mt-1">Document généré le <span id="current-date"></span></p>
+    </div>
+</div>
+
+<!-- SECTION POUR IMPRESSION/PDF (Cachée) -->
+<div id="print-section" class="hidden" style="display: none;">
+    <!-- En-tête avec infos école -->
+    <div style="margin-bottom: 30px; border-bottom: 2px solid #333; padding-bottom: 15px;">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+            <div>
+                <h1 style="font-size: 24px; font-weight: bold; margin: 0; color: #000;">INSTITUT MIXTE JOSEPH FEDANOIR</h1>
+                <p style="margin: 5px 0 0 0; color: #666;">Port-au-Prince, Haïti</p>
+                <p style="margin: 2px 0; color: #666;">Tél: (509) XXXX-XXXX • Email: contact@fedanoir.edu.ht</p>
+            </div>
+            <div style="text-align: right;">
+                <div style="background: #f8f9fa; padding: 10px; border-radius: 5px; border: 1px solid #ddd;">
+                    <p style="margin: 0; font-size: 14px; color: #666;">Année académique</p>
+                    <p style="margin: 0; font-size: 18px; font-weight: bold; color: #000;">{{ annee_actuelle.nom|default:"2024-2025" }}</p>
+                </div>
+            </div>
+        </div>
+        
+        <div style="margin-top: 15px;">
+            <h2 style="font-size: 20px; font-weight: bold; text-align: center; margin: 0; color: #000;">
+                Liste des Cours
+            </h2>
+            <p style="text-align: center; margin: 5px 0; color: #666;">Document généré le <span id="print-date"></span></p>
+        </div>
+    </div>
+
+    <!-- Tableau pour impression -->
+    <table style="width: 100%; border-collapse: collapse; margin-top: 20px;">
+        <thead>
+            <tr style="background-color: #f8f9fa; border-bottom: 2px solid #333;">
+                <th style="padding: 10px; text-align: left; border: 1px solid #ddd; font-weight: bold;">Matière</th>
+                <th style="padding: 10px; text-align: left; border: 1px solid #ddd; font-weight: bold;">Classe</th>
+                <th style="padding: 10px; text-align: left; border: 1px solid #ddd; font-weight: bold;">Enseignant</th>
+                <th style="padding: 10px; text-align: left; border: 1px solid #ddd; font-weight: bold;">Jour</th>
+                <th style="padding: 10px; text-align: left; border: 1px solid #ddd; font-weight: bold;">Heures</th>
+                <th style="padding: 10px; text-align: left; border: 1px solid #ddd; font-weight: bold;">Salle</th>
+                <th style="padding: 10px; text-align: left; border: 1px solid #ddd; font-weight: bold;">Statut</th>
+            </tr>
+        </thead>
+        <tbody id="print-tbody">
+            <!-- Rempli par JavaScript -->
+        </tbody>
+    </table>
+
+    <!-- Pied de page -->
+    <div style="margin-top: 40px; padding-top: 20px; border-top: 1px solid #ddd;">
+        <div style="display: flex; justify-content: space-between;">
+            <div style="width: 50%;">
+                <p style="font-size: 12px; color: #666; margin-bottom: 5px;">Signature et cachet de la Direction</p>
+                <div style="height: 50px; border-top: 1px solid #333;"></div>
+            </div>
+            <div style="text-align: right;">
+                <p style="font-size: 12px; color: #666;">Date d'impression: <span id="print-signature-date"></span></p>
+                <p style="font-size: 10px; color: #999; margin-top: 20px;">© Mixte Joseph Fedanoir - Document confidentiel</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Bibliothèques -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const now = new Date();
+        const dateStr = now.toLocaleDateString('fr-FR', {
+            day: '2-digit',
+            month: '2-digit',
+            year: 'numeric',
+            hour: '2-digit',
+            minute: '2-digit'
+        });
+        
+        document.getElementById('current-date').textContent = dateStr;
+        document.getElementById('print-date').textContent = dateStr;
+        document.getElementById('print-signature-date').textContent = now.toLocaleDateString('fr-FR');
+
+        // Données des cours (korije pou itilize bon atribi)
+        const coursData = [
+            {% for cours in cours %}
+            {
+                matiere: "{{ cours.matiere.nom_matiere|default:'Non spécifié' }}",
+                classe: "{{ cours.classe.nom_classe|default:'Non affecté' }}",
+                enseignant: "{{ cours.enseignant.nom|default:'' }} {{ cours.enseignant.prenom|default:'' }}",
+                jour: "{{ cours.jour }}",
+                heures: "{{ cours.heure_debut }} → {{ cours.heure_fin }}",
+                salle: "{{ cours.salle|default:'—' }}",
+                statut: "{{ cours.statut|title }}"
+            },
+            {% endfor %}
+        ];
+
+        // Préparer données impression
+        function preparePrintData() {
+            const printTbody = document.getElementById('print-tbody');
+            printTbody.innerHTML = '';
+
+            coursData.forEach(c => {
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td style="padding: 8px; border: 1px solid #ddd;">${c.matiere}</td>
+                    <td style="padding: 8px; border: 1px solid #ddd;">${c.classe}</td>
+                    <td style="padding: 8px; border: 1px solid #ddd;">${c.enseignant}</td>
+                    <td style="padding: 8px; border: 1px solid #ddd;">${c.jour}</td>
+                    <td style="padding: 8px; border: 1px solid #ddd;">${c.heures}</td>
+                    <td style="padding: 8px; border: 1px solid #ddd;">${c.salle}</td>
+                    <td style="padding: 8px; border: 1px solid #ddd;">${c.statut}</td>
+                `;
+                printTbody.appendChild(row);
+            });
+        }
+
+        preparePrintData();
+
+        // Imprimer
+        document.getElementById('print-btn').addEventListener('click', function() {
+            window.print();
+        });
+
+        // Exporter PDF
+        document.getElementById('export-pdf-btn').addEventListener('click', async function() {
+            const btn = this;
+            const originalText = btn.innerHTML;
+            btn.innerHTML = '<span>Génération PDF...</span>';
+            btn.disabled = true;
+
+            try {
+                const printSection = document.getElementById('print-section');
+                printSection.style.display = 'block';
+
+                const canvas = await html2canvas(printSection, {
+                    scale: 2,
+                    useCORS: true,
+                    logging: false,
+                    backgroundColor: '#ffffff'
+                });
+
+                printSection.style.display = 'none';
+                const pdf = new jspdf.jsPDF('p', 'mm', 'a4');
+                const imgWidth = 210;
+                const imgHeight = canvas.height * imgWidth / canvas.width;
+
+                pdf.addImage(canvas.toDataURL('image/png'), 'PNG', 0, 0, imgWidth, imgHeight);
+                pdf.save(`liste-cours-${now.toISOString().split('T')[0]}.pdf`);
+
+            } catch (error) {
+                console.error('Erreur PDF:', error);
+                alert('Erreur lors de la génération du PDF: ' + error.message);
+            } finally {
+                btn.innerHTML = originalText;
+                btn.disabled = false;
+                document.getElementById('print-section').style.display = 'none';
+            }
+        });
+    });
+</script>
+{% endblock %}

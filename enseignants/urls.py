@@ -11,4 +11,5 @@ urlpatterns = [
     path('<int:pk>/enseignant_archives/', views.enseignant_archiver, name='enseignant_archives'),
     path('<int:pk>/restaurer/', views.enseignant_restaurer, name='enseignant_restaurer'),
     path('enseignant_archives/', views.enseignant_archives, name='enseignant_archives'),
+    path('exporter/', views.exporter_enseignants, name='exporter_enseignants'),
 ]

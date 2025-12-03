@@ -6,7 +6,7 @@ class Matiere(models.Model):
     code_matiere = models.CharField(
         max_length=20,
         unique=True,
-        blank=True,  # Fè li opsyonèl pou otomatikman mete li
+        blank=True,
         verbose_name="Code Matière"
     )
     nom_matiere = models.CharField(
@@ -26,13 +26,13 @@ class Matiere(models.Model):
 
     # ✅ Tracabilité
     cree_par = models.ForeignKey(
-        settings.AUTH_USER_MODEL,  # <<< chanjman la
+        settings.AUTH_USER_MODEL,
         on_delete=models.SET_NULL,
         null=True, blank=True,
         related_name="matieres_cree"
     )
     modifier_par = models.ForeignKey(
-        settings.AUTH_USER_MODEL,  # <<< chanjman la tou
+        settings.AUTH_USER_MODEL,
         on_delete=models.SET_NULL,
         null=True, blank=True,
         related_name="matieres_modifie"
@@ -51,39 +51,10 @@ class Matiere(models.Model):
         return f"{prefix}-{year}-{next_id:04d}"
 
     def save(self, *args, **kwargs):
-        # Jenerasyon otomatik code_matiere si pa bay
         if not self.code_matiere:
             self.code_matiere = self.generate_code_matiere()
-        self.full_clean()  # Validation konplè
+        self.full_clean()
         super().save(*args, **kwargs)
-    nom_matiere = models.CharField(
-        max_length=100,
-        unique=True,
-        verbose_name="Nom de la Matière"
-    )
-    heure_hebdomadaire = models.PositiveIntegerField(
-        default=0,
-        verbose_name="Heures Hebdomadaires"
-    )
-    statut = models.CharField(
-        max_length=20,
-        choices=[('actif', 'Actif'), ('inactif', 'Inactif')],
-        default='actif'
-    )
-
-    # ✅ Tracabilité
-    cree_par = models.ForeignKey(
-        settings.AUTH_USER_MODEL,  # <<< chanjman la
-        on_delete=models.SET_NULL,
-        null=True, blank=True,
-        related_name="matieres_cree"
-    )
-    modifier_par = models.ForeignKey(
-        settings.AUTH_USER_MODEL,  # <<< chanjman la tou
-        on_delete=models.SET_NULL,
-        null=True, blank=True,
-        related_name="matieres_modifie"
-    )
 
     class Meta:
         verbose_name = "Matière"
@@ -91,7 +62,6 @@ class Matiere(models.Model):
         ordering = ['nom_matiere']
 
     def clean(self):
-        # 🔹 Vérification doublon (sécurisé même si unique=True)
         if Matiere.objects.filter(code_matiere=self.code_matiere).exclude(id=self.id).exists():
             raise ValidationError({"code_matiere": f"Le code {self.code_matiere} est déjà utilisé."})
         if Matiere.objects.filter(nom_matiere__iexact=self.nom_matiere).exclude(id=self.id).exists():
@@ -110,7 +80,7 @@ class HistoriqueMatiere(models.Model):
     ]
     matiere = models.ForeignKey(Matiere, on_delete=models.CASCADE, related_name="historique")
     action = models.CharField(max_length=20, choices=ACTIONS)
-    user = models.ForeignKey(  # <<< chanjman la
+    user = models.ForeignKey(
         settings.AUTH_USER_MODEL,
         on_delete=models.SET_NULL,
         null=True

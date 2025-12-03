@@ -6,100 +6,64 @@
 {% block content %}
 {# messages handled globally by base.html #}
 <div class="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100">
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+  <div class="bg-gradient-to-r from-gray-800 via-gray-700 to-amber-600 shadow-md">
+      <div class="max-w-7xl mx-auto px-3 sm:px-4 lg:px-6 py-4 flex justify-between items-center">
+          <h1 class="text-2xl font-bold text-white">Enseignants Archivés</h1>
+          <a href="{% url 'enseignants:enseignants' %}" class="inline-flex items-center bg-amber-500 hover:bg-amber-600 text-gray-900 px-4 py-2 rounded-lg shadow">
+            ← Retour aux enseignants actifs
+          </a>
+      </div>
+  </div>
 
-        <!-- HEADER -->
-        <div class="bg-gradient-to-r from-gray-800 via-gray-700 to-yellow-600 shadow-xl rounded-2xl mb-8 p-6 flex items-center justify-between">
-            <h1 class="text-3xl font-extrabold text-white flex items-center">
-                <svg class="w-10 h-10 mr-3 text-yellow-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 12h14M12 5l7 7-7 7"></path>
-                </svg>
-                Archives des Enseignants
-            </h1>
-            <a href="{% url 'enseignants:enseignants' %}" class="inline-flex items-center justify-center bg-yellow-500 hover:bg-yellow-400 text-gray-900 font-bold px-6 py-3 rounded-xl shadow-2xl transform hover:scale-105 transition duration-300">
-                ← Retour à la liste
-            </a>
-        </div>
-
-        <!-- FILTRE -->
-        <form method="get" class="mb-6 flex flex-col md:flex-row gap-4 items-center">
-            <input type="text" name="search" value="{{ request.GET.search }}" placeholder="Rechercher par nom ou matricule"
-                   class="w-full md:w-1/3 px-4 py-2 border border-gray-300 rounded-xl focus:ring-2 focus:ring-yellow-500 focus:border-yellow-500 transition-all duration-200">
-            <select name="specialite" class="w-full md:w-1/4 px-4 py-2 border border-gray-300 rounded-xl focus:ring-2 focus:ring-yellow-500 focus:border-yellow-500 transition-all duration-200">
-                <option value="">Toutes les spécialités</option>
-                {% for mat in specialites %}
-                <option value="{{ mat }}" {% if request.GET.specialite == mat %}selected{% endif %}>{{ mat }}</option>
-                {% endfor %}
-            </select>
-            <button type="submit" class="px-6 py-2 bg-yellow-500 hover:bg-yellow-400 text-gray-900 font-semibold rounded-xl shadow-lg transition-all duration-200">
-                Filtrer
-            </button>
-        </form>
-
-   <!-- TABLE ARCHIVES -->
-<div class="bg-white rounded-2xl shadow-xl border border-gray-200 p-6 overflow-x-auto">
-    <table class="min-w-full divide-y divide-gray-200">
-        <thead class="bg-gray-50">
-            <tr>
-                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Matricule</th>
-                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Nom</th>
-                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Matières</th>
-                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Date Recrutement</th>
-                <th class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
-            </tr>
-        </thead>
-        <tbody class="bg-white divide-y divide-gray-200">
-            {% for enseignant in enseignants_archives %}
-            <tr>
-                <td class="px-6 py-4 whitespace-nowrap">{{ enseignant.matricule }}</td>
-                <td class="px-6 py-4 whitespace-nowrap">{{ enseignant.nom }} {{ enseignant.prenom }}</td>
-                <td class="px-6 py-4 whitespace-nowrap">
-                    {% for mat in enseignant.matieres.all %}
-                        <span class="bg-yellow-100 text-yellow-800 px-2 py-1 rounded-full text-xs font-medium mr-1">{{ mat.nom_matiere }}</span>
-                    {% empty %}
-                        <span class="text-gray-400 italic">Aucune</span>
-                    {% endfor %}
-                </td>
-                <td class="px-6 py-4 whitespace-nowrap">{{ enseignant.date_recrutement }}</td>
-                <td class="px-6 py-4 whitespace-nowrap text-center">
-                    <a href="{% url 'enseignants:enseignant_detail' enseignant.id %}" class="text-blue-500 hover:underline mr-4">Voir</a>
-                    <a href="{% url 'enseignants:restaurer_enseignant' enseignant.id %}" class="text-green-500 hover:underline">Restaurer</a>
-                </td>
-            </tr>
-            {% empty %}
-            <tr>
-                <td colspan="5" class="px-6 py-4 text-center text-gray-400">Aucun enseignant archivé</td>
-            </tr>
-            {% endfor %}
-        </tbody>
-    </table>
-</div>
-
-        <!-- PAGINATION -->
-        <div class="mt-6 flex justify-center">
-            <nav class="inline-flex -space-x-px">
-                {% if enseignants_archives.has_previous %}
-                <a href="?page={{ enseignants_archives.previous_page_number }}&search={{ request.GET.search }}&specialite={{ request.GET.specialite }}" class="px-3 py-2 border border-gray-300 rounded-l-md bg-white hover:bg-gray-50">Précédent</a>
-                {% else %}
-                <span class="px-3 py-2 border border-gray-300 rounded-l-md bg-gray-100 text-gray-400 cursor-not-allowed">Précédent</span>
-                {% endif %}
-
-                {% for num in enseignants_archives.paginator.page_range %}
-                    {% if enseignants_archives.number == num %}
-                    <span class="px-3 py-2 border-t border-b border-gray-300 bg-yellow-500 text-white">{{ num }}</span>
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-6">
+      <table class="w-full text-left bg-white rounded-2xl shadow-lg">
+          <thead class="bg-gray-800 text-white">
+              <tr>
+                  <th class="px-6 py-3">Matricule</th>
+                  <th class="px-6 py-3">Nom</th>
+                  <th class="px-6 py-3">Prénom</th>
+                  <th class="px-6 py-3">Matières</th>
+                  <th class="px-6 py-3">Actions</th>
+              </tr>
+          </thead>
+          <tbody>
+              {% for enseignant in enseignants %}
+              <tr class="border-b hover:bg-gray-50 transition">
+                  <td class="px-6 py-3 font-mono">{{ enseignant.matricule }}</td>
+                  <td class="px-6 py-3">{{ enseignant.nom|upper }}</td>
+                  <td class="px-6 py-3">{{ enseignant.prenom|title }}</td>
+                  <td class="px-6 py-3">
+                    {% if enseignant.matieres.exists %}
+                      <div class="flex flex-wrap gap-1">
+                        {% for m in enseignant.matieres.all %}
+                          <span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs bg-amber-100 text-amber-800">
+                            {{ m.nom }}
+                          </span>
+                        {% endfor %}
+                      </div>
                     {% else %}
-                    <a href="?page={{ num }}&search={{ request.GET.search }}&specialite={{ request.GET.specialite }}" class="px-3 py-2 border border-gray-300 bg-white hover:bg-gray-50">{{ num }}</a>
+                      <span class="text-gray-400 italic text-sm">—</span>
                     {% endif %}
-                {% endfor %}
-
-                {% if enseignants_archives.has_next %}
-                <a href="?page={{ enseignants_archives.next_page_number }}&search={{ request.GET.search }}&specialite={{ request.GET.specialite }}" class="px-3 py-2 border border-gray-300 rounded-r-md bg-white hover:bg-gray-50">Suivant</a>
-                {% else %}
-                <span class="px-3 py-2 border border-gray-300 rounded-r-md bg-gray-100 text-gray-400 cursor-not-allowed">Suivant</span>
-                {% endif %}
-            </nav>
-        </div>
-
-    </div>
+                  </td>
+                  <td class="px-6 py-3">
+                      <form action="{% url 'enseignants:enseignant_restaurer' enseignant.id %}" method="POST" style="display:inline;">
+                          {% csrf_token %}
+                          <button 
+                            type="submit" 
+                            class="text-green-600 hover:text-green-800 font-medium"
+                            onclick="return confirm('Voulez-vous vraiment restaurer cet enseignant ?')">
+                            Restaurer
+                          </button>
+                      </form>
+                  </td>
+              </tr>
+              {% empty %}
+              <tr>
+                  <td colspan="5" class="text-center py-6 text-gray-500">Aucun enseignant archivé</td>
+              </tr>
+              {% endfor %}
+          </tbody>
+      </table>
+  </div>
 </div>
 {% endblock %}
