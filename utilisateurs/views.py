@@ -125,7 +125,7 @@ def dashboard(request):
         'users_online': users_online,
         
         # Inscriptions recentes validees
-        'inscriptions_recentes': Inscription.objects.filter(statut='aktif').order_by('-date_created')[:5],
+        'inscriptions_recentes': Inscription.objects.filter(statut='actif').order_by('-date_created')[:5],
       
         # Estatistik pou bar progresyon
         'taux_presence': 85,

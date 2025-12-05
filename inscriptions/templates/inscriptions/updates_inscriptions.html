@@ -184,7 +184,7 @@
                         <select name="statut" id="id_statut" required
                             class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-yellow-500 focus:border-transparent transition-all text-sm">
                             <option value="pre-inscrit" {% if form.statut.value == 'pre-inscrit' %}selected{% endif %}>⏳ Pré-inscrit</option>
-                            <option value="aktif" {% if form.statut.value == 'aktif' %}selected{% endif %}>🟢 Actif</option>
+                            <option value="actif" {% if form.statut.value == 'actif' %}selected{% endif %}>🟢 Actif</option>
                             <option value="refize" {% if form.statut.value == 'refize' %}selected{% endif %}>❌ Refusé</option>
                         </select>
                     </div>

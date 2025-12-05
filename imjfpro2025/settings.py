@@ -94,6 +94,9 @@ INSTALLED_APPS = [
     'parametre',
 ]
 
+# Default model used by django-auditlog (prevents AttributeError if missing)
+AUDITLOG_LOGENTRY_MODEL = 'auditlog.LogEntry'
+
 
 # ===============================================================
 # 7️⃣  PASSWORD VALIDATORS

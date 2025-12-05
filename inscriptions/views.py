@@ -121,8 +121,48 @@ def inscription_create(request):
 
             inscription = form.save(commit=False)
             inscription.cree_par = request.user
-            inscription.statut = 'pre-inscrit'
+
+            # Si kreye pa admin oswa directeur, valide otomatikman
+            if request.user.role in ['admin', 'directeur']:
+                inscription.statut = 'actif'
+            else:
+                inscription.statut = 'pre-inscrit'
+
             inscription.save()
+            # Si inscription valide otomatikman (eg. kreye pa admin/directeur), kreye Eleve imedyatman
+            if inscription.statut == 'actif' and not inscription.eleve:
+                try:
+                    # verifye pa yon enseignant
+                    if Enseignant.objects.filter(
+                        nom__iexact=inscription.nom.strip(),
+                        prenom__iexact=inscription.prenom.strip(),
+                        date_naissance=inscription.date_naissance
+                    ).exists():
+                        messages.error(request, "Impossible d'enregistrer l'élève : cette personne est déjà enregistrée comme enseignant.")
+                    else:
+                        matricule = generer_matricule()
+                        eleve = Eleve.objects.create(
+                            matricule=matricule,
+                            nom=inscription.nom,
+                            prenom=inscription.prenom,
+                            date_naissance=inscription.date_naissance,
+                            lieu_naissance=inscription.lieu_naissance,
+                            sexe=inscription.sexe,
+                            adresse=inscription.adresse,
+                            niveau=inscription.niveau,
+                            classe_actuelle=inscription.classe,
+                            statut='actif'
+                        )
+                        inscription.eleve = eleve
+                        inscription.save()
+                        HistoriqueClasses.objects.create(
+                            eleve=eleve,
+                            classe=inscription.classe,
+                            annee_scolaire=inscription.annee_scolaire
+                        )
+                except Exception:
+                    # Si gen erè, pa fè rollback men log mesaj
+                    pass
             # Create notifications for admin and directeur so they can validate
             try:
                 target_url = reverse('inscriptions:afficher_inscription', args=[inscription.pk])
@@ -190,7 +230,7 @@ def inscription_update(request, pk):
             inscription = form.save()
 
             # Si validé oswa aktif, kreye Eleve otomatikman
-            if inscription.statut in ['validé', 'aktif'] and not inscription.eleve:
+            if inscription.statut in ['validé', 'actif'] and not inscription.eleve:
                 # Before creating Eleve, ensure this person is not registered as an Enseignant
                 try:
                     if Enseignant.objects.filter(
@@ -309,7 +349,7 @@ def inscription_valider(request, pk):
     )
 
     inscription.eleve = eleve
-    inscription.statut = 'aktif'
+    inscription.statut = 'actif'
     inscription.save()
 
     # Mete istorik otomatik

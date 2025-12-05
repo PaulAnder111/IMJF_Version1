@@ -66,7 +66,7 @@
                         <td class="px-6 py-4">
                             <div class="flex items-center gap-3">
                                 {% if user.photo %}
-                                    <img src="{{ user.photo.url }}" alt="Profil" class="w-10 h-10 rounded-full object-cover border border-gray-300" onerror="this.style.display='none'; this.parentNode.querySelector('.initial-fallback').style.display='flex'">
+                                    <img src="{{ user.avatar_url }}" alt="Profil" class="w-10 h-10 rounded-full object-cover border border-gray-300" onerror="this.style.display='none'; this.parentNode.querySelector('.initial-fallback').style.display='flex'">
                                     <div class="initial-fallback w-10 h-10 rounded-full bg-gradient-to-br from-blue-400 to-purple-500 flex items-center justify-center text-white font-semibold text-xs" style="display:none;">
                                         {{ user.initial }}
                                     </div>

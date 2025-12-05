@@ -68,7 +68,7 @@
                 <!-- Foto itilizatè -->
                 <div class="col-span-2 flex items-center space-x-4 mb-4">
                     {% if user.photo %}
-                        <img id="photoPreview" src="{{ user.photo.url }}" alt="Profil" class="w-16 h-16 rounded-full object-cover border border-gray-300" onerror="this.style.display='none'; this.parentNode.querySelector('.initial-fallback').style.display='flex'">
+                        <img id="photoPreview" src="{{ user.avatar_url }}" alt="Profil" class="w-16 h-16 rounded-full object-cover border border-gray-300" onerror="this.style.display='none'; this.parentNode.querySelector('.initial-fallback').style.display='flex'">
                         <div class="initial-fallback" style="display:none; width:64px; height:64px; align-items:center; justify-content:center;">
                             <span class="text-lg font-semibold">{{ user.initial }}</span>
                         </div>
