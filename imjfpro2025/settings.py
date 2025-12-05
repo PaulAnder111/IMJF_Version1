@@ -92,6 +92,8 @@ INSTALLED_APPS = [
     'classes',
     'inscriptions',
     'parametre',
+    # Storage for production (S3) - django-storages
+    'storages',
 ]
 
 # Default model used by django-auditlog (prevents AttributeError if missing)
@@ -260,3 +262,31 @@ DATA_UPLOAD_MAX_NUMBER_FIELDS = 1000
 # 1️⃣7️⃣  DEFAULT PRIMARY KEY (bon pratik Django 3.2+)
 # ===============================================================
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+
+# ------------------ S3 / django-storages configuration ------------------
+# Enable S3-backed media storage by setting USE_S3=1 in environment.
+USE_S3 = str(get_env_setting('USE_S3', '0')).lower() in ('1', 'true', 'yes')
+
+if USE_S3:
+    # Use django-storages S3 backend for uploaded files
+    DEFAULT_FILE_STORAGE = 'storages.backends.s3boto3.S3Boto3Storage'
+
+    AWS_ACCESS_KEY_ID = get_env_setting('AWS_ACCESS_KEY_ID', required=True)
+    AWS_SECRET_ACCESS_KEY = get_env_setting('AWS_SECRET_ACCESS_KEY', required=True)
+    AWS_STORAGE_BUCKET_NAME = get_env_setting('AWS_STORAGE_BUCKET_NAME', required=True)
+    AWS_S3_REGION_NAME = get_env_setting('AWS_S3_REGION_NAME', '')
+    # Optional custom domain (CloudFront)
+    AWS_S3_CUSTOM_DOMAIN = get_env_setting('AWS_S3_CUSTOM_DOMAIN', f"{AWS_STORAGE_BUCKET_NAME}.s3.amazonaws.com")
+
+    # Recommended: do not use canned ACLs
+    AWS_DEFAULT_ACL = None
+    AWS_S3_OBJECT_PARAMETERS = {
+        'CacheControl': 'max-age=86400',
+    }
+
+    MEDIA_URL = f'https://{AWS_S3_CUSTOM_DOMAIN}/'
+else:
+    # Local filesystem fallback (already defined above)
+    MEDIA_URL = MEDIA_URL
+    MEDIA_ROOT = MEDIA_ROOT
