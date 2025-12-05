@@ -92,7 +92,25 @@ class CustomUser(AbstractUser, BaseModel):
     # ✅ Fonksyon pou entèfas (UI)
     @property
     def avatar_url(self):
-        return self.photo.url if self.photo else '/static/img/default_avatar.png'
+        # Return a safe URL for the avatar. If the stored file no longer exists
+        # fall back to a static default avatar to avoid 404s in the UI.
+        from django.core.files.storage import default_storage
+        from django.templatetags.static import static
+
+        # Use SVG default placed in `utilisateurs/static/img/default_avatar.svg`
+        default_avatar = static('img/default_avatar.svg')
+        try:
+            if self.photo and getattr(self.photo, 'name', None):
+                # default_storage.exists works for local filesystem and S3 backends
+                if default_storage.exists(self.photo.name):
+                    return self.photo.url
+                else:
+                    return default_avatar
+        except Exception:
+            # In case of any storage error, return default avatar
+            return default_avatar
+
+        return default_avatar
 
     @property
     def initial(self):

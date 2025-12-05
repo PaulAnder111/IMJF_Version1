@@ -1,4 +1,5 @@
 {% extends "utilisateurs/base.html" %}
+{% load static %}
 
 {% block title %}Exportation Élèves - SYGEE{% endblock %}
 
@@ -25,12 +26,30 @@
     }
 </style>
 
-<!-- HEADER SENP -->
+<!-- HEADER ECOLE: logo at side + centered info -->
 <div class="bg-gradient-to-r from-gray-900 to-gray-800 py-6 px-4 text-white mb-8">
     <div class="max-w-7xl mx-auto">
-        <div class="text-center">
-            <h1 class="text-2xl font-bold mb-2">Exportation des Élèves</h1>
-            <p class="text-gray-300">Sélectionnez une classe et exportez les données</p>
+        <div class="flex items-center justify-center gap-6">
+            <!-- Logo on the left -->
+            <div class="flex-shrink-0">
+                <img src="{% static 'utilisateurs/img/school_logo.svg' %}" alt="Logo école" style="width:84px; height:84px; object-fit:contain;" />
+            </div>
+
+            <!-- Centered school information -->
+            <div class="text-center">
+                <h1 class="text-2xl font-bold mb-1">Institution Mixte Joseph Fedanoir</h1>
+                <p class="text-sm text-gray-200 mb-1">Adresse: Milot Bossard</p>
+                <p class="text-sm text-gray-200 mb-0">Téléphone: +509 40108110</p>
+                <p class="text-sm text-gray-200">Gmail: imjfinstitutionmixtejosephfeda2gmail.com</p>
+            </div>
+
+            <!-- Optional right spacer / year box (kept for layout symmetry) -->
+            <div class="flex-shrink-0 hidden md:block" style="width:84px; height:84px;"></div>
+        </div>
+
+        <!-- Subtitle for export actions -->
+        <div class="mt-4 text-center">
+            <p class="text-gray-300">Exportation des élèves — sélectionnez une classe et choisissez une option</p>
         </div>
     </div>
 </div>
@@ -112,7 +131,13 @@
     <!-- TABLEAU DES ÉLÈVES -->
     <div class="bg-white rounded-xl shadow-md border border-gray-200 overflow-hidden">
         <div class="px-6 py-4 border-b border-gray-200 bg-gray-50">
-            <h3 id="table-title" class="font-semibold text-gray-800">Liste des élèves</h3>
+            <h3 id="table-title" class="font-semibold text-gray-800">
+                {% if selected_classe %}
+                    liste de la classes {{ selected_classe.nom_classe|lower }}{% if annee_actuelle %} annee {{ annee_actuelle.nom }}{% endif %}
+                {% else %}
+                    liste de la classes toutes{% if annee_actuelle %} annee {{ annee_actuelle.nom }}{% endif %}
+                {% endif %}
+            </h3>
         </div>
         
         <div class="overflow-x-auto">
@@ -129,7 +154,7 @@
                     </tr>
                 </thead>
                 <tbody id="eleves-tbody" class="bg-white divide-y divide-gray-200">
-                    {% for eleve in eleves %}
+                    {% for eleve in page_obj %}
                     <tr class="hover:bg-gray-50" data-classe="{{ eleve.classe_actuelle.id|default:'' }}">
                         <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">{{ eleve.nom }}</td>
                         <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{{ eleve.prenom }}</td>
@@ -162,6 +187,33 @@
         </div>
     </div>
 
+    <!-- Pagination controls -->
+    <div class="max-w-6xl mx-auto px-4 mt-4">
+        {% if page_obj and page_obj.paginator.num_pages > 1 %}
+        <nav class="flex items-center justify-center space-x-2" aria-label="Pagination">
+            {% if page_obj.has_previous %}
+                <a href="?{% if selected_classe %}classe={{ selected_classe.id }}&{% endif %}page={{ page_obj.previous_page_number }}" class="px-3 py-1 bg-gray-200 rounded hover:bg-gray-300">Précédent</a>
+            {% else %}
+                <span class="px-3 py-1 bg-gray-100 text-gray-400 rounded">Précédent</span>
+            {% endif %}
+
+            {% for num in page_obj.paginator.page_range %}
+                {% if num == page_obj.number %}
+                    <span class="px-3 py-1 bg-blue-600 text-white rounded">{{ num }}</span>
+                {% else %}
+                    <a href="?{% if selected_classe %}classe={{ selected_classe.id }}&{% endif %}page={{ num }}" class="px-3 py-1 bg-gray-200 rounded hover:bg-gray-300">{{ num }}</a>
+                {% endif %}
+            {% endfor %}
+
+            {% if page_obj.has_next %}
+                <a href="?{% if selected_classe %}classe={{ selected_classe.id }}&{% endif %}page={{ page_obj.next_page_number }}" class="px-3 py-1 bg-gray-200 rounded hover:bg-gray-300">Suivant</a>
+            {% else %}
+                <span class="px-3 py-1 bg-gray-100 text-gray-400 rounded">Suivant</span>
+            {% endif %}
+        </nav>
+        {% endif %}
+    </div>
+
     <!-- Informations pour impression -->
     <div class="mt-6 text-sm text-gray-600 text-center">
         <p>Année académique: <span class="font-medium">{{ annee_actuelle.nom|default:"Non définie" }}</span></p>
@@ -171,27 +223,37 @@
 
 <!-- SECTION POUR IMPRESSION/PDF (Cachée) -->
 <div id="print-section" class="hidden" style="display: none;">
-    <!-- Entête simple pour impression -->
+    <!-- Entête simple pour impression (avec logo et informations centrées) -->
     <div style="margin-bottom: 30px; border-bottom: 2px solid #333; padding-bottom: 15px;">
-        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
-            <div>
-                <h1 style="font-size: 24px; font-weight: bold; margin: 0; color: #000;">INSTITUT MIXTE JEAN-FRANÇOIS</h1>
-                <p style="margin: 5px 0 0 0; color: #666;">123, Avenue de l'Éducation • Port-au-Prince, Haïti</p>
-                <p style="margin: 2px 0; color: #666;">Tél: (509) 2222-4444 • Email: contact@imjf.edu.ht</p>
+        <div style="display:flex; align-items:center; justify-content:space-between; gap:10px; margin-bottom:10px;">
+            <div style="flex:0 0 90px;">
+                <img src="{% static 'utilisateurs/img/school_logo.svg' %}" alt="Logo école" style="width:84px; height:84px; object-fit:contain; display:block;" />
             </div>
-            <div style="text-align: right;">
-                <div style="background: #f8f9fa; padding: 10px; border-radius: 5px; border: 1px solid #ddd;">
-                    <p style="margin: 0; font-size: 14px; color: #666;">Année académique</p>
-                    <p style="margin: 0; font-size: 18px; font-weight: bold; color: #000;">{{ annee_actuelle.nom|default:"2024-2025" }}</p>
+
+            <div style="flex:1; text-align:center;">
+                <h1 style="font-size:22px; font-weight:bold; margin:0; color:#000;">Institution Mixte Joseph Fedanoir</h1>
+                <p style="margin:6px 0 0 0; color:#666;">Adresse: Milot Bossard</p>
+                <p style="margin:2px 0 0 0; color:#666;">Tél: +509 40108110</p>
+                <p style="margin:2px 0 0 0; color:#666;">Gmail: imjfinstitutionmixtejosephfeda2gmail.com</p>
+            </div>
+
+            <div style="flex:0 0 140px; text-align:right;">
+                <div style="background:#f8f9fa; padding:10px; border-radius:5px; border:1px solid #ddd; display:inline-block;">
+                    <p style="margin:0; font-size:14px; color:#666;">Année académique</p>
+                    <p style="margin:0; font-size:18px; font-weight:bold; color:#000;">{{ annee_actuelle.nom|default:"2024-2025" }}</p>
                 </div>
             </div>
         </div>
-        
+
         <div style="margin-top: 15px;">
-            <h2 id="print-title" style="font-size: 20px; font-weight: bold; text-align: center; margin: 0; color: #000;">
-                Liste des élèves - Toutes les classes
+            <h2 id="print-title" style="font-size:20px; font-weight:bold; text-align:center; margin:0; color:#000;">
+                {% if selected_classe %}
+                    liste de la classes {{ selected_classe.nom_classe|lower }}{% if annee_actuelle %} annee {{ annee_actuelle.nom }}{% endif %}
+                {% else %}
+                    liste de la classes toutes{% if annee_actuelle %} annee {{ annee_actuelle.nom }}{% endif %}
+                {% endif %}
             </h2>
-            <p style="text-align: center; margin: 5px 0; color: #666;">Document généré le <span id="print-date"></span></p>
+            <p style="text-align:center; margin:5px 0; color:#666;">Document généré le <span id="print-date"></span></p>
         </div>
     </div>
 

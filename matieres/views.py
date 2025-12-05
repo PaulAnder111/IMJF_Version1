@@ -21,10 +21,18 @@ def matiere_list(request):
         )
 
     # 🧮 Estatistik
-    total_matieres = Matiere.objects.count()
-    matieres_actives = Matiere.objects.filter(statut='actif').count()
-    matieres_inactives = Matiere.objects.filter(statut='inactif').count()
-    total_heures = Matiere.objects.aggregate(total=Sum('heure_hebdomadaire'))['total'] or 0
+    # Consolidate counts into a single aggregate
+    from django.db.models import Count, Q
+    agg = Matiere.objects.aggregate(
+        total=Count('id'),
+        actives=Count('id', filter=Q(statut='actif')),
+        inactives=Count('id', filter=Q(statut='inactif')),
+        total_heures=Sum('heure_hebdomadaire')
+    )
+    total_matieres = agg.get('total', 0) or 0
+    matieres_actives = agg.get('actives', 0) or 0
+    matieres_inactives = agg.get('inactives', 0) or 0
+    total_heures = agg.get('total_heures', 0) or 0
 
     return render(request, 'matieres/matieres.html', {
         'matieres': matieres,

@@ -1,5 +1,6 @@
 from django.db import models
 from django.utils import timezone
+from django.core.exceptions import ValidationError
 from classes.models import Classe
 from utilisateurs.models import CustomUser
 from eleves.models import Eleve
@@ -83,6 +84,12 @@ class Inscription(BaseModel):
     # === Logique métier principale ===
     def save(self, *args, **kwargs):
         from inscriptions.models import HistoriqueClasses  # evite circular import
+        # Ensure model validations run even when saving programmatically
+        try:
+            self.full_clean()
+        except ValidationError:
+            # Re-raise so callers can catch or so Django surfaces errors
+            raise
 
         # Empêcher double inscription d'un élève dans la même année
         if Inscription.objects.filter(
@@ -112,3 +119,76 @@ class Inscription(BaseModel):
                 annee_scolaire=self.annee_scolaire,
                 defaults={'date_debut': timezone.now().date()}
             )
+
+    def clean(self):
+        """
+        Model-level validation to prevent:
+        - registering a person already present as an Enseignant
+        - duplicate inscription for same person/year
+        - registering a person already an Eleve for the same school year
+        """
+        # avoid circular imports at module import time
+        from enseignants.models import Enseignant
+        from eleves.models import Eleve
+
+        if self.nom and self.prenom and self.date_naissance:
+            # 1) Person already a teacher?
+            if Enseignant.objects.filter(
+                nom__iexact=self.nom.strip(),
+                prenom__iexact=self.prenom.strip(),
+                date_naissance=self.date_naissance
+            ).exists():
+                raise ValidationError("Impossible d'enregistrer : cette personne est déjà enregistrée comme enseignant.")
+
+            # 2) Duplicate inscription for same year
+            if Inscription.objects.filter(
+                nom__iexact=self.nom.strip(),
+                prenom__iexact=self.prenom.strip(),
+                date_naissance=self.date_naissance,
+                annee_scolaire=self.annee_scolaire
+            ).exclude(pk=self.pk).exists():
+                raise ValidationError("L'élève est déjà inscrit pour cette année scolaire.")
+
+            # 3) Person already an Eleve with history for that year
+            eleve_qs = Eleve.objects.filter(
+                nom__iexact=self.nom.strip(),
+                prenom__iexact=self.prenom.strip(),
+                date_naissance=self.date_naissance
+            )
+            if eleve_qs.exists():
+                eleve = eleve_qs.first()
+                from inscriptions.models import HistoriqueClasses as HC
+                if HC.objects.filter(eleve=eleve, annee_scolaire=self.annee_scolaire).exists():
+                    raise ValidationError("Cet élève est déjà inscrit pour cette année scolaire.")
+            # === Age-based rules by niveau ===
+            # Compute reference date for age calculation: use date_inscription if present, else today
+            try:
+                ref_date = self.date_inscription or timezone.now().date()
+            except Exception:
+                ref_date = timezone.now().date()
+
+            # Helper: compute age in years at ref_date
+            def _age(birth, ref):
+                years = ref.year - birth.year
+                if (ref.month, ref.day) < (birth.month, birth.day):
+                    years -= 1
+                return years
+
+            age = _age(self.date_naissance, ref_date)
+
+            niveau_val = (self.niveau or '').strip().lower()
+            # 7ème année should be at least 11 years old
+            if any(x in niveau_val for x in ['7', '7eme', '7ème', 'sept']):
+                if age < 11:
+                    raise ValidationError("Âge invalide : un élève de 7ème doit avoir au moins 11 ans.")
+
+            # NSI / NSII / NSIV rules
+            if 'nsi' in niveau_val:
+                if age < 15:
+                    raise ValidationError("Âge invalide : NSI nécessite au moins 15 ans.")
+            if 'nsii' in niveau_val or 'nsii' in (self.niveau or '').lower():
+                if age < 16:
+                    raise ValidationError("Âge invalide : NSII nécessite au moins 16 ans.")
+            if 'nsiv' in niveau_val:
+                if age < 17:
+                    raise ValidationError("Âge invalide : NSIV nécessite au moins 17 ans.")

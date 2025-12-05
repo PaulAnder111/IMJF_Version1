@@ -67,9 +67,16 @@ def exporter_cours(request):
 @login_required
 def cours_list(request):
     cours = Cours.objects.select_related('matiere', 'classe', 'enseignant').order_by('-id')
-    total_cours = Cours.objects.count()
-    cours_actifs = Cours.objects.filter(statut='actif').count()
-    cours_inactifs = Cours.objects.filter(statut='inactif').count()
+    # Regrouper les comptages en une seule agrégation
+    from django.db.models import Count, Q
+    cours_totals = Cours.objects.aggregate(
+        total=Count('id'),
+        actifs=Count('id', filter=Q(statut='actif')),
+        inactifs=Count('id', filter=Q(statut='inactif')),
+    )
+    total_cours = cours_totals.get('total', 0) or 0
+    cours_actifs = cours_totals.get('actifs', 0) or 0
+    cours_inactifs = cours_totals.get('inactifs', 0) or 0
     total_enseignants = Enseignant.objects.filter(statut='actif').count()
     classes = Classe.objects.all()
     return render(request, 'cours/cours.html', {

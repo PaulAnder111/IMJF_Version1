@@ -15,6 +15,7 @@ from .decorators import admin_required
 from django.utils import timezone
 from datetime import timedelta
 from django.db.models import Count, Q
+from django.core.cache import cache
 from inscriptions.models import Inscription
 from eleves.models import Eleve
 from enseignants.models import Enseignant
@@ -103,37 +104,45 @@ def dashboard(request):
     
     today = timezone.now().date()
     last_7_days = today - timedelta(days=7)
-    
+
     # Kalkile utilisateurs enligne (active sessions - real-time)
     users_online = UserSession.objects.filter(is_active=True).count()
-    
-    # Kalkile tout estatistik yo
+
+    # Utiliser le cache pour les compteurs lourds (TTL = 300s)
+    cache_key = 'dashboard_stats_v1'
+    stats = cache.get(cache_key)
+    if stats is None:
+        stats = {
+            'inscriptions_count': Inscription.objects.count(),
+            'eleves_count': Eleve.objects.count(),
+            'enseignants_count': Enseignant.objects.count(),
+            'classes_count': Classe.objects.count(),
+            'matieres_count': Matiere.objects.count(),
+            'cours_count': Cours.objects.count(),
+            'secretaires_count': User.objects.filter(role='secretaire').count(),
+            'directeurs_count': User.objects.filter(role='directeur').count(),
+            'archives_count': User.objects.filter(role='archives').count(),
+            'users_count': User.objects.count(),
+        }
+        cache.set(cache_key, stats, 300)
+
+    # Inscriptions recentes (toujours live, limitées)
+    recent_inscriptions = Inscription.objects.filter(statut='actif').select_related('classe', 'eleve', 'cree_par').order_by('-date_created')[:5]
+
+    # Estatistik pou bar progresyon (valeurs placeholder)
+    taux_presence = 85
+    classes_actives = 92
+    satisfaction = 78
+    performance_academique = 88
+
     context = {
-        # Estatistik fondamantal
-        'inscriptions_count': Inscription.objects.count(),
-        'eleves_count': Eleve.objects.count(),
-        'enseignants_count': Enseignant.objects.count(),
-        'classes_count': Classe.objects.count(),
-        'matieres_count': Matiere.objects.count(),
-        'cours_count': Cours.objects.count(),
-        
-        #Estatistik itilizatè
-        'secretaires_count': get_user_model().objects.filter(role='secretaire').count(),
-        'directeurs_count': get_user_model().objects.filter(role='directeur').count(),
-        'archives_count': get_user_model().objects.filter(role='archives').count(),
-        'users_count': get_user_model().objects.count(),
+        **stats,
         'users_online': users_online,
-        
-        # Inscriptions recentes validees
-        'inscriptions_recentes': Inscription.objects.filter(statut='actif').order_by('-date_created')[:5],
-      
-        # Estatistik pou bar progresyon
-        'taux_presence': 85,
-        'classes_actives': 92,
-        'satisfaction': 78,
-        'performance_academique': 88,
-        
-       
+        'inscriptions_recentes': recent_inscriptions,
+        'taux_presence': taux_presence,
+        'classes_actives': classes_actives,
+        'satisfaction': satisfaction,
+        'performance_academique': performance_academique,
     }
     
     return render(request, 'utilisateurs/dash_admin.html', context)

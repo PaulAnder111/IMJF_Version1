@@ -19,10 +19,8 @@ import random
 def exportation_eleves(request):
     classe_id = request.GET.get('classe')
 
-    try:
-        annee_actuelle = AnneeScolaire.objects.get(est_annee_courante=True)
-    except AnneeScolaire.DoesNotExist:
-        annee_actuelle = None
+    # Use the model helper which returns the current year or creates a sensible default
+    annee_actuelle = AnneeScolaire.get_annee_courante()
 
     base_eleves = Eleve.objects.select_related(
         'classe_actuelle', 
@@ -35,26 +33,51 @@ def exportation_eleves(request):
 
     if classe_id:
         eleves = base_eleves.filter(classe_actuelle__id=classe_id)
+        try:
+            selected_classe = Classe.objects.get(id=classe_id)
+        except Classe.DoesNotExist:
+            selected_classe = None
     else:
         eleves = base_eleves
 
+    # Exclude archived ('radié') by default from exports; allow explicit statut filter via GET
+    statut_filter = request.GET.get('statut', '')
+    if statut_filter:
+        eleves = eleves.filter(statut=statut_filter)
+    else:
+        eleves = eleves.exclude(statut='radié')
+
     eleves = eleves.order_by('nom', 'prenom')
 
-    total_count = eleves.count()
-    actif_count = eleves.filter(statut='actif').count()
-    suspendu_count = eleves.filter(statut='suspendu').count()
-    radie_count = eleves.filter(statut='radié').count()
+    # Consolidate counts into a single aggregate to reduce DB round-trips
+    from django.db.models import Count, Q
+    aggregated = eleves.aggregate(
+        total=Count('id'),
+        actifs=Count('id', filter=Q(statut='actif')),
+        suspendus=Count('id', filter=Q(statut='suspendu')),
+        radies=Count('id', filter=Q(statut='radié')),
+    )
+    total_count = aggregated.get('total', 0) or 0
+    actif_count = aggregated.get('actifs', 0) or 0
+    suspendu_count = aggregated.get('suspendus', 0) or 0
+    radie_count = aggregated.get('radies', 0) or 0
+
+    # Pagination: show 5 élèves per page in the export modal
+    paginator = Paginator(eleves, 5)
+    page_number = request.GET.get('page')
+    page_obj = paginator.get_page(page_number)
 
     classes = Classe.objects.filter(statut='actif').order_by('nom_classe')
-
     return render(request, 'export_modal.html', {
         'eleves': eleves,
+        'page_obj': page_obj,
         'classes': classes,
         'annee_actuelle': annee_actuelle,
         'total_count': total_count,
         'actif_count': actif_count,
         'suspendu_count': suspendu_count,
         'radie_count': radie_count,
+        'selected_classe': locals().get('selected_classe', None),
     })
 
 
@@ -83,10 +106,14 @@ def eleves_list(request):
         eleves = eleves.filter(Q(nom__icontains=search_query) | Q(prenom__icontains=search_query))
     if statut_filter:
         eleves = eleves.filter(statut=statut_filter)
+    else:
+        # By default, exclude archived/radié students from the public list.
+        eleves = eleves.exclude(statut='radié')
     if classe_filter:
         eleves = eleves.filter(classe_actuelle__id=classe_filter)
 
-    paginator = Paginator(eleves.order_by('nom'), 10)
+    # Pagination: 5 élèves per page as requested
+    paginator = Paginator(eleves.order_by('nom'), 5)
     page_number = request.GET.get('page')
     page_obj = paginator.get_page(page_number)
 
@@ -264,23 +291,25 @@ def eleve_update(request, pk):
 # -------------------- ARCHIVER --------------------
 @role_required(['admin', 'directeur', 'secretaire'])
 def eleve_archiver(request, pk):
-    eleve = get_object_or_404(Eleve, pk=pk)
-    if eleve.statut == 'archive':
+    # Use all_objects to ensure we can find the record even if it's already archived
+    eleve = get_object_or_404(Eleve.all_objects, pk=pk)
+    if eleve.statut == 'radié':
         messages.warning(request, "Cet élève est déjà archivé.")
-    else:
-        eleve.statut = 'archive'
-        eleve.save()
-        messages.success(request, f"L'élève {eleve.nom} {eleve.prenom} a été archivé.")
+        return redirect('eleves:eleve_list')
+
+    # Update via queryset.update() to avoid triggering model.full_clean()/validation
+    Eleve.all_objects.filter(pk=pk).update(statut='radié')
+    messages.success(request, f"L'élève {eleve.nom} {eleve.prenom} a été archivé.")
     return redirect('eleves:eleve_list')
 
 
 # -------------------- RESTAURER --------------------
 @role_required(['admin', 'directeur'])
 def eleve_restaurer(request, pk):
-    eleve = get_object_or_404(Eleve, pk=pk)
-    if eleve.statut == 'archive':
-        eleve.statut = 'actif'
-        eleve.save()
+    # Use all_objects in case the student is archived (default manager excludes radié)
+    eleve = get_object_or_404(Eleve.all_objects, pk=pk)
+    if eleve.statut == 'radié':
+        Eleve.all_objects.filter(pk=pk).update(statut='actif')
         messages.success(request, f"✅ L'élève {eleve.nom} {eleve.prenom} a été restauré.")
     return redirect('eleves:eleve_list')
 
@@ -288,7 +317,8 @@ def eleve_restaurer(request, pk):
 # -------------------- LISTE ARCHIVES OPTIMIZÉE --------------------
 @login_required
 def eleve_archives(request):
-    eleves = Eleve.objects.filter(statut='archive').select_related('classe_actuelle')
+    # Use all_objects to retrieve archived students because default manager excludes them
+    eleves = Eleve.all_objects.filter(statut='radié').select_related('classe_actuelle')
     
     # KORIKSYON: Chanje 'est_actuelle' pou 'est_annee_courante'
     try:
@@ -296,8 +326,13 @@ def eleve_archives(request):
     except AnneeScolaire.DoesNotExist:
         annee_actuelle = None
         
+    # Paginate archived list as well (5 per page)
+    paginator = Paginator(eleves.order_by('nom'), 5)
+    page_number = request.GET.get('page')
+    page_obj = paginator.get_page(page_number)
+
     return render(request, 'eleve_archiver.html', {
-        'eleves': eleves,
+        'eleves': page_obj,
         'annee_actuelle': annee_actuelle
     })
 

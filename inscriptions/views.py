@@ -194,13 +194,13 @@ def inscription_create(request):
 # --- LIST ---
 @login_required
 def inscription_list(request):
-    inscriptions = Inscription.objects.all().order_by('-date_created')
+    inscriptions = Inscription.objects.select_related('classe', 'eleve', 'cree_par').all().order_by('-date_created')
     return render(request, 'inscriptions/inscription_list.html', {'inscriptions': inscriptions})
 
 # --- DETAIL ---
 @login_required
 def inscription_detail(request, pk):
-    inscription = get_object_or_404(Inscription, pk=pk)
+    inscription = get_object_or_404(Inscription.objects.select_related('classe', 'eleve', 'cree_par'), pk=pk)
     return render(request, 'inscriptions/afficher_inscription.html', {'inscription': inscription})
 
 # --- UPDATE ---

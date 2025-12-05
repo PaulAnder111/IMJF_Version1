@@ -6,7 +6,7 @@ import csv
 
 @login_required
 def historique_list(request):
-    actions = HistoriqueAction.objects.select_related('user').all()
+    actions = HistoriqueAction.objects.select_related('user').all().order_by('-date_action')
 
     # --- Filtrage selon GET params ---
     model_filter = request.GET.get('model')
@@ -51,7 +51,7 @@ def historique_list(request):
 
 @login_required
 def export_csv(request):
-    actions = HistoriqueAction.objects.select_related('user').all()
+    actions = HistoriqueAction.objects.select_related('user').all().order_by('-date_action')
 
     # --- Récupération des filtres ---
     model_filter = request.GET.get('model')

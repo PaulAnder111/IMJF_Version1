@@ -2,7 +2,8 @@ from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib import messages
 from django.core.paginator import Paginator 
 from django.contrib.auth.decorators import login_required
-from django.db.models import Q
+from django.db.models import Q, Count
+from django.core.cache import cache
 
 from utilisateurs.decorators import role_required
 from .forms import EnseignantForm
@@ -27,10 +28,23 @@ def exporter_enseignants(request):
 
     enseignants = base_enseignants.order_by('nom', 'prenom')
 
-    total_count = enseignants.count()
-    actif_count = enseignants.filter(statut='actif').count()
-    conge_count = enseignants.filter(statut='conge').count()
-    inactif_count = enseignants.filter(statut='inactif').count()
+    # Regroupe les comptages en un aggregate pour diminuer les appels
+    from django.db.models import Count, Q
+    cache_key = f"enseignants_export_stats_{annee_actuelle.id if annee_actuelle else 'all'}"
+    agg = cache.get(cache_key)
+    if agg is None:
+        agg = base_enseignants.aggregate(
+            total=Count('id'),
+            actifs=Count('id', filter=Q(statut='actif')),
+            conge=Count('id', filter=Q(statut='conge')),
+            inactifs=Count('id', filter=Q(statut='inactif')),
+        )
+        cache.set(cache_key, agg, 300)
+
+    total_count = agg.get('total', 0) or 0
+    actif_count = agg.get('actifs', 0) or 0
+    conge_count = agg.get('conge', 0) or 0
+    inactif_count = agg.get('inactifs', 0) or 0
 
     return render(request, 'enseignants/exporter_enseignants.html', {
         'enseignants': enseignants,
@@ -69,11 +83,24 @@ def enseignant_list(request):
     page_obj = paginator.get_page(page_number)
 
     # Statistiques
-    total_enseignants = Enseignant.objects.count()
-    enseignants_actifs = Enseignant.objects.filter(statut='actif').count()
-    enseignants_inactifs = Enseignant.objects.filter(statut='inactif').count()
-    total_hommes = Enseignant.objects.filter(sexe='M').count()
-    total_femmes = Enseignant.objects.filter(sexe='F').count()
+    # Regrouper les comptages en une seule requête (cache TTL 300s)
+    cache_key_list = 'enseignants_list_stats'
+    totals = cache.get(cache_key_list)
+    if totals is None:
+        totals = Enseignant.objects.aggregate(
+            total=Count('id'),
+            actifs=Count('id', filter=Q(statut='actif')),
+            inactifs=Count('id', filter=Q(statut='inactif')),
+            hommes=Count('id', filter=Q(sexe='M')),
+            femmes=Count('id', filter=Q(sexe='F')),
+        )
+        cache.set(cache_key_list, totals, 300)
+
+    total_enseignants = totals.get('total', 0) or 0
+    enseignants_actifs = totals.get('actifs', 0) or 0
+    enseignants_inactifs = totals.get('inactifs', 0) or 0
+    total_hommes = totals.get('hommes', 0) or 0
+    total_femmes = totals.get('femmes', 0) or 0
 
     return render(request, 'enseignants/enseignants.html', {
         'enseignants': page_obj,
