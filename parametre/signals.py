@@ -92,16 +92,16 @@ def log_enseignant_delete(sender, instance, **kwargs):
 def log_classe_save(sender, instance, created, **kwargs):
     if created:
         log_action("Classe", instance, "Création",
-                   f"Classe {instance.nom} ajoutée")
+                   f"Classe {instance.nom_classe} ajoutée")
     else:
         log_action("Classe", instance, "Modification",
-                   f"Classe {instance.nom} modifiée")
+                   f"Classe {instance.nom_classe} modifiée")
 
 
 @receiver(post_delete, sender=Classe)
 def log_classe_delete(sender, instance, **kwargs):
     log_action("Classe", instance, "Suppression",
-               f"Classe {instance.nom} supprimée")
+               f"Classe {instance.nom_classe} supprimée")
 
 
 # ------------ MATIERE ------------

@@ -140,28 +140,63 @@ def inscription_create(request):
                     ).exists():
                         messages.error(request, "Impossible d'enregistrer l'élève : cette personne est déjà enregistrée comme enseignant.")
                     else:
-                        matricule = generer_matricule()
-                        eleve = Eleve.objects.create(
-                            matricule=matricule,
-                            nom=inscription.nom,
-                            prenom=inscription.prenom,
-                            date_naissance=inscription.date_naissance,
-                            lieu_naissance=inscription.lieu_naissance,
-                            sexe=inscription.sexe,
-                            adresse=inscription.adresse,
-                            niveau=inscription.niveau,
-                            classe_actuelle=inscription.classe,
-                            statut='actif'
-                        )
-                        inscription.eleve = eleve
-                        inscription.save()
-                        HistoriqueClasses.objects.create(
-                            eleve=eleve,
-                            classe=inscription.classe,
-                            annee_scolaire=inscription.annee_scolaire
-                        )
+                        # Check existing Eleve across all objects (including archived)
+                        existing = Eleve.all_objects.filter(
+                            nom__iexact=inscription.nom.strip(),
+                            prenom__iexact=inscription.prenom.strip(),
+                            date_naissance=inscription.date_naissance
+                        ).first()
+                        if existing:
+                            # If the student already has a history for this year, abort
+                            if HistoriqueClasses.objects.filter(eleve=existing, annee_scolaire=inscription.annee_scolaire).exists():
+                                messages.error(request, "Cet élève est déjà inscrit pour cette année scolaire.")
+                                # do not proceed to create or link
+                            else:
+                                # If archived, restore status via update to avoid validations
+                                if getattr(existing, 'statut', None) == 'radié':
+                                    Eleve.all_objects.filter(pk=existing.pk).update(statut='actif')
+                                # Update classe_actuelle and other fields via update to avoid full_clean
+                                Eleve.all_objects.filter(pk=existing.pk).update(
+                                    classe_actuelle=inscription.classe,
+                                    niveau=inscription.niveau,
+                                    adresse=inscription.adresse
+                                )
+                                # Link inscription to existing eleve and create history
+                                inscription.eleve = existing
+                                inscription.statut = 'actif'
+                                inscription.save()
+                                HistoriqueClasses.objects.create(
+                                    eleve=existing,
+                                    classe=inscription.classe,
+                                    annee_scolaire=inscription.annee_scolaire
+                                )
+                        else:
+                            # Create new Eleve
+                            matricule = generer_matricule()
+                            try:
+                                eleve = Eleve.objects.create(
+                                    matricule=matricule,
+                                    nom=inscription.nom,
+                                    prenom=inscription.prenom,
+                                    date_naissance=inscription.date_naissance,
+                                    lieu_naissance=inscription.lieu_naissance,
+                                    sexe=inscription.sexe,
+                                    adresse=inscription.adresse,
+                                    niveau=inscription.niveau,
+                                    classe_actuelle=inscription.classe,
+                                    statut='actif'
+                                )
+                                inscription.eleve = eleve
+                                inscription.save()
+                                HistoriqueClasses.objects.create(
+                                    eleve=eleve,
+                                    classe=inscription.classe,
+                                    annee_scolaire=inscription.annee_scolaire
+                                )
+                            except Exception:
+                                messages.error(request, "Erreur lors de la création de l'élève. Vérifiez les doublons ou les données.")
                 except Exception:
-                    # Si gen erè, pa fè rollback men log mesaj
+                    # log or notify, but don't crash the flow
                     pass
             # Create notifications for admin and directeur so they can validate
             try:
@@ -335,29 +370,72 @@ def inscription_valider(request, pk):
         pass
 
     matricule = generer_matricule()
-    eleve = Eleve.objects.create(
-        matricule=matricule,
-        nom=inscription.nom,
-        prenom=inscription.prenom,
-        date_naissance=inscription.date_naissance,
-        lieu_naissance=inscription.lieu_naissance,
-        sexe=inscription.sexe,
-        adresse=inscription.adresse,
-        niveau=inscription.niveau,
-        classe_actuelle=klas,
-        statut='actif'
-    )
+    # Attempt to find existing Eleve (including archived)
+    existing = Eleve.all_objects.filter(
+        nom__iexact=inscription.nom.strip(),
+        prenom__iexact=inscription.prenom.strip(),
+        date_naissance=inscription.date_naissance
+    ).first()
 
-    inscription.eleve = eleve
-    inscription.statut = 'actif'
-    inscription.save()
+    if existing:
+        # If already has history for this year, block
+        if HistoriqueClasses.objects.filter(eleve=existing, annee_scolaire=inscription.annee_scolaire).exists():
+            messages.error(request, "Cet élève est déjà inscrit pour cette année scolaire.")
+            return redirect('inscriptions:inscription_list')
 
-    # Mete istorik otomatik
-    HistoriqueClasses.objects.create(
-        eleve=eleve,
-        classe=klas,
-        annee_scolaire=inscription.annee_scolaire
-    )
+        # Restore if archived
+        if existing.statut == 'radié':
+            Eleve.all_objects.filter(pk=existing.pk).update(statut='actif')
 
-    messages.success(request, f"Inscription validée ! Élève {matricule} créé.")
-    return redirect('inscriptions:inscription_list')
+        # Update class and other details via update()
+        Eleve.all_objects.filter(pk=existing.pk).update(
+            classe_actuelle=klas,
+            niveau=inscription.niveau,
+            adresse=inscription.adresse
+        )
+
+        inscription.eleve = existing
+        inscription.statut = 'actif'
+        inscription.save()
+
+        # Mete istorik otomatik
+        HistoriqueClasses.objects.create(
+            eleve=existing,
+            classe=klas,
+            annee_scolaire=inscription.annee_scolaire
+        )
+
+        messages.success(request, f"Inscription validée ! Élève lié (ID {existing.pk}) réutilisé.")
+        return redirect('inscriptions:inscription_list')
+
+    # No existing Eleve, create a new one
+    try:
+        eleve = Eleve.objects.create(
+            matricule=matricule,
+            nom=inscription.nom,
+            prenom=inscription.prenom,
+            date_naissance=inscription.date_naissance,
+            lieu_naissance=inscription.lieu_naissance,
+            sexe=inscription.sexe,
+            adresse=inscription.adresse,
+            niveau=inscription.niveau,
+            classe_actuelle=klas,
+            statut='actif'
+        )
+
+        inscription.eleve = eleve
+        inscription.statut = 'actif'
+        inscription.save()
+
+        # Mete istorik otomatik
+        HistoriqueClasses.objects.create(
+            eleve=eleve,
+            classe=klas,
+            annee_scolaire=inscription.annee_scolaire
+        )
+
+        messages.success(request, f"Inscription validée ! Élève {matricule} créé.")
+        return redirect('inscriptions:inscription_list')
+    except Exception:
+        messages.error(request, "Erreur lors de la création de l'élève. Vérifiez les doublons ou les données.")
+        return redirect('inscriptions:inscription_list')

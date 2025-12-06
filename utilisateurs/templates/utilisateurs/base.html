@@ -1054,7 +1054,7 @@
                     {% endif %}
 
                     <!-- Cours - ADMIN, DIRECTEUR -->
-                  {% if request.user.role == 'admin' or request.user.role == 'directeur' or request.user.role == 'secretaire' or request.user.role == 'archives' %}
+                  {% if request.user.role == 'admin' or request.user.role == 'directeur' or request.user.role == 'secretaire' %}
                     <li>
                         <a href="{% url 'cours:cours' %}" class="menu-item-light flex items-center gap-3 px-4 py-3 rounded-lg transition">
                             <i class="fas fa-calendar-alt text-xl menu-icon-light"></i>

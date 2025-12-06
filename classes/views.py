@@ -60,7 +60,7 @@ def classe_create(request):
         form = ClasseForm()
     return render(request, 'classes/ajouter_classes.html', {'form': form})
 
-@role_required(['admin', 'directeur', 'secretaire'])
+@role_required(['admin', 'directeur'])
 def classe_update(request, pk):
     classe = get_object_or_404(Classe, pk=pk)
     if request.method == 'POST':

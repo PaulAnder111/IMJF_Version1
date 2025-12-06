@@ -97,7 +97,7 @@
         </div>
       </div>
       <p class="text-xs text-amber-600 mt-2 font-medium">
-        <i class="fas fa-users mr-1"></i> Inscrits
+        <i class="fas fa-users mr-1"></i> Enregistrer
       </p>
     </div>
 
@@ -227,13 +227,13 @@
                 <a href="{% url 'classes:classe_list' %}?id={{ classe.id }}" class="inline-flex items-center justify-center w-9 h-9 text-gray-600 hover:text-white bg-gray-100 hover:bg-gray-600 rounded-lg transition-all duration-200 shadow-md hover:shadow-lg transform hover:scale-110" title="Voir Détails">
                   <i class="fas fa-eye"></i>
                 </a>
-                {% if request.user.role != 'archives' %}
+                {% if request.user.role == 'admin' or request.user.role == 'directeur' %}
                 <a href="{% url 'classes:modifier_classes' classe.id %}" class="inline-flex items-center justify-center w-9 h-9 text-blue-600 hover:text-white bg-blue-100 hover:bg-blue-600 rounded-lg transition-all duration-200 shadow-md hover:shadow-lg transform hover:scale-110" title="Modifier">
                   <i class="fas fa-edit"></i>
                 </a>
                 {% endif %}
                 {% if request.user.role == 'admin' or request.user.role == 'directeur' %}
-                <button onclick="confirmDelete('{{ classe.id }}', '{{ classe.nom_classe }}')" class="inline-flex items-center justify-center w-9 h-9 text-red-600 hover:text-white bg-red-100 hover:bg-red-600 rounded-lg transition-all duration-200 shadow-md hover:shadow-lg transform hover:scale-110" title="Supprimer">
+                <button onclick="confirmDelete('{% url 'classes:classe_confirm_delete' classe.id %}', '{{ classe.nom_classe }}')" class="inline-flex items-center justify-center w-9 h-9 text-red-600 hover:text-white bg-red-100 hover:bg-red-600 rounded-lg transition-all duration-200 shadow-md hover:shadow-lg transform hover:scale-110" title="Supprimer">
                   <i class="fas fa-trash"></i>
                 </button>
                 {% endif %}
@@ -310,10 +310,10 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 
 // Confirmation suppression
-function confirmDelete(id, nom) {
-    if (confirm(`Êtes-vous sûr de vouloir supprimer la classe « ${nom} » ? Cette action est irréversible.`)) {
-        window.location.href = `/classes/supprimer/${id}/`;
-    }
+function confirmDelete(url, nom) {
+  if (confirm(`Êtes-vous sûr de vouloir supprimer la classe « ${nom} » ? Cette action est irréversible.`)) {
+    window.location.href = url;
+  }
 }
 </script>
 
